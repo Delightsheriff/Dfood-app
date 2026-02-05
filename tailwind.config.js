@@ -8,6 +8,7 @@ module.exports = {
     "./App.{js,jsx,ts,tsx}",
     "./src/**/*.{js,jsx,ts,tsx}",
     "./app/**/*.{js,jsx,ts,tsx}",
+    "./components/**/*.{js,jsx,ts,tsx}",
   ],
   presets: [require("nativewind/preset")],
   theme: {
@@ -19,12 +20,12 @@ module.exports = {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#FF7622",
+          foreground: "#FFFFFF",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "#32343E",
+          foreground: "#FFFFFF",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -32,7 +33,7 @@ module.exports = {
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          foreground: "#646982",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
@@ -46,6 +47,13 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        "text-gray": "#646982",
+      },
+      fontFamily: {
+        sen: ["Sen"],
+        "sen-bold": ["Sen-Bold"],
+        "sen-medium": ["Sen-Medium"],
+        "sen-extra-bold": ["Sen-ExtraBold"],
       },
       borderRadius: {
         lg: "var(--radius)",
