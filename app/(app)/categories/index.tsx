@@ -1,4 +1,4 @@
-// app/categories.tsx
+/* eslint-disable import/no-unresolved */
 import CategoryItem from "@/components/CategoryItem";
 import { CATEGORIES } from "@/constants/mocks";
 import { useRouter } from "expo-router";
@@ -32,7 +32,12 @@ export default function AllCategories() {
             <CategoryItem
               category={item}
               isSelected={false}
-              onPress={() => router.push(`/category/${item.id}`)}
+              onPress={() =>
+                router.push({
+                  pathname: "/(app)/categories/[id]",
+                  params: { id: item.id },
+                })
+              }
             />
           </View>
         )}

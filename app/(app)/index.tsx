@@ -1,4 +1,4 @@
-// app/(tabs)/index.tsx
+/* eslint-disable import/no-unresolved */
 import { useRouter } from "expo-router";
 import { ChevronDown, Menu, ShoppingBag } from "lucide-react-native";
 import { useState } from "react";
@@ -75,7 +75,7 @@ export default function Home() {
             <Text className="text-xl font-sen-extra-bold text-secondary">
               All Categories
             </Text>
-            <TouchableOpacity onPress={() => router.push("/categories")}>
+            <TouchableOpacity onPress={() => router.push("/(app)/categories")}>
               <Text className="text-secondary font-sen text-sm">
                 See All {">"}
               </Text>
@@ -94,7 +94,7 @@ export default function Home() {
                 onPress={() => {
                   setSelectedCategory(item.id);
                   router.push({
-                    pathname: "/category/[id]",
+                    pathname: "/(app)/categories/[id]",
                     params: { id: item.id },
                   });
                 }}
@@ -110,7 +110,7 @@ export default function Home() {
             <Text className="text-xl font-sen-extra-bold text-secondary">
               Open Restaurants
             </Text>
-            <TouchableOpacity onPress={() => router.push("/restaurants")}>
+            <TouchableOpacity onPress={() => router.push("/(app)/restaurants")}>
               <Text className="text-secondary font-sen text-sm">
                 See All {">"}
               </Text>
@@ -123,7 +123,7 @@ export default function Home() {
               restaurant={restaurant}
               onPress={() =>
                 router.push({
-                  pathname: "/restaurant/[id]",
+                  pathname: "/(app)/restaurants/[id]",
                   params: { id: restaurant.id },
                 })
               }

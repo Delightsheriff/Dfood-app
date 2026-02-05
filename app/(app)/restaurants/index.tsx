@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import RestaurantCard from "@/components/RestaurantCard";
 import { RESTAURANTS } from "@/constants/mocks";
 import { useRouter } from "expo-router";
@@ -28,7 +29,12 @@ export default function AllRestaurants() {
         renderItem={({ item }) => (
           <RestaurantCard
             restaurant={item}
-            onPress={() => router.push(`/restaurant/${item.id}`)}
+            onPress={() =>
+              router.push({
+                pathname: "/(app)/restaurants/[id]",
+                params: { id: item.id },
+              })
+            }
           />
         )}
         contentContainerClassName="px-6 pt-4 pb-6"

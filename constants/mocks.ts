@@ -22,7 +22,19 @@ export interface FoodItem {
   ingredients: Ingredient[];
   sizes: string[];
   reviews: number;
+  categoryId: string;
 }
+
+// export interface FoodItem {
+//   id: string;
+//   name: string;
+//   restaurantName: string;
+//   price: number;
+//   image: string;
+//   categoryId: string;
+//   rating?: number;
+//   description?: string;
+// }
 
 export interface Restaurant {
   id: string;
@@ -106,6 +118,7 @@ export const FOOD_ITEMS: FoodItem[] = [
     ingredients: INGREDIENTS,
     sizes: ['10"', '14"', '16"'],
     reviews: 99,
+    categoryId: "3",
   },
   {
     id: "f2",
@@ -119,6 +132,7 @@ export const FOOD_ITEMS: FoodItem[] = [
     ingredients: INGREDIENTS,
     sizes: ['10"', '14"', '16"'],
     reviews: 102,
+    categoryId: "3",
   },
   {
     id: "f3",
@@ -132,6 +146,7 @@ export const FOOD_ITEMS: FoodItem[] = [
     ingredients: INGREDIENTS,
     sizes: ['10"', '14"', '16"'],
     reviews: 34,
+    categoryId: "3",
   },
   {
     id: "f4",
@@ -145,6 +160,136 @@ export const FOOD_ITEMS: FoodItem[] = [
     ingredients: INGREDIENTS,
     sizes: ['10"', '14"', '16"'],
     reviews: 10,
+    categoryId: "3",
+  },
+  {
+    id: "f5",
+    restaurantId: "r5",
+    name: "Classic Burger",
+    description: "Rose Garden",
+    price: 50,
+    image:
+      "https://img.freepik.com/free-photo/delicious-burger-with-fresh-ingredients_23-2150857908.jpg",
+    rating: 4.8,
+    ingredients: INGREDIENTS,
+    sizes: ['10"', '14"', '16"'],
+    reviews: 56,
+    categoryId: "3",
+  },
+  // Hot Dogs
+  {
+    id: "f6",
+    restaurantId: "r1",
+    name: "Classic Hot Dog",
+    description: "Traditional American hot dog with mustard and ketchup",
+    price: 25,
+    image:
+      "https://img.freepik.com/free-photo/delicious-hot-dog-with-toppings_23-2148725308.jpg",
+    rating: 4.3,
+    ingredients: [INGREDIENTS[0], INGREDIENTS[2]],
+    sizes: ["Regular", "Large"],
+    reviews: 67,
+    categoryId: "2",
+  },
+  {
+    id: "f7",
+    restaurantId: "r2",
+    name: "Chicago Style Dog",
+    description: "All-beef hot dog with classic Chicago toppings",
+    price: 35,
+    image:
+      "https://img.freepik.com/free-photo/hot-dog-with-vegetables_144627-20274.jpg",
+    rating: 4.6,
+    ingredients: [INGREDIENTS[0], INGREDIENTS[2], INGREDIENTS[4]],
+    sizes: ["Regular", "Large"],
+    reviews: 43,
+    categoryId: "2",
+  },
+  // Pizzas
+  {
+    id: "f8",
+    restaurantId: "r7",
+    name: "Margherita Pizza",
+    description: "Fresh mozzarella, tomato sauce, and basil",
+    price: 85,
+    image:
+      "https://img.freepik.com/free-photo/pizza-pizza-filled-with-tomatoes-salami-olives_140725-1200.jpg",
+    rating: 4.8,
+    ingredients: [INGREDIENTS[0], INGREDIENTS[3]],
+    sizes: ['12"', '16"', '20"'],
+    reviews: 128,
+    categoryId: "4",
+  },
+  {
+    id: "f9",
+    restaurantId: "r9",
+    name: "Pepperoni Pizza",
+    description: "Classic pepperoni with mozzarella cheese",
+    price: 95,
+    image:
+      "https://img.freepik.com/free-photo/mixed-pizza-with-various-ingridients_140725-3790.jpg",
+    rating: 4.7,
+    ingredients: [INGREDIENTS[0], INGREDIENTS[4]],
+    sizes: ['12"', '16"', '20"'],
+    reviews: 89,
+    categoryId: "4",
+  },
+  {
+    id: "f10",
+    restaurantId: "r7",
+    name: "Supreme Pizza",
+    description: "Loaded with pepperoni, sausage, peppers, and onions",
+    price: 110,
+    image:
+      "https://img.freepik.com/free-photo/top-view-pepperoni-pizza-sliced-into-six-slices_141793-2157.jpg",
+    rating: 4.9,
+    ingredients: [INGREDIENTS[0], INGREDIENTS[2], INGREDIENTS[4]],
+    sizes: ['12"', '16"', '20"'],
+    reviews: 156,
+    categoryId: "4",
+  },
+  // Drinks
+  {
+    id: "f11",
+    restaurantId: "r1",
+    name: "Fresh Orange Juice",
+    description: "Freshly squeezed orange juice",
+    price: 15,
+    image:
+      "https://img.freepik.com/free-photo/fresh-orange-juice-glass-dark-background_1150-45560.jpg",
+    rating: 4.5,
+    ingredients: [],
+    sizes: ["Small", "Medium", "Large"],
+    reviews: 45,
+    categoryId: "5",
+  },
+  {
+    id: "f12",
+    restaurantId: "r2",
+    name: "Iced Coffee",
+    description: "Cold brew coffee with ice",
+    price: 20,
+    image:
+      "https://img.freepik.com/free-photo/iced-coffee-glass_1150-28947.jpg",
+    rating: 4.4,
+    ingredients: [],
+    sizes: ["Small", "Medium", "Large"],
+    reviews: 78,
+    categoryId: "5",
+  },
+  {
+    id: "f13",
+    restaurantId: "r9",
+    name: "Strawberry Smoothie",
+    description: "Fresh strawberry smoothie with yogurt",
+    price: 25,
+    image:
+      "https://img.freepik.com/free-photo/strawberry-smoothie-glass_144627-18149.jpg",
+    rating: 4.6,
+    ingredients: [],
+    sizes: ["Small", "Medium", "Large"],
+    reviews: 92,
+    categoryId: "5",
   },
 ];
 
