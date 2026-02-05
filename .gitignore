@@ -41,3 +41,21 @@ app-example
 # generated native folders
 /ios
 /android
+
+# AI Agents
+.agents/
+agents/
+.ai/
+ai-cache/
+.copilot/
+.cursor/
+.continue/
+.aider/
+.gpt-pilot/
+.openai/
+.anthropic/
+.claude/
+.assistant/
+.gemini/
+.github
+.agent

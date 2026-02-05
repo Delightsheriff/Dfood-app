@@ -1,24 +1,46 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+  Sen_400Regular,
+  Sen_700Bold,
+  Sen_800ExtraBold,
+  useFonts,
+} from "@expo-google-fonts/sen";
+import { PortalHost } from "@rn-primitives/portal";
+import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import "react-native-reanimated";
+import CustomSplashScreen from "../components/SplashScreen";
+import "../global.css";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const [showCustomSplash, setShowCustomSplash] = useState(true);
+
+  let [fontsLoaded] = useFonts({
+    Sen_400Regular,
+    Sen_700Bold,
+    Sen_800ExtraBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded || showCustomSplash) {
+    return <CustomSplashScreen onFinish={() => setShowCustomSplash(false)} />;
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
       </Stack>
       <StatusBar style="auto" />
-    </ThemeProvider>
+      <PortalHost />
+    </>
   );
 }
