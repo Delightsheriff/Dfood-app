@@ -23,7 +23,7 @@ export default function CategoryItem({
       onPress={onPress}
       activeOpacity={0.7}
       className={`flex-row items-center rounded-full px-1 py-1 pr-5 mr-3 ${
-        isSelected ? "bg-primary shadow-md" : "bg-white border border-[#EDEDED]"
+        isSelected ? "bg-primary shadow-sm" : "bg-white border border-[#EDEDED]"
       }`}
       style={{ height: 48 }}
     >

@@ -24,7 +24,7 @@ export default function RestaurantCard({
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="bg-white rounded-2xl mb-4 overflow-hidden"
+      className="bg-white rounded-2xl mb-4 overflow-hidden shadow-md border border-[#EDEDED]"
       style={{
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
