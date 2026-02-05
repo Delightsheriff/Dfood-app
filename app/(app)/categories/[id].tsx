@@ -72,7 +72,7 @@ export default function CategoryDetails() {
                       restaurantName={restaurant?.name || "Unknown Restaurant"}
                       onPress={() =>
                         router.push({
-                          pathname: "../(app)/food/[id]",
+                          pathname: "/(app)/food/[id]",
                           params: { id: food.id },
                         })
                       }
