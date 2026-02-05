@@ -60,7 +60,7 @@ export default function Onboarding() {
   const handleComplete = async () => {
     try {
       await completeOnboarding();
-      // Navigation is handled by RootLayout based on auth state
+      router.replace("/signin");
     } catch (error) {
       console.error("Failed to save onboarding status:", error);
     }

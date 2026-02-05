@@ -48,6 +48,7 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         "text-gray": "#646982",
+        "text-gray-dark": "#32343E",
       },
       fontFamily: {
         sen: ["Sen"],

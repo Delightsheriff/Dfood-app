@@ -17,7 +17,7 @@ export default function OnboardingItem({ item }: OnboardingItemProps) {
     <View style={{ width }} className="items-center">
       <View className="flex-1 justify-center items-center w-full pt-10">
         <View
-          className="bg-[#98A8B8] rounded-[30px] overflow-hidden"
+          className="bg-transparent rounded-[30px] overflow-hidden"
           style={{ width: width * 0.8, height: width * 0.8 }}
         >
           <Image

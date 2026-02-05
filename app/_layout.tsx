@@ -1,10 +1,10 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import {
-    Sen_400Regular,
-    Sen_500Medium,
-    Sen_700Bold,
-    Sen_800ExtraBold,
-    useFonts,
+  Sen_400Regular,
+  Sen_500Medium,
+  Sen_700Bold,
+  Sen_800ExtraBold,
+  useFonts,
 } from "@expo-google-fonts/sen";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
@@ -58,9 +58,9 @@ function RootNavigator() {
     if (!hasCompletedOnboarding && !inOnboardingGroup) {
       router.replace("/onboarding");
     } else if (hasCompletedOnboarding && inOnboardingGroup) {
-      router.replace("/(app)");
+      router.replace("/(auth)/signin");
     }
-  }, [isLoading, hasCompletedOnboarding, segments]);
+  }, [isLoading, hasCompletedOnboarding, segments, router]);
 
   if (isLoading || !isSplashFinished) {
     return <CustomSplashScreen onFinish={() => setIsSplashFinished(true)} />;
@@ -70,6 +70,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(app)" />
+      <Stack.Screen name="(auth)" />
     </Stack>
   );
 }
