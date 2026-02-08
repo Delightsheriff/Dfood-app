@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { QueryProvider } from "@/providers/QueryProvider";
 import {
   Sen_400Regular,
   Sen_500Medium,
@@ -36,32 +37,51 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootNavigator />
-      <StatusBar style="auto" />
-      <PortalHost />
-    </AuthProvider>
+    <QueryProvider>
+      <AuthProvider>
+        <RootNavigator />
+        <StatusBar style="auto" />
+        <PortalHost />
+      </AuthProvider>
+    </QueryProvider>
   );
 }
 
 function RootNavigator() {
-  const { hasCompletedOnboarding, isLoading } = useAuth();
+  const { hasCompletedOnboarding, isAuthenticated, isLoading } = useAuth();
   const [isSplashFinished, setIsSplashFinished] = useState(false);
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
-    if (isLoading) return;
+    // Wait for auth loading and splash to finish
+    if (isLoading || !isSplashFinished) return;
 
-    const inOnboardingGroup = segments[0] === "onboarding";
+    const inOnboarding = segments[0] === "onboarding";
+    const inAuth = segments[0] === "(auth)";
+    const inApp = segments[0] === "(app)";
 
-    if (!hasCompletedOnboarding && !inOnboardingGroup) {
+    // Route protection logic
+    if (!hasCompletedOnboarding && !inOnboarding) {
+      // Show onboarding first
       router.replace("/onboarding");
-    } else if (hasCompletedOnboarding && inOnboardingGroup) {
+    } else if (hasCompletedOnboarding && !isAuthenticated && !inAuth) {
+      // Completed onboarding but not authenticated → show signin
       router.replace("/(auth)/signin");
+    } else if (isAuthenticated && !inApp) {
+      // Authenticated → show app
+      router.replace("/(app)");
     }
-  }, [isLoading, hasCompletedOnboarding, segments, router]);
+  }, [
+    isLoading,
+    hasCompletedOnboarding,
+    isAuthenticated,
+    isSplashFinished,
+    segments,
+    router,
+  ]);
 
+  // Show splash screen while loading
   if (isLoading || !isSplashFinished) {
     return <CustomSplashScreen onFinish={() => setIsSplashFinished(true)} />;
   }
