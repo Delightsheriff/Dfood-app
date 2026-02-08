@@ -11,7 +11,7 @@ import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "react-native-reanimated";
 import CustomSplashScreen from "../components/SplashScreen";
 import "../global.css";
@@ -49,41 +49,43 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { hasCompletedOnboarding, isAuthenticated, isLoading } = useAuth();
-  const [isSplashFinished, setIsSplashFinished] = useState(false);
+  const [showContent, setShowContent] = useState(false);
   const segments = useSegments();
   const router = useRouter();
+  const hasNavigated = useRef(false);
 
+  // Handle initial navigation once
   useEffect(() => {
-    // Wait for auth loading and splash to finish
-    if (isLoading || !isSplashFinished) return;
+    if (isLoading || hasNavigated.current) return;
 
     const inOnboarding = segments[0] === "onboarding";
     const inAuth = segments[0] === "(auth)";
     const inApp = segments[0] === "(app)";
 
-    // Route protection logic
-    if (!hasCompletedOnboarding && !inOnboarding) {
-      // Show onboarding first
-      router.replace("/onboarding");
-    } else if (hasCompletedOnboarding && !isAuthenticated && !inAuth) {
-      // Completed onboarding but not authenticated → show signin
-      router.replace("/(auth)/signin");
-    } else if (isAuthenticated && !inApp) {
-      // Authenticated → show app
-      router.replace("/(app)");
-    }
-  }, [
-    isLoading,
-    hasCompletedOnboarding,
-    isAuthenticated,
-    isSplashFinished,
-    segments,
-    router,
-  ]);
+    // Determine correct route
+    let targetRoute: string | null = null;
 
-  // Show splash screen while loading
-  if (isLoading || !isSplashFinished) {
-    return <CustomSplashScreen onFinish={() => setIsSplashFinished(true)} />;
+    if (!hasCompletedOnboarding && !inOnboarding) {
+      targetRoute = "/onboarding";
+    } else if (hasCompletedOnboarding && !isAuthenticated && !inAuth) {
+      targetRoute = "/(auth)/signin";
+    } else if (isAuthenticated && !inApp) {
+      targetRoute = "/(app)";
+    }
+
+    // Navigate if needed
+    if (targetRoute) {
+      hasNavigated.current = true;
+      router.replace(targetRoute as any);
+    }
+
+    // Show content after navigation decision
+    setShowContent(true);
+  }, [isLoading, hasCompletedOnboarding, isAuthenticated, segments, router]);
+
+  // Show splash until ready
+  if (isLoading || !showContent) {
+    return <CustomSplashScreen onFinish={() => {}} />;
   }
 
   return (
