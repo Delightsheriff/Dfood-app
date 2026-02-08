@@ -1,11 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useForgotPassword } from "@/hooks/useAuthMutations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import { z } from "zod";
 import AuthLayout from "../../components/layout/AuthLayout";
 
@@ -17,7 +18,7 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export default function ForgotPassword() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const forgotPasswordMutation = useForgotPassword();
 
   const {
     control,
@@ -31,20 +32,20 @@ export default function ForgotPassword() {
   });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    console.log("Forgot Password request:", data);
-    setLoading(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.push({
-        pathname: "/(auth)/verification",
-        params: { email: data.email },
-      });
-    } catch (error) {
-      console.error("Forgot password error:", error);
-    } finally {
-      setLoading(false);
-    }
+    forgotPasswordMutation.mutate(data, {
+      onSuccess: () => {
+        router.push({
+          pathname: "/(auth)/verification",
+          params: { email: data.email },
+        });
+      },
+      onError: (error: any) => {
+        const message =
+          error.response?.data?.message ||
+          "Failed to send code. Please try again.";
+        Alert.alert("Error", message);
+      },
+    });
   };
 
   return (
@@ -77,6 +78,7 @@ export default function ForgotPassword() {
                 onBlur={onBlur}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!forgotPasswordMutation.isPending}
                 aria-labelledby="email"
                 className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.email ? "border border-red-500" : ""}`}
               />
@@ -91,10 +93,10 @@ export default function ForgotPassword() {
 
         <Button
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}
+          disabled={forgotPasswordMutation.isPending}
           className="h-[62px] bg-primary"
         >
-          {loading ? (
+          {forgotPasswordMutation.isPending ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
