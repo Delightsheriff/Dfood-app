@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSignIn } from "@/hooks/useAuthMutations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
@@ -8,6 +9,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -15,20 +17,18 @@ import {
 } from "react-native";
 import { z } from "zod";
 import AuthLayout from "../../components/layout/AuthLayout";
-// import SocialButton from "../../components/ui/SocialButton";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export default function Login() {
+export default function SignIn() {
   const router = useRouter();
-  const [rememberMe, setRememberMe] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const signInMutation = useSignIn();
 
   const {
     control,
@@ -43,22 +43,14 @@ export default function Login() {
   });
 
   const onSubmit = async (data: LoginFormData) => {
-    console.log("Login form submitted:", data);
-    setLoading(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.replace("/(app)");
-    } catch (error) {
-      console.error("Login error:", error);
-    } finally {
-      setLoading(false);
-    }
+    signInMutation.mutate(data, {
+      onError: (error: any) => {
+        const message =
+          error.response?.data?.message || "Sign in failed. Please try again.";
+        Alert.alert("Sign In Error", message);
+      },
+    });
   };
-
-  // const handleSocialLogin = (provider: string) => {
-  //   console.log(`${provider} login initiated`);
-  // };
 
   return (
     <AuthLayout
@@ -86,8 +78,9 @@ export default function Login() {
                 onBlur={onBlur}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!signInMutation.isPending}
                 aria-labelledby="email"
-                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark  ${errors.email ? "border border-red-500" : "border-0"}`}
+                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark ${errors.email ? "border border-red-500" : "border-0"}`}
               />
             )}
           />
@@ -117,6 +110,7 @@ export default function Login() {
                   onChangeText={onChange}
                   onBlur={onBlur}
                   secureTextEntry={!showPassword}
+                  editable={!signInMutation.isPending}
                   aria-labelledby="password"
                   className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark ${errors.password ? "border border-red-500" : "border-0"}`}
                 />
@@ -124,6 +118,7 @@ export default function Login() {
                   onPress={() => setShowPassword(!showPassword)}
                   className="absolute right-5 top-0 h-[62px] justify-center"
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  disabled={signInMutation.isPending}
                 >
                   {showPassword ? (
                     <EyeOff size={20} color="#A0A5BA" />
@@ -141,27 +136,10 @@ export default function Login() {
           )}
         </View>
 
-        <View className="flex-row justify-between items-center mb-8">
-          <TouchableOpacity
-            onPress={() => setRememberMe(!rememberMe)}
-            className="flex-row items-center"
-          >
-            <View
-              className={`w-5 h-5 border rounded-[5px] mr-2 justify-center items-center ${
-                rememberMe ? "bg-primary border-primary" : "border-[#E3EBF2]"
-              }`}
-            >
-              {rememberMe && (
-                <View className="w-2.5 h-2.5 bg-white rounded-[2px]" />
-              )}
-            </View>
-            <Text className="text-[#7E8A97] text-[13px] font-sen">
-              Remember me
-            </Text>
-          </TouchableOpacity>
-
+        <View className="flex-row justify-end items-center mb-8">
           <TouchableOpacity
             onPress={() => router.push("/(auth)/forgot-password")}
+            disabled={signInMutation.isPending}
           >
             <Text className="text-primary text-[14px] font-sen">
               Forgot Password
@@ -171,10 +149,10 @@ export default function Login() {
 
         <Button
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}
+          disabled={signInMutation.isPending}
           className="h-[62px] bg-primary"
         >
-          {loading ? (
+          {signInMutation.isPending ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
@@ -187,27 +165,13 @@ export default function Login() {
           <Text className="text-[#646982] font-sen mr-1">
             Don&apos;t have an account?
           </Text>
-          <TouchableOpacity onPress={() => router.push("/(auth)/signup")}>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/signup")}
+            disabled={signInMutation.isPending}
+          >
             <Text className="text-primary font-sen-bold">SIGN UP</Text>
           </TouchableOpacity>
         </View>
-
-        <Text className="text-center text-[#646982] font-sen mb-6">Or</Text>
-
-        {/* <View className="flex-row justify-center space-x-6 mb-8">
-          <SocialButton
-            provider="google"
-            onPress={() => handleSocialLogin("Google")}
-          />
-          <SocialButton
-            provider="facebook"
-            onPress={() => handleSocialLogin("Facebook")}
-          />
-          <SocialButton
-            provider="apple"
-            onPress={() => handleSocialLogin("Apple")}
-          />
-        </View> */}
       </ScrollView>
     </AuthLayout>
   );

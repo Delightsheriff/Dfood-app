@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSignUp } from "@/hooks/useAuthMutations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
@@ -8,6 +9,7 @@ import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
+  Alert,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -15,27 +17,19 @@ import {
 } from "react-native";
 import { z } from "zod";
 import AuthLayout from "../../components/layout/AuthLayout";
-// import SocialButton from "../../components/ui/SocialButton";
 
-const signupSchema = z
-  .object({
-    name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Invalid email address"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    retypePassword: z.string(),
-  })
-  .refine((data) => data.password === data.retypePassword, {
-    message: "Passwords don't match",
-    path: ["retypePassword"],
-  });
+const signupSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 type SignUpFormData = z.infer<typeof signupSchema>;
 
 export default function SignUp() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showRetypePassword, setShowRetypePassword] = useState(false);
+  const signUpMutation = useSignUp();
 
   const {
     control,
@@ -47,25 +41,23 @@ export default function SignUp() {
       name: "",
       email: "",
       password: "",
-      retypePassword: "",
     },
   });
 
   const onSubmit = async (data: SignUpFormData) => {
-    console.log("Signup form submitted:", data);
-    setLoading(true);
+    signUpMutation.mutate(data, {
+      onError: (error: any) => {
+        const message =
+          error.response?.data?.message || "Sign up failed. Please try again.";
+        const errors = error.response?.data?.errors;
 
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.push({
-        pathname: "/(auth)/verification",
-        params: { email: data.email },
-      });
-    } catch (error) {
-      console.error("Signup error:", error);
-    } finally {
-      setLoading(false);
-    }
+        if (errors && errors.length > 0) {
+          Alert.alert("Validation Error", errors.join("\n"));
+        } else {
+          Alert.alert("Sign Up Failed", message);
+        }
+      },
+    });
   };
 
   return (
@@ -178,55 +170,12 @@ export default function SignUp() {
           )}
         </View>
 
-        <View className="mb-6">
-          <Label
-            nativeID="retypePassword"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
-          >
-            RE-TYPE PASSWORD
-          </Label>
-          <Controller
-            control={control}
-            name="retypePassword"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View className="relative">
-                <Input
-                  placeholder="* * * * * * * * * *"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  secureTextEntry={!showRetypePassword}
-                  aria-labelledby="retypePassword"
-                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.retypePassword ? "border border-red-500" : ""}`}
-                  placeholderTextColor="#B4B9CA"
-                />
-                <TouchableOpacity
-                  onPress={() => setShowRetypePassword(!showRetypePassword)}
-                  className="absolute right-5 top-0 h-[62px] justify-center"
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  {showRetypePassword ? (
-                    <EyeOff size={20} color="#A0A5BA" />
-                  ) : (
-                    <Eye size={20} color="#A0A5BA" />
-                  )}
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-          {errors.retypePassword && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-              {errors.retypePassword.message}
-            </Text>
-          )}
-        </View>
-
         <Button
           onPress={handleSubmit(onSubmit)}
-          disabled={loading}
+          disabled={signUpMutation.isPending}
           className="h-[62px] bg-primary mt-4"
         >
-          {loading ? (
+          {signUpMutation.isPending ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
             <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
@@ -237,20 +186,7 @@ export default function SignUp() {
 
         <Text className="text-center text-[#646982] font-sen my-6">Or</Text>
 
-        {/* <View className="flex-row justify-center space-x-6 mb-6">
-          <SocialButton
-            provider="google"
-            onPress={() => handleSocialSignup("Google")}
-          />
-          <SocialButton
-            provider="facebook"
-            onPress={() => handleSocialSignup("Facebook")}
-          />
-          <SocialButton
-            provider="apple"
-            onPress={() => handleSocialSignup("Apple")}
-          />
-        </View> */}
+        {/* Social login buttons - implement later */}
 
         <View className="flex-row items-center justify-center mb-8">
           <Text className="text-[#646982] font-sen mr-1">
