@@ -60,9 +60,9 @@ export default function Onboarding() {
   const handleComplete = async () => {
     try {
       await completeOnboarding();
-      router.replace("/signin");
+      router.replace("/(auth)/signin");
     } catch (error) {
-      console.error("Failed to save onboarding status:", error);
+      console.error("Failed to complete onboarding:", error);
     }
   };
 
