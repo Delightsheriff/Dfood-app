@@ -1,9 +1,10 @@
-// app/(auth)/verification.tsx
 import { Button } from "@/components/ui/button";
+import { useForgotPassword, useVerifyOTP } from "@/hooks/useAuthMutations";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Text,
   TextInput,
   TouchableOpacity,
@@ -16,11 +17,13 @@ export default function Verification() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(50);
-  const [loading, setLoading] = useState(false);
   const inputs = useRef<(TextInput | null)[]>([]);
 
+  const verifyOTPMutation = useVerifyOTP();
+  const resendMutation = useForgotPassword();
+
   useEffect(() => {
-    let interval: number;
+    let interval: NodeJS.Timeout;
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
@@ -46,29 +49,53 @@ export default function Verification() {
   };
 
   const handleVerify = async () => {
-    const verificationCode = code.join("");
-    console.log("Verifying code:", verificationCode);
+    const otp = code.join("");
 
-    if (verificationCode.length !== 4) {
+    if (otp.length !== 4) {
+      Alert.alert("Invalid Code", "Please enter the complete 4-digit code");
       return;
     }
 
-    setLoading(true);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      router.replace("/(app)");
-    } catch (error) {
-      console.error("Verification error:", error);
-    } finally {
-      setLoading(false);
-    }
+    verifyOTPMutation.mutate(
+      { email: email || "", otp },
+      {
+        onSuccess: (response) => {
+          // Navigate to reset password with resetToken
+          router.push({
+            pathname: "/(auth)/reset-password",
+            params: { resetToken: response.data.resetToken },
+          });
+        },
+        onError: (error: any) => {
+          const message =
+            error.response?.data?.message ||
+            "Invalid or expired code. Please try again.";
+          Alert.alert("Verification Failed", message);
+          // Clear code on error
+          setCode(["", "", "", ""]);
+          inputs.current[0]?.focus();
+        },
+      },
+    );
   };
 
   const handleResend = async () => {
-    if (timer > 0) return;
-    console.log("Resending code to:", email);
-    setTimer(50);
+    if (timer > 0 || !email) return;
+
+    resendMutation.mutate(
+      { email },
+      {
+        onSuccess: () => {
+          setTimer(50);
+          Alert.alert("Code Sent", "A new verification code has been sent");
+        },
+        onError: (error: any) => {
+          const message =
+            error.response?.data?.message || "Failed to resend code";
+          Alert.alert("Error", message);
+        },
+      },
+    );
   };
 
   const isCodeComplete = code.every((digit) => digit !== "");
@@ -104,6 +131,7 @@ export default function Verification() {
               onChangeText={(text) => handleCodeChange(text, i)}
               onKeyPress={(e) => handleKeyPress(e, i)}
               selectTextOnFocus
+              editable={!verifyOTPMutation.isPending}
             />
           </View>
         ))}
@@ -114,10 +142,15 @@ export default function Verification() {
           I didn&apos;t receive a code?
         </Text>
         <View className="flex-row items-center">
-          <TouchableOpacity onPress={handleResend} disabled={timer > 0}>
+          <TouchableOpacity
+            onPress={handleResend}
+            disabled={timer > 0 || resendMutation.isPending}
+          >
             <Text
               className={`font-sen-bold text-[14px] ${
-                timer > 0 ? "text-[#A0A5BA]" : "text-primary underline"
+                timer > 0 || resendMutation.isPending
+                  ? "text-[#A0A5BA]"
+                  : "text-primary underline"
               }`}
             >
               Resend Code
@@ -133,10 +166,10 @@ export default function Verification() {
 
       <Button
         onPress={handleVerify}
-        disabled={!isCodeComplete || loading}
+        disabled={!isCodeComplete || verifyOTPMutation.isPending}
         className="h-[62px] bg-primary"
       >
-        {loading ? (
+        {verifyOTPMutation.isPending ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
           <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
