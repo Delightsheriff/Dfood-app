@@ -3,7 +3,6 @@ import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
 import { Category } from "@/types/api";
 import { useRouter } from "expo-router";
 import { Menu, ShoppingBag } from "lucide-react-native";
-import { useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -22,7 +21,6 @@ import SearchBar from "@/components/SearchBar";
 export default function Home() {
   const router = useRouter();
   const { user } = useAuth();
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   // Data fetching
   const {
@@ -49,7 +47,7 @@ export default function Home() {
   const allCategory: Category = {
     _id: "all",
     name: "All",
-    imageUrl: "https://cdn-icons-png.flaticon.com/512/3603/3603408.png", // Generic "all" icon
+    image: "https://cdn-icons-png.flaticon.com/512/706/706997.png", // Generic "all" icon
     createdAt: "",
     updatedAt: "",
   };
@@ -136,9 +134,7 @@ export default function Home() {
             renderItem={({ item }) => (
               <CategoryItem
                 category={item}
-                isSelected={selectedCategory === item._id}
                 onPress={() => {
-                  setSelectedCategory(item._id);
                   if (item._id !== "all") {
                     router.push({
                       pathname: "/(app)/categories/[id]",

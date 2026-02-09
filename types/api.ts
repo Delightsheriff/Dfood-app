@@ -1,7 +1,7 @@
 export type Category = {
   _id: string;
   name: string;
-  imageUrl: string;
+  image: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -15,7 +15,7 @@ export type Restaurant = {
   openingTime: string;
   closingTime: string;
   isOpen: boolean;
-  imageUrls: string[];
+  images: string[];
   owner: string;
   createdAt: string;
   updatedAt: string;
@@ -26,7 +26,7 @@ export type FoodItem = {
   name: string;
   description: string;
   price: number;
-  imageUrls: string[];
+  images: string[];
   calories?: number;
   restaurant: string;
   categories: string[];

@@ -9,21 +9,21 @@ import { AxiosResponse } from "axios";
 export const dataService = {
   /**
    * Get all categories
-   * GET /api/categories
+   * GET    /categories
    */
   async getCategories(): Promise<CategoriesResponse> {
     const response: AxiosResponse<CategoriesResponse> =
-      await apiClient.get("/api/categories");
+      await apiClient.get("/categories");
     return response.data;
   },
 
   /**
    * Get all restaurants
-   * GET /api/restaurants?isOpen=true
+   * GET /restaurants?isOpen=true
    */
   async getRestaurants(isOpen?: boolean): Promise<RestaurantsResponse> {
     const response: AxiosResponse<RestaurantsResponse> = await apiClient.get(
-      "/api/restaurants",
+      "/restaurants",
       {
         params: isOpen !== undefined ? { isOpen } : undefined,
       },
@@ -33,11 +33,11 @@ export const dataService = {
 
   /**
    * Get food items by category
-   * GET /api/food-items/category/:categoryId
+   * GET /food-items/category/:categoryId
    */
   async getFoodItemsByCategory(categoryId: string): Promise<FoodItemsResponse> {
     const response: AxiosResponse<FoodItemsResponse> = await apiClient.get(
-      `/api/food-items/category/${categoryId}`,
+      `/food-items/category/${categoryId}`,
     );
     return response.data;
   },

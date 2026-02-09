@@ -1,6 +1,7 @@
 import { Restaurant } from "@/types/api";
+import { Image } from "expo-image";
 import { Clock, Star } from "lucide-react-native";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -28,9 +29,10 @@ export default function RestaurantCard({
       }}
     >
       <Image
-        source={{ uri: restaurant.imageUrls[0] }}
+        source={{ uri: restaurant.images[0] }}
         className="w-full h-44"
-        resizeMode="cover"
+        contentFit="cover"
+        transition={200}
       />
 
       {!isCurrentlyOpen && (
