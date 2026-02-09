@@ -1,15 +1,6 @@
-// components/ui/RestaurantCard.tsx
-import { Clock, Star, Truck } from "lucide-react-native";
+import { Restaurant } from "@/types/api";
+import { Clock, Star } from "lucide-react-native";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-
-interface Restaurant {
-  id: string;
-  name: string;
-  image: string;
-  tags: string[];
-  rating: number;
-  deliveryTime: string;
-}
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -20,6 +11,9 @@ export default function RestaurantCard({
   restaurant,
   onPress,
 }: RestaurantCardProps) {
+  // Calculate if currently open
+  const isCurrentlyOpen = restaurant.isOpen;
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -34,10 +28,16 @@ export default function RestaurantCard({
       }}
     >
       <Image
-        source={{ uri: restaurant.image }}
+        source={{ uri: restaurant.imageUrls[0] }}
         className="w-full h-44"
         resizeMode="cover"
       />
+
+      {!isCurrentlyOpen && (
+        <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/40 items-center justify-center">
+          <Text className="text-white font-sen-bold text-lg">CLOSED</Text>
+        </View>
+      )}
 
       <View className="p-4">
         <Text
@@ -46,30 +46,34 @@ export default function RestaurantCard({
         >
           {restaurant.name}
         </Text>
-        <Text
-          className="text-text-gray font-sen text-xs mb-3"
-          numberOfLines={1}
-        >
-          {restaurant.tags.join(" - ")}
-        </Text>
+
+        {restaurant.description && (
+          <Text
+            className="text-text-gray font-sen text-xs mb-3"
+            numberOfLines={2}
+          >
+            {restaurant.description}
+          </Text>
+        )}
 
         <View className="flex-row items-center">
           <View className="flex-row items-center mr-6">
             <Star color="#FF7622" size={18} fill="#FF7622" />
             <Text className="ml-1.5 font-sen-bold text-secondary text-sm">
-              {restaurant.rating}
+              4.5
             </Text>
           </View>
 
           <View className="flex-row items-center mr-6">
-            <Truck color="#FF7622" size={18} />
-            <Text className="ml-1.5 font-sen text-secondary text-xs">Free</Text>
+            <Text className="ml-1.5 font-sen text-secondary text-xs">
+              ₦{restaurant.deliveryFee === 0 ? "Free" : restaurant.deliveryFee}
+            </Text>
           </View>
 
           <View className="flex-row items-center">
             <Clock color="#FF7622" size={18} />
             <Text className="ml-1.5 font-sen text-secondary text-xs">
-              {restaurant.deliveryTime}
+              {restaurant.openingTime} - {restaurant.closingTime}
             </Text>
           </View>
         </View>

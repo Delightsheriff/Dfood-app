@@ -1,14 +1,8 @@
-// components/ui/CategoryItem.tsx
+import { Category } from "@/types/api";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
-interface Category {
-  id: string;
-  name: string;
-  image: string;
-}
-
 interface CategoryItemProps {
-  category: Category;
+  category: Category | { _id: string; name: string; imageUrl: string };
   isSelected: boolean;
   onPress: () => void;
 }
@@ -29,7 +23,7 @@ export default function CategoryItem({
     >
       <View className="w-10 h-10 bg-white rounded-full items-center justify-center mr-2 shadow-sm">
         <Image
-          source={{ uri: category.image }}
+          source={{ uri: category.imageUrl }}
           style={{ width: 28, height: 28 }}
           resizeMode="contain"
         />
