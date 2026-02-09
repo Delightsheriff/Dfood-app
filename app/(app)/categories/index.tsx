@@ -1,13 +1,21 @@
-/* eslint-disable import/no-unresolved */
 import CategoryItem from "@/components/CategoryItem";
-import { CATEGORIES } from "@/constants/mocks";
+import { useCategories } from "@/hooks/useDataQueries";
 import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AllCategories() {
   const router = useRouter();
+  const { data: categoriesData, isLoading } = useCategories();
+
+  const categories = categoriesData?.data.categories || [];
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
@@ -23,28 +31,43 @@ export default function AllCategories() {
         </Text>
       </View>
 
-      <FlatList
-        data={CATEGORIES}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        renderItem={({ item }) => (
-          <View className="flex-1 max-w-[50%] p-2">
-            <CategoryItem
-              category={item}
-              isSelected={false}
-              onPress={() =>
-                router.push({
-                  pathname: "/(app)/categories/[id]",
-                  params: { id: item.id },
-                })
-              }
-            />
-          </View>
-        )}
-        contentContainerClassName="px-4 pt-4 pb-6"
-        showsVerticalScrollIndicator={false}
-        columnWrapperClassName="gap-0"
-      />
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FF7622" />
+        </View>
+      ) : categories.length === 0 ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-text-gray font-sen text-base text-center">
+            No categories available
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          renderItem={({ item }) => (
+            <View className="flex-1 max-w-[50%] p-2">
+              <CategoryItem
+                category={item}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/categories/[id]",
+                    params: { id: item._id },
+                  })
+                }
+              />
+            </View>
+          )}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 16,
+            paddingBottom: 24,
+          }}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{ gap: 0 }}
+        />
+      )}
     </SafeAreaView>
   );
 }
