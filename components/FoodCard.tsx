@@ -30,6 +30,7 @@ export default function FoodCard({
       <Image
         source={{ uri: food.images[0] }}
         className="w-full h-32"
+        style={{ width: "100%", height: 128 }}
         contentFit="cover"
         transition={200}
       />

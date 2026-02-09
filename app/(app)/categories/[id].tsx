@@ -10,7 +10,6 @@ export default function CategoryDetails() {
   const router = useRouter();
 
   const { data: foodItemsData, isLoading, error } = useFoodItemsByCategory(id);
-  console.log("Food items data:", foodItemsData);
 
   const foodItems = foodItemsData?.data.foodItems || [];
 
