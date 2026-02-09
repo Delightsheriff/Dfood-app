@@ -1,13 +1,7 @@
+import { FoodItem } from "@/types/api";
+import { Image } from "expo-image";
 import { Plus } from "lucide-react-native";
-import { Image, Text, TouchableOpacity, View } from "react-native";
-
-interface FoodItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  categoryId: string;
-}
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface FoodCardProps {
   food: FoodItem;
@@ -34,9 +28,10 @@ export default function FoodCard({
       }}
     >
       <Image
-        source={{ uri: food.image }}
+        source={{ uri: food.images[0] }}
         className="w-full h-32"
-        resizeMode="cover"
+        contentFit="cover"
+        transition={200}
       />
 
       <View className="p-3">
@@ -46,16 +41,18 @@ export default function FoodCard({
         >
           {food.name}
         </Text>
-        <Text
-          className="text-xs text-text-gray font-sen mb-3"
-          numberOfLines={1}
-        >
-          {restaurantName}
-        </Text>
+        {restaurantName && (
+          <Text
+            className="text-xs text-text-gray font-sen mb-3"
+            numberOfLines={1}
+          >
+            {restaurantName}
+          </Text>
+        )}
 
         <View className="flex-row items-center justify-between">
           <Text className="text-lg font-sen-bold text-secondary">
-            ${food.price}
+            ₦{food.price.toLocaleString()}
           </Text>
 
           <TouchableOpacity
