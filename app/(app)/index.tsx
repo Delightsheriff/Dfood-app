@@ -1,9 +1,13 @@
-/* eslint-disable import/no-unresolved */
+import { useAuth } from "@/contexts/AuthContext";
+import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
+import { Category } from "@/types/api";
 import { useRouter } from "expo-router";
-import { ChevronDown, Menu, ShoppingBag } from "lucide-react-native";
+import { Menu, ShoppingBag } from "lucide-react-native";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -14,39 +18,78 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CategoryItem from "@/components/CategoryItem";
 import RestaurantCard from "@/components/RestaurantCard";
 import SearchBar from "@/components/SearchBar";
-import { CATEGORIES, RESTAURANTS } from "@/constants/mocks";
 
 export default function Home() {
   const router = useRouter();
-  const [selectedCategory, setSelectedCategory] = useState("1");
+  const { user } = useAuth();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+
+  // Data fetching
+  const {
+    data: categoriesData,
+    isLoading: categoriesLoading,
+    refetch: refetchCategories,
+  } = useCategories();
+  const {
+    data: restaurantsData,
+    isLoading: restaurantsLoading,
+    refetch: refetchRestaurants,
+  } = useRestaurants(true); // Only fetch open restaurants
+
+  // Combine loading states
+  const isLoading = categoriesLoading || restaurantsLoading;
+  const isRefreshing = false; // Track manual refresh
+
+  // Handle pull-to-refresh
+  const handleRefresh = async () => {
+    await Promise.all([refetchCategories(), refetchRestaurants()]);
+  };
+
+  // Prepend "All" category
+  const allCategory: Category = {
+    _id: "all",
+    name: "All",
+    imageUrl: "https://cdn-icons-png.flaticon.com/512/3603/3603408.png", // Generic "all" icon
+    createdAt: "",
+    updatedAt: "",
+  };
+
+  const categories = categoriesData?.data.categories
+    ? [allCategory, ...categoriesData.data.categories]
+    : [allCategory];
+
+  const restaurants = restaurantsData?.data.restaurants || [];
+
+  // Get user's first name
+  const firstName = user?.name?.split(" ")[0] || "Guest";
+
+  if (isLoading && !categoriesData && !restaurantsData) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FF7622" />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         className="flex-1"
-        contentContainerClassName="px-6 pb-6"
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        }
       >
         {/* Header */}
-        <View className="flex-row justify-between items-center pt-4 pb-6">
+        <View className="flex-row justify-between items-center px-6 pt-4 pb-6">
           <TouchableOpacity
             onPress={() => router.push("/profile")}
             className="w-12 h-12 bg-[#ECF0F4] rounded-full items-center justify-center"
           >
             <Menu color="#181C2E" size={24} />
           </TouchableOpacity>
-
-          <View className="flex-1 mx-4">
-            <Text className="font-sen-bold text-primary text-xs uppercase tracking-wide mb-1">
-              DELIVER TO
-            </Text>
-            <TouchableOpacity className="flex-row items-center">
-              <Text className="font-sen text-secondary text-sm mr-1">
-                Halal Lab office
-              </Text>
-              <ChevronDown color="#181C2E" size={16} />
-            </TouchableOpacity>
-          </View>
 
           <TouchableOpacity
             onPress={() => router.push("/cart")}
@@ -60,18 +103,21 @@ export default function Home() {
         </View>
 
         {/* Greeting */}
-        <View className="mb-6">
+        <View className="px-6 mb-6">
           <Text className="font-sen text-secondary text-base">
-            Hey Halal, <Text className="font-sen-bold">Good Afternoon!</Text>
+            Hey {firstName},{" "}
+            <Text className="font-sen-bold">Good Afternoon!</Text>
           </Text>
         </View>
 
         {/* Search Bar */}
-        <SearchBar onPress={() => router.push("/search")} />
+        <View className="px-6">
+          <SearchBar onPress={() => router.push("/search")} />
+        </View>
 
         {/* All Categories Section */}
-        <View className="mb-6">
-          <View className="flex-row justify-between items-center mb-4">
+        <View className="mt-6 mb-6">
+          <View className="flex-row justify-between items-center mb-4 px-6">
             <Text className="text-xl font-sen-extra-bold text-secondary">
               All Categories
             </Text>
@@ -85,27 +131,36 @@ export default function Home() {
           <FlatList
             horizontal
             showsHorizontalScrollIndicator={false}
-            data={CATEGORIES}
-            keyExtractor={(item) => item.id}
+            data={categories}
+            keyExtractor={(item) => item._id}
             renderItem={({ item }) => (
               <CategoryItem
                 category={item}
-                isSelected={selectedCategory === item.id}
+                isSelected={selectedCategory === item._id}
                 onPress={() => {
-                  setSelectedCategory(item.id);
-                  router.push({
-                    pathname: "/(app)/categories/[id]",
-                    params: { id: item.id },
-                  });
+                  setSelectedCategory(item._id);
+                  if (item._id !== "all") {
+                    router.push({
+                      pathname: "/(app)/categories/[id]",
+                      params: { id: item._id },
+                    });
+                  }
                 }}
               />
             )}
-            contentContainerClassName="pb-2"
+            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
+            ListEmptyComponent={
+              <View className="py-4">
+                <Text className="text-text-gray font-sen text-sm">
+                  No categories available
+                </Text>
+              </View>
+            }
           />
         </View>
 
         {/* Open Restaurants Section */}
-        <View className="mb-4">
+        <View className="px-6 pb-6">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-xl font-sen-extra-bold text-secondary">
               Open Restaurants
@@ -117,18 +172,30 @@ export default function Home() {
             </TouchableOpacity>
           </View>
 
-          {RESTAURANTS.map((restaurant) => (
-            <RestaurantCard
-              key={restaurant.id}
-              restaurant={restaurant}
-              onPress={() =>
-                router.push({
-                  pathname: "/(app)/restaurants/[id]",
-                  params: { id: restaurant.id },
-                })
-              }
-            />
-          ))}
+          {restaurantsLoading ? (
+            <View className="py-8">
+              <ActivityIndicator size="small" color="#FF7622" />
+            </View>
+          ) : restaurants.length === 0 ? (
+            <View className="py-8 items-center">
+              <Text className="text-text-gray font-sen text-sm">
+                No open restaurants at the moment
+              </Text>
+            </View>
+          ) : (
+            restaurants.map((restaurant) => (
+              <RestaurantCard
+                key={restaurant._id}
+                restaurant={restaurant}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/restaurants/[id]",
+                    params: { id: restaurant._id },
+                  })
+                }
+              />
+            ))
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>
