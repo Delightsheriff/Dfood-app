@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import CategoryItem from "@/components/CategoryItem";
 import RestaurantCard from "@/components/RestaurantCard";
 import SearchBar from "@/components/SearchBar";
+import { getGreeting } from "@/lib/greeting";
 
 export default function Home() {
   const router = useRouter();
@@ -60,6 +61,7 @@ export default function Home() {
 
   // Get user's first name
   const firstName = user?.name?.split(" ")[0] || "Guest";
+  const greeting = getGreeting();
 
   if (isLoading && !categoriesData && !restaurantsData) {
     return (
@@ -103,8 +105,7 @@ export default function Home() {
         {/* Greeting */}
         <View className="px-6 mb-6">
           <Text className="font-sen text-secondary text-base">
-            Hey {firstName},{" "}
-            <Text className="font-sen-bold">Good Afternoon!</Text>
+            Hey {firstName}, <Text className="font-sen-bold">{greeting}</Text>
           </Text>
         </View>
 

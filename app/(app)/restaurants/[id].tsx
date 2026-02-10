@@ -5,7 +5,13 @@ import {
 } from "@/hooks/useDataQueries";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, Clock, MoreHorizontal, Star } from "lucide-react-native";
+import {
+  ChevronLeft,
+  Clock,
+  MoreHorizontal,
+  Star,
+  Truck,
+} from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
@@ -124,6 +130,7 @@ export default function RestaurantDetails() {
               </Text>
             </View>
             <View className="flex-row items-center">
+              <Truck color="#FF7622" size={20} />
               <Text className="ml-2 font-sen text-[#181C2E] text-[14px]">
                 ₦
                 {restaurant.deliveryFee === 0 ? "Free" : restaurant.deliveryFee}
