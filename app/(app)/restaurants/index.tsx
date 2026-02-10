@@ -1,13 +1,22 @@
-/* eslint-disable import/no-unresolved */
 import RestaurantCard from "@/components/RestaurantCard";
-import { RESTAURANTS } from "@/constants/mocks";
+import { useRestaurants } from "@/hooks/useDataQueries";
 import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AllRestaurants() {
   const router = useRouter();
+  const { data: restaurantsData, isLoading, refetch } = useRestaurants();
+
+  const restaurants = restaurantsData?.data.restaurants || [];
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
@@ -23,24 +32,47 @@ export default function AllRestaurants() {
         </Text>
       </View>
 
-      <FlatList
-        data={RESTAURANTS}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <RestaurantCard
-            restaurant={item}
-            onPress={() =>
-              router.push({
-                pathname: "/(app)/restaurants/[id]",
-                params: { id: item.id },
-              })
-            }
-          />
-        )}
-        contentContainerClassName="px-6 pt-4 pb-6"
-        showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View className="h-4" />}
-      />
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FF7622" />
+        </View>
+      ) : restaurants.length === 0 ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-text-gray font-sen text-base text-center">
+            No restaurants available at the moment
+          </Text>
+        </View>
+      ) : (
+        <FlatList
+          data={restaurants}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <RestaurantCard
+              restaurant={item}
+              onPress={() =>
+                router.push({
+                  pathname: "/(app)/restaurants/[id]",
+                  params: { id: item._id },
+                })
+              }
+            />
+          )}
+          contentContainerStyle={{
+            paddingHorizontal: 24,
+            paddingTop: 16,
+            paddingBottom: 24,
+          }}
+          showsVerticalScrollIndicator={false}
+          ItemSeparatorComponent={() => <View className="h-4" />}
+          refreshControl={
+            <RefreshControl
+              refreshing={false}
+              onRefresh={() => refetch()}
+              tintColor="#FF7622"
+            />
+          }
+        />
+      )}
     </SafeAreaView>
   );
 }

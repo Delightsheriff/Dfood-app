@@ -3,13 +3,13 @@ import {
   useFoodItemsByRestaurant,
   useRestaurant,
 } from "@/hooks/useDataQueries";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ChevronLeft, Clock, MoreHorizontal, Star } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -62,7 +62,9 @@ export default function RestaurantDetails() {
             <Image
               source={{ uri: item }}
               className="w-full h-full"
-              resizeMode="cover"
+              contentFit="cover"
+              style={{ width: "100%", height: "100%" }}
+              transition={200}
             />
           )}
         />
