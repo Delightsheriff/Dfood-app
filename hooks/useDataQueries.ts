@@ -5,7 +5,7 @@ export function useCategories() {
   return useQuery({
     queryKey: ["categories"],
     queryFn: () => dataService.getCategories(),
-    staleTime: 10 * 60 * 1000, // Categories don't change often - 10min
+    staleTime: 10 * 60 * 1000,
   });
 }
 
@@ -13,7 +13,23 @@ export function useRestaurants(isOpen?: boolean) {
   return useQuery({
     queryKey: ["restaurants", { isOpen }],
     queryFn: () => dataService.getRestaurants(isOpen),
-    staleTime: 2 * 60 * 1000, // Restaurant status changes more often - 2min
+    staleTime: 2 * 60 * 1000,
+  });
+}
+
+export function useRestaurant(id: string) {
+  return useQuery({
+    queryKey: ["restaurant", id],
+    queryFn: () => dataService.getRestaurantById(id),
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useFoodItemsByRestaurant(restaurantId: string) {
+  return useQuery({
+    queryKey: ["foodItems", "restaurant", restaurantId],
+    queryFn: () => dataService.getFoodItemsByRestaurant(restaurantId),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -21,7 +37,15 @@ export function useFoodItemsByCategory(categoryId: string | null) {
   return useQuery({
     queryKey: ["foodItems", "category", categoryId],
     queryFn: () => dataService.getFoodItemsByCategory(categoryId!),
-    enabled: !!categoryId, // Only fetch when categoryId exists
-    staleTime: 5 * 60 * 1000, // 5min
+    enabled: !!categoryId,
+    staleTime: 5 * 60 * 1000,
+  });
+}
+
+export function useFoodItem(id: string) {
+  return useQuery({
+    queryKey: ["foodItem", id],
+    queryFn: () => dataService.getFoodItemById(id),
+    staleTime: 5 * 60 * 1000,
   });
 }

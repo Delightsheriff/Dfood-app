@@ -32,7 +32,7 @@ export default function Home() {
     data: restaurantsData,
     isLoading: restaurantsLoading,
     refetch: refetchRestaurants,
-  } = useRestaurants(true); // Only fetch open restaurants
+  } = useRestaurants(); // Only fetch open restaurants
 
   // Combine loading states
   const isLoading = categoriesLoading || restaurantsLoading;

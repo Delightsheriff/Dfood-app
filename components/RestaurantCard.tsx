@@ -1,6 +1,6 @@
 import { Restaurant } from "@/types/api";
 import { Image } from "expo-image";
-import { Clock, Star } from "lucide-react-native";
+import { Clock, Star, Truck } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface RestaurantCardProps {
@@ -31,6 +31,7 @@ export default function RestaurantCard({
       <Image
         source={{ uri: restaurant.images[0] }}
         className="w-full h-44"
+        style={{ width: "100%", height: 176 }}
         contentFit="cover"
         transition={200}
       />
@@ -67,6 +68,7 @@ export default function RestaurantCard({
           </View>
 
           <View className="flex-row items-center mr-6">
+            <Truck color="#FF7622" size={18} />
             <Text className="ml-1.5 font-sen text-secondary text-xs">
               ₦{restaurant.deliveryFee === 0 ? "Free" : restaurant.deliveryFee}
             </Text>
@@ -75,7 +77,7 @@ export default function RestaurantCard({
           <View className="flex-row items-center">
             <Clock color="#FF7622" size={18} />
             <Text className="ml-1.5 font-sen text-secondary text-xs">
-              {restaurant.openingTime} - {restaurant.closingTime}
+              {restaurant.openingTime} Am - {restaurant.closingTime} Pm
             </Text>
           </View>
         </View>

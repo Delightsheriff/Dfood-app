@@ -34,7 +34,7 @@ export type FoodItem = {
   updatedAt: string;
 };
 
-// API Response wrappers
+// API response types
 export type CategoriesResponse = {
   success: true;
   data: {
@@ -49,9 +49,23 @@ export type RestaurantsResponse = {
   };
 };
 
+export type RestaurantResponse = {
+  success: true;
+  data: {
+    restaurant: Restaurant;
+  };
+};
+
 export type FoodItemsResponse = {
   success: true;
   data: {
     foodItems: FoodItem[];
+  };
+};
+
+export type FoodItemResponse = {
+  success: true;
+  data: {
+    foodItem: FoodItem;
   };
 };

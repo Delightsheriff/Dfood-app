@@ -1,7 +1,9 @@
 import { apiClient } from "@/lib/api-client";
 import {
   CategoriesResponse,
+  FoodItemResponse,
   FoodItemsResponse,
+  RestaurantResponse,
   RestaurantsResponse,
 } from "@/types/api";
 import { AxiosResponse } from "axios";
@@ -9,7 +11,7 @@ import { AxiosResponse } from "axios";
 export const dataService = {
   /**
    * Get all categories
-   * GET    /categories
+   * GET /categories
    */
   async getCategories(): Promise<CategoriesResponse> {
     const response: AxiosResponse<CategoriesResponse> =
@@ -32,12 +34,47 @@ export const dataService = {
   },
 
   /**
+   * Get restaurant by ID
+   * GET /restaurants/:id
+   */
+  async getRestaurantById(id: string): Promise<RestaurantResponse> {
+    const response: AxiosResponse<RestaurantResponse> = await apiClient.get(
+      `/restaurants/${id}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get food items by restaurant
+   * GET /food-items/restaurant/:restaurantId
+   */
+  async getFoodItemsByRestaurant(
+    restaurantId: string,
+  ): Promise<FoodItemsResponse> {
+    const response: AxiosResponse<FoodItemsResponse> = await apiClient.get(
+      `/food-items/restaurant/${restaurantId}`,
+    );
+    return response.data;
+  },
+
+  /**
    * Get food items by category
    * GET /food-items/category/:categoryId
    */
   async getFoodItemsByCategory(categoryId: string): Promise<FoodItemsResponse> {
     const response: AxiosResponse<FoodItemsResponse> = await apiClient.get(
       `/food-items/category/${categoryId}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get food item by ID
+   * GET /food-items/:id
+   */
+  async getFoodItemById(id: string): Promise<FoodItemResponse> {
+    const response: AxiosResponse<FoodItemResponse> = await apiClient.get(
+      `/food-items/${id}`,
     );
     return response.data;
   },
