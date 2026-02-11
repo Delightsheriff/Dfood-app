@@ -1,13 +1,36 @@
 import CategoryBackButton from "@/components/CategoryBackButton";
 import FoodCard from "@/components/FoodCard";
-import { useFoodItemsByCategory } from "@/hooks/useDataQueries";
+import { useFoodItemsByCategory, useRestaurant } from "@/hooks/useDataQueries";
+import { FoodItem } from "@/types/api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+// Component to fetch restaurant name for each food item
+function FoodCardWithRestaurant({ food }: { food: FoodItem }) {
+  const router = useRouter();
+  const { data: restaurantData } = useRestaurant(food.restaurant);
+  const restaurant = restaurantData?.data.restaurant;
+
+  return (
+    <View className="w-[48%] mb-4">
+      <FoodCard
+        food={food}
+        restaurantId={food.restaurant}
+        restaurantName={restaurant?.name}
+        onPress={() =>
+          router.push({
+            pathname: "/(app)/food/[id]",
+            params: { id: food._id },
+          })
+        }
+      />
+    </View>
+  );
+}
+
 export default function CategoryDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
 
   const { data: foodItemsData, isLoading, error } = useFoodItemsByCategory(id);
 
@@ -51,17 +74,7 @@ export default function CategoryDetails() {
 
             <View className="flex-row flex-wrap justify-between">
               {foodItems.map((food) => (
-                <View key={food._id} className="w-[48%] mb-4">
-                  <FoodCard
-                    food={food}
-                    onPress={() =>
-                      router.push({
-                        pathname: "/(app)/food/[id]",
-                        params: { id: food._id },
-                      })
-                    }
-                  />
-                </View>
+                <FoodCardWithRestaurant key={food._id} food={food} />
               ))}
             </View>
           </View>

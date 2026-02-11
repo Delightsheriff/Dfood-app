@@ -166,6 +166,8 @@ export default function RestaurantDetails() {
                 <View key={item._id} className="w-[48%] mb-5">
                   <FoodCard
                     food={item}
+                    restaurantId={restaurant._id}
+                    restaurantName={restaurant.name}
                     onPress={() =>
                       router.push({
                         pathname: "/(app)/food/[id]",
