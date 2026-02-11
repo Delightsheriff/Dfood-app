@@ -1,6 +1,6 @@
 import CategoryBackButton from "@/components/CategoryBackButton";
 import FoodCard from "@/components/FoodCard";
-import { useFoodItemsByCategory, useRestaurant } from "@/hooks/useDataQueries";
+import { useFoodItemsByCategory } from "@/hooks/useDataQueries";
 import { FoodItem } from "@/types/api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
@@ -9,15 +9,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 // Component to fetch restaurant name for each food item
 function FoodCardWithRestaurant({ food }: { food: FoodItem }) {
   const router = useRouter();
-  const { data: restaurantData } = useRestaurant(food.restaurant);
-  const restaurant = restaurantData?.data.restaurant;
+
+  // Extract restaurant data from food item (it's populated in the response)
+  const restaurant =
+    food?.restaurantId && typeof food.restaurantId === "object"
+      ? food.restaurantId
+      : null;
+
+  const restaurantName = restaurant?.name;
+  const restaurantId = restaurant?._id;
 
   return (
     <View className="w-[48%] mb-4">
       <FoodCard
         food={food}
-        restaurantId={food.restaurant}
-        restaurantName={restaurant?.name}
+        restaurantId={restaurantId}
+        restaurantName={restaurantName}
         onPress={() =>
           router.push({
             pathname: "/(app)/food/[id]",

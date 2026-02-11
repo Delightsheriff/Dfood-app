@@ -39,8 +39,6 @@ export default function RestaurantDetails() {
   const restaurant = restaurantData?.data.restaurant;
   const foodItems = foodItemsData?.data.foodItems || [];
 
-  console.log("Restaurant Data:", restaurant);
-
   if (restaurantLoading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
