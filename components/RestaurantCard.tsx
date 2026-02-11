@@ -13,7 +13,7 @@ export default function RestaurantCard({
   onPress,
 }: RestaurantCardProps) {
   // Calculate if currently open
-  const isCurrentlyOpen = restaurant.isOpen;
+  const isCurrentlyOpen = restaurant.status === "Open";
 
   return (
     <TouchableOpacity
