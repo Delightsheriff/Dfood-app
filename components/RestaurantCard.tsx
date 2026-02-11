@@ -1,10 +1,10 @@
 import { Restaurant } from "@/types/api";
 import { Image } from "expo-image";
-import { Clock, Star, Truck } from "lucide-react-native";
+import { Clock, MapPin, Star, Truck } from "lucide-react-native";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface RestaurantCardProps {
-  restaurant: Restaurant;
+  restaurant: Restaurant | any;
   onPress: () => void;
 }
 
@@ -13,7 +13,7 @@ export default function RestaurantCard({
   onPress,
 }: RestaurantCardProps) {
   // Calculate if currently open
-  const isCurrentlyOpen = restaurant.status === "Open";
+  const isCurrentlyOpen = restaurant.isOpen ?? restaurant.status === "Open";
 
   return (
     <TouchableOpacity
@@ -59,11 +59,19 @@ export default function RestaurantCard({
           </Text>
         )}
 
+        {/* Address */}
+        <View className="flex-row items-center mb-6">
+          <MapPin color="#FF7622" size={12} />
+          <Text className="text-text-gray font-sen text-xs ml-2">
+            {restaurant.address}
+          </Text>
+        </View>
+
         <View className="flex-row items-center">
           <View className="flex-row items-center mr-6">
             <Star color="#FF7622" size={18} fill="#FF7622" />
             <Text className="ml-1.5 font-sen-bold text-secondary text-sm">
-              4.5
+              {restaurant?.rating || "4.5"}
             </Text>
           </View>
 

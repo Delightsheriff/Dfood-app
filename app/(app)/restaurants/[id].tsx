@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   ChevronLeft,
   Clock,
+  MapPin,
   MoreHorizontal,
   Star,
   Truck,
@@ -37,6 +38,8 @@ export default function RestaurantDetails() {
 
   const restaurant = restaurantData?.data.restaurant;
   const foodItems = foodItemsData?.data.foodItems || [];
+
+  console.log("Restaurant Data:", restaurant);
 
   if (restaurantLoading) {
     return (
@@ -120,6 +123,14 @@ export default function RestaurantDetails() {
               {restaurant.description}
             </Text>
           )}
+
+          {/* Address */}
+          <View className="flex-row items-center mb-6">
+            <MapPin color="#FF7622" size={18} />
+            <Text className="text-[#A0A5BA] font-sen text-[14px] leading-6 ml-2">
+              {restaurant.address}
+            </Text>
+          </View>
 
           {/* Info Pills */}
           <View className="flex-row items-center mb-8 gap-6 flex-wrap">
