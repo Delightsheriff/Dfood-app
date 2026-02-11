@@ -19,6 +19,7 @@ export default function FoodCard({
 }: FoodCardProps) {
   const addToCart = useCartStore((state) => state.addItem);
   const currentRestaurantId = useCartStore((state) => state.getRestaurantId());
+  console.log("FoodCard - Food:", food);
 
   const handleAddToCart = (e: any) => {
     e.stopPropagation();

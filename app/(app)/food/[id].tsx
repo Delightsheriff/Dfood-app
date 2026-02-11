@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useFoodItem, useRestaurant } from "@/hooks/useDataQueries";
+import { useFoodItem } from "@/hooks/useDataQueries";
 import { useCartStore } from "@/store/cartStore";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -35,10 +35,12 @@ export default function FoodDetails() {
   const { data: foodData, isLoading: foodLoading } = useFoodItem(id);
   const food = foodData?.data.foodItem;
 
-  const { data: restaurantData, isLoading: restaurantLoading } = useRestaurant(
-    food?.restaurant || "",
-  );
-  const restaurant = restaurantData?.data.restaurant;
+  // Extract restaurant data from food item (it's populated in the response)
+  const restaurant =
+    food?.restaurantId && typeof food.restaurantId === "object"
+      ? food.restaurantId
+      : null;
+
   // Cart store
   const addToCart = useCartStore((state) => state.addItem);
   const currentRestaurantId = useCartStore((state) => state.getRestaurantId());
@@ -62,7 +64,10 @@ export default function FoodDetails() {
   const totalPrice = food.price * quantity;
 
   const handleAddToCart = () => {
-    if (!food || !restaurant) return;
+    if (!food) return;
+
+    // Check if we have restaurant data
+    if (!restaurant) return;
 
     // Warn if switching restaurants
     if (currentRestaurantId && currentRestaurantId !== restaurant._id) {
@@ -171,21 +176,15 @@ export default function FoodDetails() {
           contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 32 }}
         >
           {/* Restaurant Badge */}
-          {restaurantLoading ? (
+          {restaurant && (
             <View className="mb-4">
-              <ActivityIndicator size="small" color="#FF7622" />
-            </View>
-          ) : (
-            restaurant && (
-              <View className="mb-4">
-                <View className="self-start flex-row items-center bg-white border border-[#F0F5FA] rounded-full px-4 py-2">
-                  <View className="w-2 h-2 bg-primary rounded-full mr-2" />
-                  <Text className="text-secondary font-sen text-sm">
-                    {restaurant.name}
-                  </Text>
-                </View>
+              <View className="self-start flex-row items-center bg-white border border-[#F0F5FA] rounded-full px-4 py-2">
+                <View className="w-2 h-2 bg-primary rounded-full mr-2" />
+                <Text className="text-secondary font-sen text-sm">
+                  {restaurant.name}
+                </Text>
               </View>
-            )
+            </View>
           )}
 
           {/* Food Name & Description */}
@@ -203,7 +202,7 @@ export default function FoodDetails() {
             <View className="flex-row items-center mr-6">
               <Star color="#FF7622" size={18} fill="#FF7622" />
               <Text className="ml-1.5 font-sen-bold text-secondary text-sm">
-                4.5
+                {food.rating > 0 ? food.rating.toFixed(1) : "4.5"}
               </Text>
             </View>
 
@@ -215,6 +214,13 @@ export default function FoodDetails() {
                     {restaurant.deliveryFee === 0
                       ? "Free"
                       : restaurant.deliveryFee}
+                  </Text>
+                </View>
+
+                <View className="flex-row items-center mr-6">
+                  <Clock color="#FF7622" size={18} />
+                  <Text className="ml-1.5 font-sen text-secondary text-xs">
+                    Currently {restaurant.status}
                   </Text>
                 </View>
 
@@ -276,7 +282,7 @@ export default function FoodDetails() {
         <Button
           className="w-full mt-4 h-14"
           onPress={handleAddToCart}
-          disabled={!restaurant}
+          disabled={!restaurant || restaurant.status !== "Open"}
         >
           <Text className="text-white font-sen-bold uppercase tracking-wide">
             Add to Cart

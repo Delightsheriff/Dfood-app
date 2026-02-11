@@ -14,9 +14,12 @@ export type Restaurant = {
   deliveryFee: number;
   openingTime: string;
   closingTime: string;
-  isOpen: boolean;
+  isOpen?: boolean;
+  status?: string; // "Open" | "Closed"
   images: string[];
   owner: string;
+  rating: number;
+  totalReviews: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -28,8 +31,11 @@ export type FoodItem = {
   price: number;
   images: string[];
   calories?: number;
-  restaurant: string;
-  categories: string[];
+  restaurantId: string | Restaurant;
+  categories?: string[];
+  categoryIds?: string[];
+  rating: number;
+  totalReviews: number;
   createdAt: string;
   updatedAt: string;
 };

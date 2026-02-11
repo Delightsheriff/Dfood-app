@@ -122,7 +122,7 @@ export default function RestaurantDetails() {
           )}
 
           {/* Info Pills */}
-          <View className="flex-row items-center mb-8 gap-6">
+          <View className="flex-row items-center mb-8 gap-6 flex-wrap">
             <View className="flex-row items-center">
               <Star color="#FF7622" size={20} fill="#FF7622" />
               <Text className="ml-2 font-sen-bold text-[#181C2E] text-[14px]">
@@ -134,6 +134,12 @@ export default function RestaurantDetails() {
               <Text className="ml-2 font-sen text-[#181C2E] text-[14px]">
                 ₦
                 {restaurant.deliveryFee === 0 ? "Free" : restaurant.deliveryFee}
+              </Text>
+            </View>
+            <View className="flex-row items-center">
+              <Clock color="#FF7622" size={18} />
+              <Text className="ml-1.5 font-sen text-secondary text-xs">
+                Currently {restaurant.status}
               </Text>
             </View>
             <View className="flex-row items-center">
