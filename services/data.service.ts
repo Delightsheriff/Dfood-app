@@ -5,6 +5,7 @@ import {
   FoodItemsResponse,
   RestaurantResponse,
   RestaurantsResponse,
+  SearchResponse,
 } from "@/types/api";
 import { AxiosResponse } from "axios";
 
@@ -75,6 +76,20 @@ export const dataService = {
   async getFoodItemById(id: string): Promise<FoodItemResponse> {
     const response: AxiosResponse<FoodItemResponse> = await apiClient.get(
       `/food-items/${id}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Search for food items and restaurants
+   * GET /search?q=pizza
+   */
+  async search(query: string): Promise<SearchResponse> {
+    const response: AxiosResponse<SearchResponse> = await apiClient.get(
+      "/search",
+      {
+        params: { q: query },
+      },
     );
     return response.data;
   },
