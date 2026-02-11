@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useFoodItem, useRestaurant } from "@/hooks/useDataQueries";
+import { useCartStore } from "@/store/cartStore";
 import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
@@ -13,6 +14,7 @@ import {
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Dimensions,
   ScrollView,
   Text,
@@ -37,6 +39,9 @@ export default function FoodDetails() {
     food?.restaurant || "",
   );
   const restaurant = restaurantData?.data.restaurant;
+  // Cart store
+  const addToCart = useCartStore((state) => state.addItem);
+  const currentRestaurantId = useCartStore((state) => state.getRestaurantId());
 
   if (foodLoading) {
     return (
@@ -55,6 +60,42 @@ export default function FoodDetails() {
   }
 
   const totalPrice = food.price * quantity;
+
+  const handleAddToCart = () => {
+    if (!food || !restaurant) return;
+
+    // Warn if switching restaurants
+    if (currentRestaurantId && currentRestaurantId !== restaurant._id) {
+      Alert.alert(
+        "Switch Restaurant?",
+        "Your cart contains items from another restaurant. Adding this item will clear your current cart.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Continue",
+            onPress: () => {
+              addToCart({
+                foodItem: food,
+                quantity,
+                restaurantId: restaurant._id,
+                restaurantName: restaurant.name,
+              });
+              router.back();
+            },
+          },
+        ],
+      );
+      return;
+    }
+
+    addToCart({
+      foodItem: food,
+      quantity,
+      restaurantId: restaurant._id,
+      restaurantName: restaurant.name,
+    });
+    router.back();
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -232,7 +273,11 @@ export default function FoodDetails() {
           </View>
         </View>
 
-        <Button className="w-full mt-4 h-14">
+        <Button
+          className="w-full mt-4 h-14"
+          onPress={handleAddToCart}
+          disabled={!restaurant}
+        >
           <Text className="text-white font-sen-bold uppercase tracking-wide">
             Add to Cart
           </Text>

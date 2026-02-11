@@ -18,6 +18,7 @@ import CategoryItem from "@/components/CategoryItem";
 import RestaurantCard from "@/components/RestaurantCard";
 import SearchBar from "@/components/SearchBar";
 import { getGreeting } from "@/lib/greeting";
+import { useCartStore } from "@/store/cartStore";
 
 export default function Home() {
   const router = useRouter();
@@ -62,6 +63,7 @@ export default function Home() {
   // Get user's first name
   const firstName = user?.name?.split(" ")[0] || "Guest";
   const greeting = getGreeting();
+  const cartItemCount = useCartStore((state) => state.getItemCount());
 
   if (isLoading && !categoriesData && !restaurantsData) {
     return (
@@ -96,9 +98,13 @@ export default function Home() {
             className="w-12 h-12 bg-secondary rounded-full items-center justify-center relative"
           >
             <ShoppingBag color="white" size={22} />
-            <View className="absolute -top-1 -right-1 bg-primary w-5 h-5 rounded-full items-center justify-center border-2 border-white">
-              <Text className="text-white text-[10px] font-sen-bold">2</Text>
-            </View>
+            {cartItemCount > 0 && (
+              <View className="absolute -top-1 -right-1 bg-primary w-5 h-5 rounded-full items-center justify-center border-2 border-white">
+                <Text className="text-white text-[10px] font-sen-bold">
+                  {cartItemCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
         </View>
 
