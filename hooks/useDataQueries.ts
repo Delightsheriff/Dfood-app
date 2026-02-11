@@ -49,3 +49,12 @@ export function useFoodItem(id: string) {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+export function useSearch(query: string, enabled: boolean = true) {
+  return useQuery({
+    queryKey: ["search", query],
+    queryFn: () => dataService.search(query),
+    enabled: enabled && query.length >= 2, // Only search if query is 2+ characters
+    staleTime: 30 * 1000, // Cache results for 30 seconds
+  });
+}
