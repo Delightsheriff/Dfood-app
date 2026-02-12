@@ -70,9 +70,7 @@ export default function Profile() {
         icon: MapPin,
         label: "Addresses",
         color: "#2D8EFF",
-        onPress: () => {
-          Alert.alert("Coming Soon", "Address management is not yet available");
-        },
+        onPress: () => router.push("/profile/addresses" as any),
       },
     ],
     [
@@ -98,6 +96,7 @@ export default function Profile() {
           router.push("/profile/favourites");
         },
       },
+
       {
         icon: Bell,
         label: "Notifications",
