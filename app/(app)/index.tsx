@@ -87,7 +87,7 @@ export default function Home() {
         {/* Header */}
         <View className="flex-row justify-between items-center px-6 pt-4 pb-6">
           <TouchableOpacity
-            onPress={() => router.push("/profile")}
+            onPress={() => router.push("/(app)/profile")}
             className="w-12 h-12 bg-[#ECF0F4] rounded-full items-center justify-center"
           >
             <Menu color="#181C2E" size={24} />
