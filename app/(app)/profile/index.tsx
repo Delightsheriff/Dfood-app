@@ -95,7 +95,7 @@ export default function Profile() {
         label: "Favourite",
         color: "#FF4B4B",
         onPress: () => {
-          Alert.alert("Coming Soon", "Favourites feature is not yet available");
+          router.push("/profile/favourites");
         },
       },
       {
