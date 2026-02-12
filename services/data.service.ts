@@ -1,6 +1,8 @@
 import { apiClient } from "@/lib/api-client";
 import {
   CategoriesResponse,
+  FavoriteCheckResponse,
+  FavoritesResponse,
   FoodItemResponse,
   FoodItemsResponse,
   ProfileResponse,
@@ -142,6 +144,49 @@ export const dataService = {
   async deleteProfileImage(): Promise<ProfileResponse> {
     const response: AxiosResponse<ProfileResponse> =
       await apiClient.delete("/profile/image");
+    return response.data;
+  },
+
+  /**
+   * Get user favorites
+   * GET /favorites
+   */
+  async getFavorites(): Promise<FavoritesResponse> {
+    const response: AxiosResponse<FavoritesResponse> =
+      await apiClient.get("/favorites");
+    return response.data;
+  },
+
+  /**
+   * Add food item to favorites
+   * POST /favorites/:foodItemId
+   */
+  async addFavorite(
+    foodItemId: string,
+  ): Promise<{ success: true; message: string }> {
+    const response = await apiClient.post(`/favorites/${foodItemId}`);
+    return response.data;
+  },
+
+  /**
+   * Remove food item from favorites
+   * DELETE /favorites/:foodItemId
+   */
+  async removeFavorite(
+    foodItemId: string,
+  ): Promise<{ success: true; message: string }> {
+    const response = await apiClient.delete(`/favorites/${foodItemId}`);
+    return response.data;
+  },
+
+  /**
+   * Check if food item is favorited
+   * GET /favorites/:foodItemId/check
+   */
+  async checkFavorite(foodItemId: string): Promise<FavoriteCheckResponse> {
+    const response: AxiosResponse<FavoriteCheckResponse> = await apiClient.get(
+      `/favorites/${foodItemId}/check`,
+    );
     return response.data;
   },
 };

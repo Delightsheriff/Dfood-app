@@ -77,6 +77,39 @@ export type UserProfile = {
   phone?: string;
 };
 
+export type FavoriteItem = {
+  _id: string;
+  foodItem: FoodItem & {
+    restaurant: {
+      _id: string;
+      name: string;
+      images: string[];
+      address: string;
+      deliveryFee: number;
+      openingTime: string;
+      closingTime: string;
+      rating: number;
+      totalReviews: number;
+      status: "Open" | "Closed";
+    } | null;
+  };
+  createdAt: string;
+};
+
+export type FavoritesResponse = {
+  success: true;
+  data: {
+    favorites: FavoriteItem[];
+  };
+};
+
+export type FavoriteCheckResponse = {
+  success: true;
+  data: {
+    isFavorite: boolean;
+  };
+};
+
 export type ProfileResponse = {
   success: true;
   data: {
