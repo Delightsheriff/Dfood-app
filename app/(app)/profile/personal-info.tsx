@@ -17,6 +17,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -159,178 +161,183 @@ export default function PersonalInfo() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4 border-b border-[#F0F5FA]">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          Personal Info
-        </Text>
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24 }}
-      >
-        {/* Profile Picture */}
-        <View className="items-center mb-8">
-          <View className="relative">
-            <View className="w-[120px] h-[120px] bg-[#FFD7C5] rounded-full items-center justify-center overflow-hidden">
-              {profile?.profileImage ? (
-                <Image
-                  source={{ uri: profile.profileImage }}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
-              ) : (
-                <Text className="text-[48px] font-sen-bold text-[#FF7622]">
-                  {profile?.name?.charAt(0).toUpperCase() || "U"}
-                </Text>
-              )}
-            </View>
-
-            {/* Camera Button */}
-            <TouchableOpacity
-              onPress={handleImagePick}
-              disabled={updateImageMutation.isPending}
-              className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full items-center justify-center border-4 border-white"
-            >
-              {updateImageMutation.isPending ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Camera color="white" size={18} />
-              )}
-            </TouchableOpacity>
-
-            {/* Delete Button */}
-            {profile?.profileImage && (
-              <TouchableOpacity
-                onPress={handleDeleteImage}
-                disabled={deleteImageMutation.isPending}
-                className="absolute bottom-0 left-0 w-10 h-10 bg-red-500 rounded-full items-center justify-center border-4 border-white"
-              >
-                {deleteImageMutation.isPending ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Trash2 color="white" size={18} />
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
-
-        {/* Name Field */}
-        <View className="mb-6">
-          <Label
-            nativeID="name"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        {/* Header */}
+        <View className="flex-row items-center px-6 py-4 border-b border-[#F0F5FA]">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
           >
-            NAME
-          </Label>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="Your name"
-                placeholderTextColor="#B4B9CA"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                aria-labelledby="name"
-                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.name ? "border border-red-500" : ""}`}
-              />
-            )}
-          />
-          {errors.name && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-              {errors.name.message}
-            </Text>
-          )}
-        </View>
-
-        {/* Email Field (Read-only) */}
-        <View className="mb-6">
-          <Label
-            nativeID="email"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
-          >
-            EMAIL
-          </Label>
-          <Input
-            value={profile?.email || ""}
-            editable={false}
-            aria-labelledby="email"
-            className="h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 opacity-60"
-          />
-          <Text className="text-[#A0A5BA] text-[12px] font-sen mt-1.5 ml-1">
-            Email cannot be changed
+            <ChevronLeft color="#181C2E" size={22} />
+          </TouchableOpacity>
+          <Text className="text-lg font-sen-bold text-secondary flex-1">
+            Personal Info
           </Text>
         </View>
 
-        {/* Phone Field */}
-        <View className="mb-6">
-          <Label
-            nativeID="phone"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
-          >
-            PHONE NUMBER
-          </Label>
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="+234 800 000 0000"
-                placeholderTextColor="#B4B9CA"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="phone-pad"
-                aria-labelledby="phone"
-                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.phone ? "border border-red-500" : ""}`}
-              />
-            )}
-          />
-          {errors.phone && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-              {errors.phone.message}
-            </Text>
-          )}
-        </View>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24 }}
+        >
+          {/* Profile Picture */}
+          <View className="items-center mb-8">
+            <View className="relative">
+              <View className="w-[120px] h-[120px] bg-[#FFD7C5] rounded-full items-center justify-center overflow-hidden">
+                {profile?.profileImage ? (
+                  <Image
+                    source={{ uri: profile.profileImage }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Text className="text-[48px] font-sen-bold text-[#FF7622]">
+                    {profile?.name?.charAt(0).toUpperCase() || "U"}
+                  </Text>
+                )}
+              </View>
 
-        {/* Role Badge */}
-        <View className="mb-8">
-          <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-            ACCOUNT TYPE
-          </Label>
-          <View className="bg-[#FFF5EE] rounded-xl px-4 py-3 self-start">
-            <Text className="text-primary font-sen-bold text-sm uppercase">
-              {profile?.role || "Customer"}
+              {/* Camera Button */}
+              <TouchableOpacity
+                onPress={handleImagePick}
+                disabled={updateImageMutation.isPending}
+                className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full items-center justify-center border-4 border-white"
+              >
+                {updateImageMutation.isPending ? (
+                  <ActivityIndicator size="small" color="white" />
+                ) : (
+                  <Camera color="white" size={18} />
+                )}
+              </TouchableOpacity>
+
+              {/* Delete Button */}
+              {profile?.profileImage && (
+                <TouchableOpacity
+                  onPress={handleDeleteImage}
+                  disabled={deleteImageMutation.isPending}
+                  className="absolute bottom-0 left-0 w-10 h-10 bg-red-500 rounded-full items-center justify-center border-4 border-white"
+                >
+                  {deleteImageMutation.isPending ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Trash2 color="white" size={18} />
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
+          </View>
+
+          {/* Name Field */}
+          <View className="mb-6">
+            <Label
+              nativeID="name"
+              className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+            >
+              NAME
+            </Label>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  placeholder="Your name"
+                  placeholderTextColor="#B4B9CA"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  aria-labelledby="name"
+                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.name ? "border border-red-500" : ""}`}
+                />
+              )}
+            />
+            {errors.name && (
+              <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
+                {errors.name.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Email Field (Read-only) */}
+          <View className="mb-6">
+            <Label
+              nativeID="email"
+              className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+            >
+              EMAIL
+            </Label>
+            <Input
+              value={profile?.email || ""}
+              editable={false}
+              aria-labelledby="email"
+              className="h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 opacity-60"
+            />
+            <Text className="text-[#A0A5BA] text-[12px] font-sen mt-1.5 ml-1">
+              Email cannot be changed
             </Text>
           </View>
-        </View>
 
-        {/* Save Button */}
-        <Button
-          onPress={handleSubmit(onSubmit)}
-          disabled={!isDirty || updateProfileMutation.isPending}
-          className="h-[62px] bg-primary mb-8"
-        >
-          {updateProfileMutation.isPending ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
-              SAVE CHANGES
-            </Text>
-          )}
-        </Button>
-      </ScrollView>
-    </SafeAreaView>
+          {/* Phone Field */}
+          <View className="mb-6">
+            <Label
+              nativeID="phone"
+              className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+            >
+              PHONE NUMBER
+            </Label>
+            <Controller
+              control={control}
+              name="phone"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  placeholder="+234 800 000 0000"
+                  placeholderTextColor="#B4B9CA"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="phone-pad"
+                  aria-labelledby="phone"
+                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.phone ? "border border-red-500" : ""}`}
+                />
+              )}
+            />
+            {errors.phone && (
+              <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
+                {errors.phone.message}
+              </Text>
+            )}
+          </View>
+
+          {/* Role Badge */}
+          <View className="mb-8">
+            <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
+              ACCOUNT TYPE
+            </Label>
+            <View className="bg-[#FFF5EE] rounded-xl px-4 py-3 self-start">
+              <Text className="text-primary font-sen-bold text-sm uppercase">
+                {profile?.role || "Customer"}
+              </Text>
+            </View>
+          </View>
+
+          {/* Save Button */}
+          <Button
+            onPress={handleSubmit(onSubmit)}
+            disabled={!isDirty || updateProfileMutation.isPending}
+            className="h-[62px] bg-primary mb-8"
+          >
+            {updateProfileMutation.isPending ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
+                SAVE CHANGES
+              </Text>
+            )}
+          </Button>
+        </ScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
