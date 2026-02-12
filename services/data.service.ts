@@ -3,9 +3,11 @@ import {
   CategoriesResponse,
   FoodItemResponse,
   FoodItemsResponse,
+  ProfileResponse,
   RestaurantResponse,
   RestaurantsResponse,
   SearchResponse,
+  UpdateProfileRequest,
 } from "@/types/api";
 import { AxiosResponse } from "axios";
 
@@ -91,6 +93,55 @@ export const dataService = {
         params: { q: query },
       },
     );
+    return response.data;
+  },
+
+  /**
+   * Get user profile
+   * GET /profile
+   */
+  async getProfile(): Promise<ProfileResponse> {
+    const response: AxiosResponse<ProfileResponse> =
+      await apiClient.get("/profile");
+    return response.data;
+  },
+
+  /**
+   * Update user profile
+   * PATCH /profile
+   */
+  async updateProfile(data: UpdateProfileRequest): Promise<ProfileResponse> {
+    const response: AxiosResponse<ProfileResponse> = await apiClient.patch(
+      "/profile",
+      data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Update profile image
+   * POST /profile/image
+   */
+  async updateProfileImage(imageFile: FormData): Promise<ProfileResponse> {
+    const response: AxiosResponse<ProfileResponse> = await apiClient.post(
+      "/profile/image",
+      imageFile,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      },
+    );
+    return response.data;
+  },
+
+  /**
+   * Delete profile image
+   * DELETE /profile/image
+   */
+  async deleteProfileImage(): Promise<ProfileResponse> {
+    const response: AxiosResponse<ProfileResponse> =
+      await apiClient.delete("/profile/image");
     return response.data;
   },
 };

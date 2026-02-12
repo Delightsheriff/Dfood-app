@@ -1,3 +1,5 @@
+import { UserRole } from "./auth";
+
 export type Category = {
   _id: string;
   name: string;
@@ -65,6 +67,26 @@ export type SearchFoodItem = FoodItem & {
     totalReviews: number;
     status: "Open" | "Closed";
   };
+};
+export type UserProfile = {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  profileImage?: string;
+  phone?: string;
+};
+
+export type ProfileResponse = {
+  success: true;
+  data: {
+    profile: UserProfile;
+  };
+};
+
+export type UpdateProfileRequest = {
+  name?: string;
+  phone?: string;
 };
 
 // API response types

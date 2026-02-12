@@ -58,3 +58,11 @@ export function useSearch(query: string, enabled: boolean = true) {
     staleTime: 30 * 1000, // Cache results for 30 seconds
   });
 }
+
+export function useProfile() {
+  return useQuery({
+    queryKey: ["profile"],
+    queryFn: () => dataService.getProfile(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}

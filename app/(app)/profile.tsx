@@ -26,7 +26,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// TODO: address should link to map view, orders should link to order history, personal info should link to editable personal info page, etc. Also add profile picture and other details, implement favourites
+// TODO: address should link to map view, orders should link to order history, personal info should link to editable personal info page, etc. Also add profile picture and other details, implement favourites, implement likes, review system, etc.
 
 export default function Profile() {
   const router = useRouter();

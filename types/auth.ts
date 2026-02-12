@@ -10,6 +10,8 @@ export type User = {
   email: string;
   role: UserRole;
   googleId?: string;
+  profileImage?: string;
+  phone?: string;
 };
 
 export type AuthTokens = {
