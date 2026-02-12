@@ -82,3 +82,19 @@ export function useCheckFavorite(foodItemId: string) {
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
+
+export function useAddresses() {
+  return useQuery({
+    queryKey: ["addresses"],
+    queryFn: () => dataService.getAddresses(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useDefaultAddress() {
+  return useQuery({
+    queryKey: ["address", "default"],
+    queryFn: () => dataService.getDefaultAddress(),
+    staleTime: 5 * 60 * 1000,
+  });
+}

@@ -96,6 +96,49 @@ export type FavoriteItem = {
   createdAt: string;
 };
 
+export type Address = {
+  _id: string;
+  userId: string;
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type AddressesResponse = {
+  success: true;
+  data: {
+    addresses: Address[];
+  };
+};
+
+export type AddressResponse = {
+  success: true;
+  data: {
+    address: Address;
+  };
+};
+
+export type CreateAddressRequest = {
+  label: string;
+  street: string;
+  city: string;
+  state: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+};
+
+export type UpdateAddressRequest = Partial<CreateAddressRequest>;
+
 export type FavoritesResponse = {
   success: true;
   data: {

@@ -1,6 +1,9 @@
 import { apiClient } from "@/lib/api-client";
 import {
+  AddressesResponse,
+  AddressResponse,
   CategoriesResponse,
+  CreateAddressRequest,
   FavoriteCheckResponse,
   FavoritesResponse,
   FoodItemResponse,
@@ -9,6 +12,7 @@ import {
   RestaurantResponse,
   RestaurantsResponse,
   SearchResponse,
+  UpdateAddressRequest,
   UpdateProfileRequest,
 } from "@/types/api";
 import { AxiosResponse } from "axios";
@@ -187,6 +191,84 @@ export const dataService = {
     const response: AxiosResponse<FavoriteCheckResponse> = await apiClient.get(
       `/favorites/${foodItemId}/check`,
     );
+    return response.data;
+  },
+
+  /**
+   * Get all addresses
+   * GET /addresses
+   */
+  async getAddresses(): Promise<AddressesResponse> {
+    const response: AxiosResponse<AddressesResponse> =
+      await apiClient.get("/addresses");
+    return response.data;
+  },
+
+  /**
+   * Get default address
+   * GET /addresses/default
+   */
+  async getDefaultAddress(): Promise<AddressResponse> {
+    const response: AxiosResponse<AddressResponse> =
+      await apiClient.get("/addresses/default");
+    return response.data;
+  },
+
+  /**
+   * Get address by ID
+   * GET /addresses/:id
+   */
+  async getAddressById(id: string): Promise<AddressResponse> {
+    const response: AxiosResponse<AddressResponse> = await apiClient.get(
+      `/addresses/${id}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Create address
+   * POST /addresses
+   */
+  async createAddress(data: CreateAddressRequest): Promise<AddressResponse> {
+    const response: AxiosResponse<AddressResponse> = await apiClient.post(
+      "/addresses",
+      data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Update address
+   * PATCH /addresses/:id
+   */
+  async updateAddress(
+    id: string,
+    data: UpdateAddressRequest,
+  ): Promise<AddressResponse> {
+    const response: AxiosResponse<AddressResponse> = await apiClient.patch(
+      `/addresses/${id}`,
+      data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Set default address
+   * PATCH /addresses/:id/default
+   */
+  async setDefaultAddress(id: string): Promise<AddressResponse> {
+    const response: AxiosResponse<AddressResponse> = await apiClient.patch(
+      `/addresses/${id}/default`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Delete address
+   * DELETE /addresses/:id
+   */
+  async deleteAddress(id: string): Promise<{ success: true; message: string }> {
+    const response = await apiClient.delete(`/addresses/${id}`);
     return response.data;
   },
 };
