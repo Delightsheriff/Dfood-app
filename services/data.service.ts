@@ -8,6 +8,8 @@ import {
   FavoritesResponse,
   FoodItemResponse,
   FoodItemsResponse,
+  PaymentMethodResponse,
+  PaymentMethodsResponse,
   ProfileResponse,
   RestaurantResponse,
   RestaurantsResponse,
@@ -269,6 +271,60 @@ export const dataService = {
    */
   async deleteAddress(id: string): Promise<{ success: true; message: string }> {
     const response = await apiClient.delete(`/addresses/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Get all payment methods
+   * GET /payment-methods
+   */
+  async getPaymentMethods(): Promise<PaymentMethodsResponse> {
+    const response: AxiosResponse<PaymentMethodsResponse> =
+      await apiClient.get("/payment-methods");
+    return response.data;
+  },
+
+  /**
+   * Get default payment method
+   * GET /payment-methods/default
+   */
+  async getDefaultPaymentMethod(): Promise<PaymentMethodResponse> {
+    const response: AxiosResponse<PaymentMethodResponse> = await apiClient.get(
+      "/payment-methods/default",
+    );
+    return response.data;
+  },
+
+  /**
+   * Add card payment method
+   * POST /payment-methods/card
+   */
+  async addCard(reference: string): Promise<PaymentMethodResponse> {
+    const response: AxiosResponse<PaymentMethodResponse> = await apiClient.post(
+      "/payment-methods/card",
+      { reference },
+    );
+    return response.data;
+  },
+
+  /**
+   * Set default payment method
+   * PATCH /payment-methods/:id/default
+   */
+  async setDefaultPaymentMethod(id: string): Promise<PaymentMethodResponse> {
+    const response: AxiosResponse<PaymentMethodResponse> =
+      await apiClient.patch(`/payment-methods/${id}/default`);
+    return response.data;
+  },
+
+  /**
+   * Delete payment method
+   * DELETE /payment-methods/:id
+   */
+  async deletePaymentMethod(
+    id: string,
+  ): Promise<{ success: true; message: string }> {
+    const response = await apiClient.delete(`/payment-methods/${id}`);
     return response.data;
   },
 };

@@ -98,3 +98,19 @@ export function useDefaultAddress() {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+export function usePaymentMethods() {
+  return useQuery({
+    queryKey: ["paymentMethods"],
+    queryFn: () => dataService.getPaymentMethods(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useDefaultPaymentMethod() {
+  return useQuery({
+    queryKey: ["paymentMethod", "default"],
+    queryFn: () => dataService.getDefaultPaymentMethod(),
+    staleTime: 5 * 60 * 1000,
+  });
+}

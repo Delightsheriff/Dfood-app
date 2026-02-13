@@ -136,6 +136,38 @@ export type CreateAddressRequest = {
     lng: number;
   };
 };
+export type PaymentMethod = {
+  _id: string;
+  userId?: string;
+  type: "card" | "cash";
+  cardLast4?: string;
+  cardBrand?: string;
+  cardExpMonth?: string;
+  cardExpYear?: string;
+  bank?: string;
+  isDefault: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type PaymentMethodsResponse = {
+  success: true;
+  data: {
+    paymentMethods: PaymentMethod[];
+  };
+};
+
+export type PaymentMethodResponse = {
+  success: true;
+  data: {
+    paymentMethod: PaymentMethod;
+  };
+  message?: string;
+};
+
+export type AddCardRequest = {
+  reference: string;
+};
 
 export type UpdateAddressRequest = Partial<CreateAddressRequest>;
 
