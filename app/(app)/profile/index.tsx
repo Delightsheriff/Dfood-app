@@ -109,9 +109,7 @@ export default function Profile() {
         icon: CreditCard,
         label: "Payment Method",
         color: "#2D8EFF",
-        onPress: () => {
-          Alert.alert("Coming Soon", "Payment methods are not yet available");
-        },
+        onPress: () => router.push("/profile/payment-methods" as any),
       },
     ],
     [
