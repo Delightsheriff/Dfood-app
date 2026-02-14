@@ -9,6 +9,9 @@ export function useCreateOrder() {
 
   return useMutation({
     mutationFn: (data: CreateOrderRequest) => dataService.createOrder(data),
+    onMutate: (data) => {
+      console.log("Creating order with data:", data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
     },

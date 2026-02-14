@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAddCard } from "@/hooks/usePaymentMethodMutations";
 import { useRouter } from "expo-router";
 import { ChevronLeft } from "lucide-react-native";
-import React, { useRef } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -11,55 +11,61 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import Paystack from "react-native-paystack-webview";
+import { PaystackProvider, usePaystack } from "react-native-paystack-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const PAYSTACK_PUBLIC_KEY =
   process.env.EXPO_PUBLIC_PAYSTACK_KEY || "pk_test_your_public_key";
 
-export default function AddCard() {
+function AddCardContent() {
   const router = useRouter();
   const { user } = useAuth();
   const addCardMutation = useAddCard();
-  const paystackWebViewRef = useRef<any>(null);
+  const { popup } = usePaystack();
 
-  const handleSuccess = (response: any) => {
-    const reference = response.transactionRef?.reference || response.reference;
+  const handleAddCard = () => {
+    popup.checkout({
+      email: user?.email || "user@example.com",
+      amount: 100,
+      onSuccess: (response) => {
+        console.log(response);
+        const reference = response.reference;
 
-    if (!reference) {
-      Alert.alert("Error", "Transaction reference not found");
-      return;
-    }
+        if (!reference) {
+          Alert.alert("Error", "Transaction reference not found");
+          return;
+        }
 
-    addCardMutation.mutate(reference, {
-      onSuccess: (data) => {
-        Alert.alert("Success", data.message || "Card added successfully", [
+        addCardMutation.mutate(reference as string, {
+          onSuccess: (data) => {
+            Alert.alert("Success", data.message || "Card added successfully", [
+              {
+                text: "OK",
+                onPress: () => router.back(),
+              },
+            ]);
+          },
+          onError: (error: any) => {
+            const message =
+              error.response?.data?.message ||
+              "Failed to add card. Please try again.";
+            Alert.alert("Error", message);
+          },
+        });
+      },
+      onCancel: () => {
+        Alert.alert("Cancelled", "Card addition was cancelled", [
           {
             text: "OK",
             onPress: () => router.back(),
           },
         ]);
       },
-      onError: (error: any) => {
-        const message =
-          error.response?.data?.message ||
-          "Failed to add card. Please try again.";
-        Alert.alert("Error", message);
-      },
     });
   };
 
-  const handleCancel = () => {
-    Alert.alert("Cancelled", "Card addition was cancelled", [
-      {
-        text: "OK",
-        onPress: () => router.back(),
-      },
-    ]);
-  };
-
   return (
-    <SafeAreaView className="flex-1 bg-white px-6 pt-2">
+    <SafeAreaView className="flex-1 bg-white px-6 pt-2" edges={["top"]}>
       <StatusBar barStyle="dark-content" />
 
       {/* Header */}
@@ -81,7 +87,7 @@ export default function AddCard() {
             Add Payment Card
           </Text>
           <Text className="text-center text-text-gray font-sen text-sm mb-6">
-            You'll be charged ₦1 to verify your card. This will be refunded
+            You&apos;ll be charged ₦1 to verify your card. This will be refunded
             immediately.
           </Text>
 
@@ -106,28 +112,30 @@ export default function AddCard() {
             </View>
           </View>
 
-          <Paystack
-            paystackKey={PAYSTACK_PUBLIC_KEY}
-            billingEmail={user?.email || "user@example.com"}
-            amount={100} // ₦1 in kobo
-            onCancel={handleCancel}
-            onSuccess={handleSuccess}
-            ref={paystackWebViewRef}
-            buttonText="Continue to Payment"
-            showPayButton={true}
-            activityIndicatorColor="#FF7622"
-          />
-
-          {addCardMutation.isPending && (
-            <View className="mt-4">
-              <ActivityIndicator color="#FF7622" />
-              <Text className="text-center text-text-gray font-sen text-sm mt-2">
-                Verifying card...
-              </Text>
+          {addCardMutation.isPending ? (
+            <View className="h-[62px] bg-primary rounded-xl items-center justify-center">
+              <ActivityIndicator color="white" />
             </View>
+          ) : (
+            <TouchableOpacity
+              onPress={handleAddCard}
+              className="h-[62px] bg-primary rounded-xl items-center justify-center"
+            >
+              <Text className="text-white font-sen-bold text-base">
+                Add Card via Paystack
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>
     </SafeAreaView>
+  );
+}
+
+export default function AddCard() {
+  return (
+    <PaystackProvider publicKey={PAYSTACK_PUBLIC_KEY}>
+      <AddCardContent />
+    </PaystackProvider>
   );
 }
