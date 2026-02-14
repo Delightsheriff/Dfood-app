@@ -3,14 +3,13 @@ import FoodCard from "@/components/FoodCard";
 import { useFoodItemsByCategory } from "@/hooks/useDataQueries";
 import { FoodItem } from "@/types/api";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { UtensilsCrossed } from "lucide-react-native";
 import { ActivityIndicator, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Component to fetch restaurant name for each food item
 function FoodCardWithRestaurant({ food }: { food: FoodItem }) {
   const router = useRouter();
 
-  // Extract restaurant data from food item (it's populated in the response)
   const restaurant =
     food?.restaurantId && typeof food.restaurantId === "object"
       ? food.restaurantId
@@ -74,10 +73,17 @@ export default function CategoryDetails() {
         showsVerticalScrollIndicator={false}
       >
         {foodItems.length > 0 ? (
-          <View className="mt-4">
-            <Text className="text-xl font-sen-extra-bold text-secondary mb-4">
-              Available Items
-            </Text>
+          <View className="mt-2">
+            <View className="flex-row items-center mb-4">
+              <Text className="text-lg font-sen-bold text-secondary">
+                Available Items
+              </Text>
+              <View className="bg-primary ml-2 px-2.5 py-0.5 rounded-lg">
+                <Text className="text-white font-sen-bold text-xs">
+                  {foodItems.length}
+                </Text>
+              </View>
+            </View>
 
             <View className="flex-row flex-wrap justify-between">
               {foodItems.map((food) => (
@@ -86,9 +92,15 @@ export default function CategoryDetails() {
             </View>
           </View>
         ) : (
-          <View className="items-center justify-center py-20">
-            <Text className="text-text-gray font-sen text-base text-center">
-              No items found in this category
+          <View className="items-center justify-center py-20 bg-[#F0F5FA] rounded-2xl mt-4">
+            <View className="w-16 h-16 bg-white rounded-2xl items-center justify-center mb-4">
+              <UtensilsCrossed color="#A0A5BA" size={24} />
+            </View>
+            <Text className="text-secondary font-sen-bold text-sm mb-1">
+              No items found
+            </Text>
+            <Text className="text-text-gray font-sen text-xs">
+              This category doesn&apos;t have any items yet
             </Text>
           </View>
         )}

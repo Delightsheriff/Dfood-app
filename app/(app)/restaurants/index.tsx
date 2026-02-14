@@ -1,7 +1,7 @@
 import RestaurantCard from "@/components/RestaurantCard";
 import { useRestaurants } from "@/hooks/useDataQueries";
 import { useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import { ChevronLeft, Store } from "lucide-react-native";
 import {
   ActivityIndicator,
   FlatList,
@@ -20,16 +20,31 @@ export default function AllRestaurants() {
 
   return (
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      <View className="flex-row items-center px-6 py-4 border-b border-[#F0F5FA]">
+      {/* Header */}
+      <View className="flex-row items-center px-6 py-4">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
+          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.06,
+            shadowRadius: 4,
+            elevation: 2,
+          }}
         >
           <ChevronLeft color="#181C2E" size={22} />
         </TouchableOpacity>
         <Text className="text-lg font-sen-bold text-secondary flex-1">
           All Restaurants
         </Text>
+        {restaurants.length > 0 && (
+          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
+            <Text className="text-text-gray font-sen text-xs">
+              {restaurants.length}
+            </Text>
+          </View>
+        )}
       </View>
 
       {isLoading ? (
@@ -38,8 +53,14 @@ export default function AllRestaurants() {
         </View>
       ) : restaurants.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-text-gray font-sen text-base text-center">
-            No restaurants available at the moment
+          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
+            <Store color="#A0A5BA" size={32} />
+          </View>
+          <Text className="text-secondary font-sen-bold text-base text-center mb-2">
+            No restaurants available
+          </Text>
+          <Text className="text-text-gray font-sen text-sm text-center">
+            Check back later for new restaurants
           </Text>
         </View>
       ) : (
@@ -59,11 +80,10 @@ export default function AllRestaurants() {
           )}
           contentContainerStyle={{
             paddingHorizontal: 24,
-            paddingTop: 16,
+            paddingTop: 8,
             paddingBottom: 24,
           }}
           showsVerticalScrollIndicator={false}
-          ItemSeparatorComponent={() => <View className="h-4" />}
           refreshControl={
             <RefreshControl
               refreshing={false}

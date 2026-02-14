@@ -14,6 +14,7 @@ import {
   Minus,
   Plus,
   Star,
+  Truck,
 } from "lucide-react-native";
 import { useState } from "react";
 import {
@@ -43,13 +44,11 @@ export default function FoodDetails() {
   const food = foodData?.data.foodItem;
   const isFavorite = favoriteCheck?.data.isFavorite || false;
 
-  // Extract restaurant data from food item (it's populated in the response)
   const restaurant =
     food?.restaurantId && typeof food.restaurantId === "object"
       ? food.restaurantId
       : null;
 
-  // Cart store
   const addToCart = useCartStore((state) => state.addItem);
   const currentRestaurantId = useCartStore((state) => state.getRestaurantId());
 
@@ -94,7 +93,6 @@ export default function FoodDetails() {
   const handleAddToCart = () => {
     if (!food || !restaurant) return;
 
-    // Warn if switching restaurants
     if (currentRestaurantId && currentRestaurantId !== restaurant._id) {
       Alert.alert(
         "Switch Restaurant?",
@@ -152,7 +150,14 @@ export default function FoodDetails() {
         <View className="absolute top-12 left-6 right-6 flex-row items-center justify-between">
           <TouchableOpacity
             onPress={() => router.back()}
-            className="w-11 h-11 bg-white/90 rounded-full items-center justify-center"
+            className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.12,
+              shadowRadius: 6,
+              elevation: 4,
+            }}
           >
             <ChevronLeft color="#181C2E" size={22} />
           </TouchableOpacity>
@@ -163,12 +168,12 @@ export default function FoodDetails() {
             disabled={
               addFavoriteMutation.isPending || removeFavoriteMutation.isPending
             }
-            className="w-12 h-12 bg-white rounded-full items-center justify-center"
+            className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
             style={{
-              shadowColor: "#000",
+              shadowColor: isFavorite ? "#FF7622" : "#000",
               shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 8,
+              shadowOpacity: isFavorite ? 0.25 : 0.12,
+              shadowRadius: 6,
               elevation: 4,
             }}
           >
@@ -178,7 +183,7 @@ export default function FoodDetails() {
             ) : (
               <Heart
                 color={isFavorite ? "#FF7622" : "#181C2E"}
-                size={22}
+                size={20}
                 fill={isFavorite ? "#FF7622" : "transparent"}
               />
             )}
@@ -188,13 +193,13 @@ export default function FoodDetails() {
         {/* Pagination Dots */}
         {food.images.length > 1 && (
           <View className="absolute bottom-12 left-0 right-0 flex-row justify-center items-center gap-2">
-            {food.images.map((_, index) => (
+            {food.images.map((_: string, index: number) => (
               <View
                 key={index}
-                className={`h-2 w-2 rounded-full ${
+                className={`rounded-full ${
                   index === activeImageIndex
-                    ? "bg-white border-2 border-white"
-                    : "bg-white/50"
+                    ? "w-6 h-2 bg-white"
+                    : "w-2 h-2 bg-white/50"
                 }`}
               />
             ))}
@@ -206,12 +211,25 @@ export default function FoodDetails() {
       <View className="flex-1 bg-white -mt-[30px] rounded-t-[30px]">
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 32 }}
+          contentContainerStyle={{
+            paddingHorizontal: 24,
+            paddingTop: 28,
+            paddingBottom: 16,
+          }}
         >
           {/* Restaurant Badge */}
           {restaurant && (
             <View className="mb-4">
-              <View className="self-start flex-row items-center bg-white border border-[#F0F5FA] rounded-full px-4 py-2">
+              <View
+                className="self-start flex-row items-center bg-[#F0F5FA] rounded-xl px-3.5 py-2"
+                style={{
+                  shadowColor: "#000",
+                  shadowOffset: { width: 0, height: 1 },
+                  shadowOpacity: 0.04,
+                  shadowRadius: 4,
+                  elevation: 1,
+                }}
+              >
                 <View className="w-2 h-2 bg-primary rounded-full mr-2" />
                 <Text className="text-secondary font-sen text-sm">
                   {restaurant.name}
@@ -220,9 +238,9 @@ export default function FoodDetails() {
             </View>
           )}
 
-          {/* Food Name & Description */}
-          <View className="mb-4">
-            <Text className="text-2xl font-sen-bold text-secondary mb-2">
+          {/* Food Name & Price Preview */}
+          <View className="mb-3">
+            <Text className="text-2xl font-sen-extra-bold text-secondary mb-2">
               {food.name}
             </Text>
             <Text className="text-text-gray font-sen text-sm leading-5">
@@ -230,10 +248,13 @@ export default function FoodDetails() {
             </Text>
           </View>
 
-          {/* Rating, Delivery, Time */}
-          <View className="flex-row items-center mb-6">
-            <View className="flex-row items-center mr-6">
-              <Star color="#FF7622" size={18} fill="#FF7622" />
+          {/* Info Pills */}
+          <View className="flex-row items-center flex-wrap gap-2.5 mb-5">
+            <View
+              className="flex-row items-center bg-[#FFF5EE] px-3 py-2 rounded-xl"
+              style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
+            >
+              <Star color="#FF7622" size={14} fill="#FF7622" />
               <Text className="ml-1.5 font-sen-bold text-secondary text-sm">
                 4.5
               </Text>
@@ -241,8 +262,9 @@ export default function FoodDetails() {
 
             {restaurant && (
               <>
-                <View className="flex-row items-center mr-6">
-                  <Text className="ml-1.5 font-sen text-secondary text-xs">
+                <View className="flex-row items-center bg-[#F0F5FA] px-3 py-2 rounded-xl">
+                  <Truck color="#646982" size={14} />
+                  <Text className="ml-1.5 font-sen text-secondary text-sm">
                     ₦
                     {restaurant.deliveryFee === 0
                       ? "Free"
@@ -250,9 +272,9 @@ export default function FoodDetails() {
                   </Text>
                 </View>
 
-                <View className="flex-row items-center">
-                  <Clock color="#FF7622" size={18} />
-                  <Text className="ml-1.5 font-sen text-secondary text-xs">
+                <View className="flex-row items-center bg-[#F0F5FA] px-3 py-2 rounded-xl">
+                  <Clock color="#646982" size={14} />
+                  <Text className="ml-1.5 font-sen text-secondary text-sm">
                     {restaurant.openingTime} - {restaurant.closingTime}
                   </Text>
                 </View>
@@ -262,13 +284,16 @@ export default function FoodDetails() {
 
           {/* Calories */}
           {food.calories && (
-            <View className="mb-6">
-              <Text className="text-base font-sen-bold text-secondary mb-2">
+            <View className="mb-5">
+              <Text className="text-xs text-text-gray font-sen uppercase mb-2 tracking-wide">
                 NUTRITIONAL INFO
               </Text>
-              <View className="flex-row items-center bg-[#FFF5EE] rounded-xl px-4 py-3">
-                <Text className="text-2xl mr-2">🔥</Text>
-                <Text className="text-secondary font-sen">
+              <View
+                className="flex-row items-center bg-[#FFF5EE] rounded-2xl px-4 py-3.5"
+                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
+              >
+                <Text className="text-xl mr-2.5">🔥</Text>
+                <Text className="text-secondary font-sen-bold text-sm">
                   {food.calories} calories
                 </Text>
               </View>
@@ -278,40 +303,61 @@ export default function FoodDetails() {
       </View>
 
       {/* Bottom Bar */}
-      <View className="px-6 py-4 border-t border-[#F0F5FA] bg-white">
-        <View className="flex-row items-center justify-between">
-          <Text className="text-3xl font-sen-bold text-secondary">
-            ₦{totalPrice.toLocaleString()}
-          </Text>
+      <View
+        className="px-6 py-4 bg-white"
+        style={{
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: -4 },
+          shadowOpacity: 0.06,
+          shadowRadius: 12,
+          elevation: 8,
+        }}
+      >
+        <View className="flex-row items-center justify-between mb-4">
+          <View>
+            <Text className="text-[10px] text-text-gray font-sen uppercase tracking-widest mb-0.5">
+              TOTAL PRICE
+            </Text>
+            <Text className="text-2xl font-sen-extra-bold text-primary">
+              ₦{totalPrice.toLocaleString()}
+            </Text>
+          </View>
 
-          <View className="flex-row items-center bg-secondary rounded-full">
+          <View className="flex-row items-center bg-[#F0F5FA] rounded-2xl">
             <TouchableOpacity
               onPress={() => setQuantity(Math.max(1, quantity - 1))}
-              className="w-12 h-12 items-center justify-center"
+              className="w-11 h-11 items-center justify-center"
             >
-              <Minus color="white" size={20} />
+              <Minus color="#181C2E" size={18} />
             </TouchableOpacity>
 
-            <Text className="text-white font-sen-bold text-lg px-4">
+            <Text className="text-secondary font-sen-extra-bold text-lg px-4 min-w-[40px] text-center">
               {quantity}
             </Text>
 
             <TouchableOpacity
               onPress={() => setQuantity(quantity + 1)}
-              className="w-12 h-12 items-center justify-center"
+              className="w-11 h-11 bg-primary rounded-xl items-center justify-center"
             >
-              <Plus color="white" size={20} />
+              <Plus color="white" size={18} />
             </TouchableOpacity>
           </View>
         </View>
 
         <Button
-          className="w-full mt-4 h-14"
+          className="w-full h-14"
           onPress={handleAddToCart}
           disabled={!restaurant}
+          style={{
+            shadowColor: "#FF7622",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: restaurant ? 0.3 : 0,
+            shadowRadius: 8,
+            elevation: restaurant ? 6 : 0,
+          }}
         >
-          <Text className="text-white font-sen-bold uppercase tracking-wide">
-            Add to Cart
+          <Text className="text-white font-sen-bold text-[14px] uppercase tracking-wider">
+            ADD TO CART
           </Text>
         </Button>
       </View>

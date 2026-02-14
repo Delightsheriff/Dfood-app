@@ -15,7 +15,6 @@ const CategoryBackButton = ({ categoryId }: { categoryId: string }) => {
     // TODO: Implement filter logic
   };
 
-  // Find category by ID
   const category = categoriesData?.data.categories.find(
     (cat) => cat._id === categoryId,
   );
@@ -23,11 +22,18 @@ const CategoryBackButton = ({ categoryId }: { categoryId: string }) => {
   return (
     <>
       <View className="px-6 py-4">
-        <View className="flex-row items-center justify-between mb-4">
+        <View className="flex-row items-center justify-between">
           <View className="flex-row items-center flex-1">
             <TouchableOpacity
               onPress={() => router.back()}
-              className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
+              className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.06,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
             >
               <ChevronLeft color="#181C2E" size={22} />
             </TouchableOpacity>
@@ -36,7 +42,7 @@ const CategoryBackButton = ({ categoryId }: { categoryId: string }) => {
               {isLoading ? (
                 <ActivityIndicator size="small" color="#FF7622" />
               ) : (
-                <Text className="text-secondary font-sen-bold text-sm uppercase mr-2">
+                <Text className="text-lg font-sen-bold text-secondary">
                   {category?.name || "Category"}
                 </Text>
               )}
@@ -45,9 +51,16 @@ const CategoryBackButton = ({ categoryId }: { categoryId: string }) => {
 
           <TouchableOpacity
             onPress={() => setFilterOpen(true)}
-            className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center ml-2"
+            className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center ml-2"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.06,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
           >
-            <SlidersHorizontal color="#181C2E" size={20} />
+            <SlidersHorizontal color="#181C2E" size={18} />
           </TouchableOpacity>
         </View>
       </View>
