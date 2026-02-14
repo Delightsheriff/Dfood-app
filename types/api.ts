@@ -149,6 +149,79 @@ export type PaymentMethod = {
   createdAt?: string;
   updatedAt?: string;
 };
+export type OrderItem = {
+  foodItemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  subtotal: number;
+};
+
+export type Order = {
+  _id: string;
+  orderNumber: string;
+  customerId: string;
+  restaurantId: {
+    _id: string;
+    name: string;
+    images: string[];
+    address?: string;
+    phone?: string;
+  };
+  items: OrderItem[];
+  deliveryAddress: {
+    street: string;
+    city: string;
+    state: string;
+    coordinates: {
+      lat: number;
+      lng: number;
+    };
+  };
+  paymentMethod: "cash" | "card";
+  paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  paystackReference?: string;
+  subtotal: number;
+  deliveryFee: number;
+  total: number;
+  status:
+    | "pending"
+    | "confirmed"
+    | "preparing"
+    | "out_for_delivery"
+    | "delivered"
+    | "cancelled";
+  customerNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateOrderRequest = {
+  restaurantId: string;
+  items: {
+    foodItemId: string;
+    quantity: number;
+  }[];
+  addressId: string;
+  paymentMethodId: string;
+  customerNotes?: string;
+};
+
+export type OrderResponse = {
+  success: true;
+  data: {
+    order: Order;
+  };
+  message?: string;
+};
+
+export type OrdersResponse = {
+  success: true;
+  data: {
+    orders: Order[];
+  };
+};
 
 export type PaymentMethodsResponse = {
   success: true;

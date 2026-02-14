@@ -4,10 +4,13 @@ import {
   AddressResponse,
   CategoriesResponse,
   CreateAddressRequest,
+  CreateOrderRequest,
   FavoriteCheckResponse,
   FavoritesResponse,
   FoodItemResponse,
   FoodItemsResponse,
+  OrderResponse,
+  OrdersResponse,
   PaymentMethodResponse,
   PaymentMethodsResponse,
   ProfileResponse,
@@ -325,6 +328,61 @@ export const dataService = {
     id: string,
   ): Promise<{ success: true; message: string }> {
     const response = await apiClient.delete(`/payment-methods/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Create order
+   * POST /orders
+   */
+  async createOrder(data: CreateOrderRequest): Promise<OrderResponse> {
+    const response: AxiosResponse<OrderResponse> = await apiClient.post(
+      "/orders",
+      data,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get user's orders
+   * GET /orders
+   */
+  async getOrders(): Promise<OrdersResponse> {
+    const response: AxiosResponse<OrdersResponse> =
+      await apiClient.get("/orders");
+    return response.data;
+  },
+
+  /**
+   * Get order by ID
+   * GET /orders/:id
+   */
+  async getOrderById(id: string): Promise<OrderResponse> {
+    const response: AxiosResponse<OrderResponse> = await apiClient.get(
+      `/orders/${id}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Get order by order number
+   * GET /orders/number/:orderNumber
+   */
+  async getOrderByNumber(orderNumber: string): Promise<OrderResponse> {
+    const response: AxiosResponse<OrderResponse> = await apiClient.get(
+      `/orders/number/${orderNumber}`,
+    );
+    return response.data;
+  },
+
+  /**
+   * Cancel order
+   * PATCH /orders/:id/cancel
+   */
+  async cancelOrder(id: string): Promise<OrderResponse> {
+    const response: AxiosResponse<OrderResponse> = await apiClient.patch(
+      `/orders/${id}/cancel`,
+    );
     return response.data;
   },
 };

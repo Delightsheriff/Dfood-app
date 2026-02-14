@@ -114,3 +114,19 @@ export function useDefaultPaymentMethod() {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+export function useOrders() {
+  return useQuery({
+    queryKey: ["orders"],
+    queryFn: () => dataService.getOrders(),
+    staleTime: 1 * 60 * 1000, // 1 minute - orders change frequently
+  });
+}
+
+export function useOrder(id: string) {
+  return useQuery({
+    queryKey: ["order", id],
+    queryFn: () => dataService.getOrderById(id),
+    staleTime: 1 * 60 * 1000,
+  });
+}
