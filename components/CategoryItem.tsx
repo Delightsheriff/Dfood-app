@@ -12,13 +12,20 @@ export default function CategoryItem({ category, onPress }: CategoryItemProps) {
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="flex-row items-center rounded-full px-1 py-1 pr-5 mr-3 bg-primary shadow-sm"
-      style={{ height: 48 }}
+      className="flex-row items-center rounded-full px-1.5 py-1.5 pr-5 mr-3 bg-primary"
+      style={{
+        height: 48,
+        shadowColor: "#FF7622",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 3,
+      }}
     >
-      <View className="w-10 h-10 bg-white rounded-full items-center justify-center mr-2 shadow-sm">
+      <View className="w-9 h-9 bg-white rounded-full items-center justify-center mr-2.5">
         <Image
           source={{ uri: category.image }}
-          style={{ width: 28, height: 28, borderRadius: 14 }}
+          style={{ width: 24, height: 24, borderRadius: 12 }}
           contentFit="cover"
           transition={200}
         />

@@ -39,19 +39,35 @@ export default function SearchPage() {
     >
       <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
         {/* Search Header */}
-        <View className="px-6 py-4 border-b border-[#F0F5FA]">
+        <View className="px-6 py-4">
           <View className="flex-row items-center gap-3">
             {/* Back Button */}
             <TouchableOpacity
               onPress={() => router.back()}
-              className="w-[52px] h-[52px] bg-[#ECF0F4] rounded-full items-center justify-center"
+              className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.06,
+                shadowRadius: 4,
+                elevation: 2,
+              }}
             >
               <ChevronLeft color="#181C2E" size={22} />
             </TouchableOpacity>
 
             {/* Search Input */}
-            <View className="flex-1 flex-row items-center bg-[#F6F6F6] rounded-xl px-4 h-[52px]">
-              <Search color="#A0A5BA" size={20} />
+            <View
+              className="flex-1 flex-row items-center bg-[#F0F5FA] rounded-2xl px-4 h-[48px]"
+              style={{
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.04,
+                shadowRadius: 4,
+                elevation: 1,
+              }}
+            >
+              <Search color="#A0A5BA" size={18} />
               <TextInput
                 placeholder="Search dishes, restaurants"
                 placeholderTextColor="#A0A5BA"
@@ -62,8 +78,11 @@ export default function SearchPage() {
                 returnKeyType="search"
               />
               {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={() => setSearchQuery("")}>
-                  <X color="#A0A5BA" size={20} />
+                <TouchableOpacity
+                  onPress={() => setSearchQuery("")}
+                  className="w-7 h-7 bg-white rounded-lg items-center justify-center"
+                >
+                  <X color="#A0A5BA" size={14} />
                 </TouchableOpacity>
               )}
             </View>
@@ -96,22 +115,31 @@ export default function SearchPage() {
 
           {/* Empty State - Before Search */}
           {!showResults && !isLoading && (
-            <View className="py-20 items-center">
-              <Search color="#A0A5BA" size={48} />
-              <Text className="text-text-gray font-sen text-base text-center mt-4">
-                Search for your favorite dishes{"\n"}or restaurants
+            <View className="py-24 items-center">
+              <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
+                <Search color="#A0A5BA" size={32} />
+              </View>
+              <Text className="text-secondary font-sen-bold text-base text-center mb-2">
+                What are you craving?
+              </Text>
+              <Text className="text-text-gray font-sen text-sm text-center">
+                Search for dishes or restaurants
               </Text>
             </View>
           )}
 
           {/* No Results */}
           {showResults && !isLoading && !hasResults && !error && (
-            <View className="py-20 items-center">
-              <Text className="text-text-gray font-sen text-base text-center">
-                No results found for &quot;{debouncedQuery}&quot;
+            <View className="py-24 items-center">
+              <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
+                <Search color="#A0A5BA" size={32} />
+              </View>
+              <Text className="text-secondary font-sen-bold text-base text-center mb-2">
+                No results found
               </Text>
-              <Text className="text-text-gray font-sen text-sm text-center mt-2">
-                Try searching with different keywords
+              <Text className="text-text-gray font-sen text-sm text-center">
+                No matches for &quot;{debouncedQuery}&quot;{"\n"}Try different
+                keywords
               </Text>
             </View>
           )}
@@ -121,10 +149,17 @@ export default function SearchPage() {
             <>
               {/* Restaurants Section */}
               {restaurants.length > 0 && (
-                <View className="mt-6">
-                  <Text className="text-xl font-sen-extra-bold text-secondary mb-4">
-                    Restaurants ({restaurants.length})
-                  </Text>
+                <View className="mt-4">
+                  <View className="flex-row items-center mb-4">
+                    <Text className="text-lg font-sen-bold text-secondary">
+                      Restaurants
+                    </Text>
+                    <View className="bg-[#F0F5FA] ml-2 px-2.5 py-0.5 rounded-lg">
+                      <Text className="text-text-gray font-sen text-xs">
+                        {restaurants.length}
+                      </Text>
+                    </View>
+                  </View>
                   {restaurants.map((restaurant) => (
                     <RestaurantCard
                       key={restaurant._id}
@@ -142,10 +177,17 @@ export default function SearchPage() {
 
               {/* Food Items Section */}
               {foods.length > 0 && (
-                <View className="mt-6">
-                  <Text className="text-xl font-sen-extra-bold text-secondary mb-4">
-                    Dishes ({foods.length})
-                  </Text>
+                <View className="mt-4">
+                  <View className="flex-row items-center mb-4">
+                    <Text className="text-lg font-sen-bold text-secondary">
+                      Dishes
+                    </Text>
+                    <View className="bg-[#F0F5FA] ml-2 px-2.5 py-0.5 rounded-lg">
+                      <Text className="text-text-gray font-sen text-xs">
+                        {foods.length}
+                      </Text>
+                    </View>
+                  </View>
                   <View className="flex-row flex-wrap justify-between">
                     {foods.map((food) => (
                       <View key={food._id} className="w-[48%] mb-4">

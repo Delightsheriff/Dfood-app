@@ -2,7 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
 import { Category } from "@/types/api";
 import { useRouter } from "expo-router";
-import { Menu, ShoppingBag } from "lucide-react-native";
+import { ChevronRight, Menu, ShoppingBag } from "lucide-react-native";
 import {
   ActivityIndicator,
   FlatList,
@@ -34,13 +34,11 @@ export default function Home() {
     data: restaurantsData,
     isLoading: restaurantsLoading,
     refetch: refetchRestaurants,
-  } = useRestaurants(); // Only fetch open restaurants
+  } = useRestaurants();
 
-  // Combine loading states
   const isLoading = categoriesLoading || restaurantsLoading;
-  const isRefreshing = false; // Track manual refresh
+  const isRefreshing = false;
 
-  // Handle pull-to-refresh
   const handleRefresh = async () => {
     await Promise.all([refetchCategories(), refetchRestaurants()]);
   };
@@ -49,7 +47,7 @@ export default function Home() {
   const allCategory: Category = {
     _id: "all",
     name: "All",
-    image: "https://cdn-icons-png.flaticon.com/512/706/706997.png", // Generic "all" icon
+    image: "https://cdn-icons-png.flaticon.com/512/706/706997.png",
     createdAt: "",
     updatedAt: "",
   };
@@ -60,7 +58,6 @@ export default function Home() {
 
   const restaurants = restaurantsData?.data.restaurants || [];
 
-  // Get user's first name
   const firstName = user?.name?.split(" ")[0] || "Guest";
   const greeting = getGreeting();
   const cartItemCount = useCartStore((state) => state.getItemCount());
@@ -85,21 +82,35 @@ export default function Home() {
         }
       >
         {/* Header */}
-        <View className="flex-row justify-between items-center px-6 pt-4 pb-6">
+        <View className="flex-row justify-between items-center px-6 pt-4 pb-2">
           <TouchableOpacity
             onPress={() => router.push("/(app)/profile")}
-            className="w-12 h-12 bg-[#ECF0F4] rounded-full items-center justify-center"
+            className="w-12 h-12 bg-[#F0F5FA] rounded-2xl items-center justify-center"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.06,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
           >
-            <Menu color="#181C2E" size={24} />
+            <Menu color="#181C2E" size={22} />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => router.push("/cart")}
-            className="w-12 h-12 bg-secondary rounded-full items-center justify-center relative"
+            className="w-12 h-12 bg-secondary rounded-2xl items-center justify-center relative"
+            style={{
+              shadowColor: "#32343E",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.2,
+              shadowRadius: 6,
+              elevation: 4,
+            }}
           >
-            <ShoppingBag color="white" size={22} />
+            <ShoppingBag color="white" size={20} />
             {cartItemCount > 0 && (
-              <View className="absolute -top-1 -right-1 bg-primary w-5 h-5 rounded-full items-center justify-center border-2 border-white">
+              <View className="absolute -top-1.5 -right-1.5 bg-primary min-w-[20px] h-5 rounded-full items-center justify-center border-2 border-white px-1">
                 <Text className="text-white text-[10px] font-sen-bold">
                   {cartItemCount}
                 </Text>
@@ -109,9 +120,12 @@ export default function Home() {
         </View>
 
         {/* Greeting */}
-        <View className="px-6 mb-6">
-          <Text className="font-sen text-secondary text-base">
-            Hey {firstName}, <Text className="font-sen-bold">{greeting}</Text>
+        <View className="px-6 mt-4 mb-6">
+          <Text className="font-sen text-text-gray text-sm mb-1">
+            Hey {firstName} 👋
+          </Text>
+          <Text className="font-sen-extra-bold text-secondary text-2xl">
+            {greeting}
           </Text>
         </View>
 
@@ -120,16 +134,20 @@ export default function Home() {
           <SearchBar onPress={() => router.push("/search")} />
         </View>
 
-        {/* All Categories Section */}
-        <View className="mt-6 mb-6">
+        {/* Categories Section */}
+        <View className="mb-6">
           <View className="flex-row justify-between items-center mb-4 px-6">
-            <Text className="text-xl font-sen-extra-bold text-secondary">
-              All Categories
+            <Text className="text-lg font-sen-bold text-secondary">
+              Categories
             </Text>
-            <TouchableOpacity onPress={() => router.push("/(app)/categories")}>
-              <Text className="text-secondary font-sen text-sm">
-                See All {">"}
+            <TouchableOpacity
+              onPress={() => router.push("/(app)/categories")}
+              className="flex-row items-center"
+            >
+              <Text className="text-primary font-sen text-sm mr-1">
+                See All
               </Text>
+              <ChevronRight color="#FF7622" size={16} />
             </TouchableOpacity>
           </View>
 
@@ -151,7 +169,7 @@ export default function Home() {
                 }}
               />
             )}
-            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 8 }}
+            contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 4 }}
             ListEmptyComponent={
               <View className="py-4">
                 <Text className="text-text-gray font-sen text-sm">
@@ -162,16 +180,20 @@ export default function Home() {
           />
         </View>
 
-        {/* Open Restaurants Section */}
-        <View className="px-6 pb-6">
+        {/* Restaurants Section */}
+        <View className="px-6 pb-8">
           <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-xl font-sen-extra-bold text-secondary">
+            <Text className="text-lg font-sen-bold text-secondary">
               Open Restaurants
             </Text>
-            <TouchableOpacity onPress={() => router.push("/(app)/restaurants")}>
-              <Text className="text-secondary font-sen text-sm">
-                See All {">"}
+            <TouchableOpacity
+              onPress={() => router.push("/(app)/restaurants")}
+              className="flex-row items-center"
+            >
+              <Text className="text-primary font-sen text-sm mr-1">
+                See All
               </Text>
+              <ChevronRight color="#FF7622" size={16} />
             </TouchableOpacity>
           </View>
 
@@ -180,7 +202,7 @@ export default function Home() {
               <ActivityIndicator size="small" color="#FF7622" />
             </View>
           ) : restaurants.length === 0 ? (
-            <View className="py-8 items-center">
+            <View className="py-12 items-center bg-[#F0F5FA] rounded-2xl">
               <Text className="text-text-gray font-sen text-sm">
                 No open restaurants at the moment
               </Text>

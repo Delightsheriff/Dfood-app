@@ -12,39 +12,91 @@ export default function RestaurantCard({
   restaurant,
   onPress,
 }: RestaurantCardProps) {
-  // Calculate if currently open
   const isCurrentlyOpen = restaurant.isOpen ?? restaurant.status === "Open";
 
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.7}
-      className="bg-white rounded-2xl mb-4 overflow-hidden shadow-md border border-[#EDEDED]"
+      className="bg-white rounded-2xl mb-4 overflow-hidden border border-[#F0F0F0]"
       style={{
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 3,
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
       }}
     >
-      <Image
-        source={{ uri: restaurant.images[0] }}
-        className="w-full h-44"
-        style={{ width: "100%", height: 176 }}
-        contentFit="cover"
-        transition={200}
-      />
+      {/* Image Container */}
+      <View className="relative">
+        <Image
+          source={{ uri: restaurant.images[0] }}
+          className="w-full"
+          style={{ width: "100%", height: 180 }}
+          contentFit="cover"
+          transition={200}
+        />
 
-      {!isCurrentlyOpen && (
-        <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/40 items-center justify-center">
-          <Text className="text-white font-sen-bold text-lg">CLOSED</Text>
+        {/* Gradient overlay for text readability */}
+        <View
+          className="absolute bottom-0 left-0 right-0 h-20"
+          style={{
+            backgroundColor: "transparent",
+          }}
+        />
+
+        {/* Rating Badge */}
+        <View
+          className="absolute top-3 left-3 flex-row items-center bg-white px-2.5 py-1.5 rounded-xl"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Star color="#FF7622" size={13} fill="#FF7622" />
+          <Text className="ml-1 font-sen-bold text-secondary text-xs">
+            {restaurant?.rating || "4.5"}
+          </Text>
         </View>
-      )}
 
+        {/* Delivery Fee Badge */}
+        <View
+          className="absolute top-3 right-3 flex-row items-center bg-white px-2.5 py-1.5 rounded-xl"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+          }}
+        >
+          <Truck color="#FF7622" size={13} />
+          <Text className="ml-1 font-sen-bold text-secondary text-xs">
+            {restaurant.deliveryFee === 0
+              ? "Free"
+              : `₦${restaurant.deliveryFee}`}
+          </Text>
+        </View>
+
+        {/* Closed Overlay */}
+        {!isCurrentlyOpen && (
+          <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 items-center justify-center rounded-t-2xl">
+            <View className="bg-white/20 px-6 py-2 rounded-full">
+              <Text className="text-white font-sen-bold text-base tracking-wider">
+                CLOSED
+              </Text>
+            </View>
+          </View>
+        )}
+      </View>
+
+      {/* Details */}
       <View className="p-4">
         <Text
-          className="text-lg font-sen-bold text-secondary mb-1"
+          className="text-base font-sen-bold text-secondary mb-1"
           numberOfLines={1}
         >
           {restaurant.name}
@@ -52,40 +104,29 @@ export default function RestaurantCard({
 
         {restaurant.description && (
           <Text
-            className="text-text-gray font-sen text-xs mb-3"
-            numberOfLines={2}
+            className="text-text-gray font-sen text-xs mb-2.5"
+            numberOfLines={1}
           >
             {restaurant.description}
           </Text>
         )}
 
-        {/* Address */}
-        <View className="flex-row items-center mb-6">
-          <MapPin color="#FF7622" size={12} />
-          <Text className="text-text-gray font-sen text-xs ml-2">
-            {restaurant.address}
-          </Text>
-        </View>
-
+        {/* Info Row */}
         <View className="flex-row items-center">
-          <View className="flex-row items-center mr-6">
-            <Star color="#FF7622" size={18} fill="#FF7622" />
-            <Text className="ml-1.5 font-sen-bold text-secondary text-sm">
-              {restaurant?.rating || "4.5"}
+          <View className="flex-row items-center flex-1">
+            <MapPin color="#A0A5BA" size={12} />
+            <Text
+              className="text-text-gray font-sen text-[11px] ml-1 flex-1"
+              numberOfLines={1}
+            >
+              {restaurant.address}
             </Text>
           </View>
 
-          <View className="flex-row items-center mr-6">
-            <Truck color="#FF7622" size={18} />
-            <Text className="ml-1.5 font-sen text-secondary text-xs">
-              ₦{restaurant.deliveryFee === 0 ? "Free" : restaurant.deliveryFee}
-            </Text>
-          </View>
-
-          <View className="flex-row items-center">
-            <Clock color="#FF7622" size={18} />
-            <Text className="ml-1.5 font-sen text-secondary text-xs">
-              {restaurant.openingTime} Am - {restaurant.closingTime} Pm
+          <View className="flex-row items-center ml-3 bg-[#F0F5FA] px-2.5 py-1 rounded-lg">
+            <Clock color="#646982" size={12} />
+            <Text className="font-sen text-text-gray text-[11px] ml-1">
+              {restaurant.openingTime} - {restaurant.closingTime}
             </Text>
           </View>
         </View>
