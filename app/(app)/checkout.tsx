@@ -20,7 +20,16 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
-import { Banknote, CreditCard } from "lucide-react-native";
+import {
+  Banknote,
+  Briefcase,
+  Check,
+  CreditCard,
+  Home,
+  MapPin,
+  MessageSquare,
+  Plus,
+} from "lucide-react-native";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -156,60 +165,129 @@ export default function Checkout() {
     [],
   );
 
-  const AddressItem = ({ address }: { address: Address }) => (
-    <TouchableOpacity
-      onPress={() => {
-        setSelectedAddress(address);
-        addressSheetRef.current?.close();
-      }}
-      className={`p-4 rounded-xl mb-3 ${
-        selectedAddress?._id === address._id
-          ? "bg-[#FFF5EE] border-2 border-primary"
-          : "bg-[#F0F5FA]"
-      }`}
-    >
-      <Text className="font-sen-bold text-secondary text-sm uppercase mb-1">
-        {address.label}
-      </Text>
-      <Text className="font-sen text-text-gray text-sm">
-        {address.street}, {address.city}, {address.state}
-      </Text>
-    </TouchableOpacity>
-  );
+  const getLabelIcon = (label: string) => {
+    const l = label.toLowerCase();
+    if (l === "home") return Home;
+    if (l === "work") return Briefcase;
+    return MapPin;
+  };
+
+  const getLabelColor = (label: string) => {
+    const l = label.toLowerCase();
+    if (l === "home") return { color: "#2D8EFF", bg: "#EBF4FF" };
+    if (l === "work") return { color: "#FF7622", bg: "#FFF5EE" };
+    return { color: "#7E8CA0", bg: "#F0F5FA" };
+  };
+
+  const AddressItem = ({ address }: { address: Address }) => {
+    const isSelected = selectedAddress?._id === address._id;
+    const Icon = getLabelIcon(address.label);
+    const { color, bg } = getLabelColor(address.label);
+
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          setSelectedAddress(address);
+          addressSheetRef.current?.close();
+        }}
+        className={`p-4 rounded-2xl mb-3 flex-row items-center ${
+          isSelected ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
+        }`}
+        style={{
+          borderWidth: isSelected ? 1.5 : 1,
+          borderColor: isSelected ? "#FF7622" : "#F0F0F0",
+        }}
+        activeOpacity={0.7}
+      >
+        <View
+          className="w-10 h-10 rounded-xl items-center justify-center mr-3"
+          style={{ backgroundColor: bg }}
+        >
+          <Icon color={color} size={18} />
+        </View>
+        <View className="flex-1">
+          <View className="flex-row items-center mb-0.5">
+            <Text className="font-sen-bold text-secondary text-sm uppercase mr-2">
+              {address.label}
+            </Text>
+            {address.isDefault && (
+              <View className="bg-[#F0F5FA] px-2 py-0.5 rounded-md">
+                <Text className="text-text-gray text-[9px] font-sen-bold">
+                  DEFAULT
+                </Text>
+              </View>
+            )}
+          </View>
+          <Text className="font-sen text-text-gray text-xs leading-4">
+            {address.street}, {address.city}, {address.state}
+          </Text>
+        </View>
+        {isSelected && (
+          <View className="w-7 h-7 bg-primary rounded-lg items-center justify-center ml-2">
+            <Check color="white" size={14} />
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   const PaymentItem = ({ method }: { method: PaymentMethod }) => {
     const isCash = method.type === "cash";
+    const isSelected = selectedPaymentMethod?._id === method._id;
+
     return (
       <TouchableOpacity
         onPress={() => {
           setSelectedPaymentMethod(method);
           paymentSheetRef.current?.close();
         }}
-        className={`p-4 rounded-xl mb-3 flex-row items-center ${
-          selectedPaymentMethod?._id === method._id
-            ? "bg-[#FFF5EE] border-2 border-primary"
-            : "bg-[#F0F5FA]"
+        className={`p-4 rounded-2xl mb-3 flex-row items-center ${
+          isSelected ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
         }`}
+        style={{
+          borderWidth: isSelected ? 1.5 : 1,
+          borderColor: isSelected ? "#FF7622" : "#F0F0F0",
+        }}
+        activeOpacity={0.7}
       >
-        <View className="w-10 h-10 bg-white rounded-full items-center justify-center mr-3">
+        <View
+          className="w-10 h-10 rounded-xl items-center justify-center mr-3"
+          style={{
+            backgroundColor: isCash ? "#EBF4FF" : "#FFF5EE",
+          }}
+        >
           {isCash ? (
-            <Banknote color="#2D8EFF" size={20} />
+            <Banknote color="#2D8EFF" size={18} />
           ) : (
-            <CreditCard color="#FF7622" size={20} />
+            <CreditCard color="#FF7622" size={18} />
           )}
         </View>
         <View className="flex-1">
-          <Text className="font-sen-bold text-secondary text-sm">
-            {isCash
-              ? "CASH ON DELIVERY"
-              : `${method.cardBrand} •••• ${method.cardLast4}`}
-          </Text>
+          <View className="flex-row items-center mb-0.5">
+            <Text className="font-sen-bold text-secondary text-sm mr-2">
+              {isCash
+                ? "Cash on Delivery"
+                : `${method.cardBrand} •••• ${method.cardLast4}`}
+            </Text>
+            {method.isDefault && (
+              <View className="bg-[#F0F5FA] px-2 py-0.5 rounded-md">
+                <Text className="text-text-gray text-[9px] font-sen-bold">
+                  DEFAULT
+                </Text>
+              </View>
+            )}
+          </View>
           {!isCash && (
             <Text className="font-sen text-text-gray text-xs">
-              {method.bank} • {method.cardExpMonth}/{method.cardExpYear}
+              {method.bank} • Expires {method.cardExpMonth}/{method.cardExpYear}
             </Text>
           )}
         </View>
+        {isSelected && (
+          <View className="w-7 h-7 bg-primary rounded-lg items-center justify-center ml-2">
+            <Check color="white" size={14} />
+          </View>
+        )}
       </TouchableOpacity>
     );
   };
@@ -261,9 +339,17 @@ export default function Checkout() {
 
           {/* Customer Notes */}
           <View className="mb-6">
-            <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-              DELIVERY INSTRUCTIONS (OPTIONAL)
-            </Label>
+            <View className="flex-row items-center mb-2">
+              <View className="w-7 h-7 bg-[#F0F5FA] rounded-lg items-center justify-center mr-2">
+                <MessageSquare color="#A0A5BA" size={14} />
+              </View>
+              <Label className="text-[#32343E] font-sen-bold text-[13px] uppercase tracking-wide">
+                DELIVERY INSTRUCTIONS
+              </Label>
+              <Text className="text-text-gray font-sen text-[11px] ml-1.5">
+                Optional
+              </Text>
+            </View>
             <Input
               placeholder="e.g., Ring the doorbell, Leave at door"
               placeholderTextColor="#B4B9CA"
@@ -271,11 +357,11 @@ export default function Checkout() {
               onChangeText={setCustomerNotes}
               multiline
               numberOfLines={3}
-              className="h-24 !bg-[#F0F5FA] text-text-gray-dark border-0"
+              className="h-24 !bg-[#F0F5FA] text-text-gray-dark border-0 rounded-2xl"
               style={{ textAlignVertical: "top", paddingTop: 12 }}
               maxLength={500}
             />
-            <Text className="text-xs text-text-gray font-sen mt-1">
+            <Text className="text-xs text-text-gray font-sen mt-1.5 text-right">
               {customerNotes.length}/500
             </Text>
           </View>
@@ -299,22 +385,35 @@ export default function Checkout() {
           snapPoints={addressSnapPoints}
           enablePanDownToClose={true}
           backdropComponent={renderBackdrop}
+          handleIndicatorStyle={{ backgroundColor: "#D1D5DB", width: 40 }}
         >
           <BottomSheetView
-            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 16 }}
+            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}
           >
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-sen-bold text-secondary">
-                Select Address
-              </Text>
+              <View className="flex-row items-center">
+                <Text className="text-lg font-sen-bold text-secondary">
+                  Select Address
+                </Text>
+                {addresses.length > 0 && (
+                  <View className="bg-[#F0F5FA] px-2.5 py-1 rounded-lg ml-2">
+                    <Text className="text-text-gray font-sen-bold text-xs">
+                      {addresses.length}
+                    </Text>
+                  </View>
+                )}
+              </View>
               <TouchableOpacity
                 onPress={() => {
                   addressSheetRef.current?.close();
                   router.push("/profile/add-address" as any);
                 }}
+                className="flex-row items-center bg-[#FFF5EE] px-3 py-2 rounded-xl"
+                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
               >
-                <Text className="text-primary font-sen-bold text-sm">
-                  + ADD NEW
+                <Plus color="#FF7622" size={14} />
+                <Text className="text-primary font-sen-bold text-xs ml-1">
+                  ADD NEW
                 </Text>
               </TouchableOpacity>
             </View>
@@ -334,26 +433,37 @@ export default function Checkout() {
           snapPoints={paymentSnapPoints}
           enablePanDownToClose={true}
           backdropComponent={renderBackdrop}
+          handleIndicatorStyle={{ backgroundColor: "#D1D5DB", width: 40 }}
         >
           <BottomSheetView
-            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 16 }}
+            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}
           >
             <View className="flex-row justify-between items-center mb-4">
-              <Text className="text-lg font-sen-bold text-secondary">
-                Select Payment
-              </Text>
-              {paymentMethods.length === 1 && (
-                <TouchableOpacity
-                  onPress={() => {
-                    paymentSheetRef.current?.close();
-                    router.push("/profile/add-card" as any);
-                  }}
-                >
-                  <Text className="text-primary font-sen-bold text-sm">
-                    + ADD CARD
-                  </Text>
-                </TouchableOpacity>
-              )}
+              <View className="flex-row items-center">
+                <Text className="text-lg font-sen-bold text-secondary">
+                  Select Payment
+                </Text>
+                {paymentMethods.length > 0 && (
+                  <View className="bg-[#F0F5FA] px-2.5 py-1 rounded-lg ml-2">
+                    <Text className="text-text-gray font-sen-bold text-xs">
+                      {paymentMethods.length}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              <TouchableOpacity
+                onPress={() => {
+                  paymentSheetRef.current?.close();
+                  router.push("/profile/add-card" as any);
+                }}
+                className="flex-row items-center bg-[#FFF5EE] px-3 py-2 rounded-xl"
+                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
+              >
+                <Plus color="#FF7622" size={14} />
+                <Text className="text-primary font-sen-bold text-xs ml-1">
+                  ADD CARD
+                </Text>
+              </TouchableOpacity>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
