@@ -40,6 +40,8 @@ export default function RestaurantDetails() {
   const restaurant = restaurantData?.data.restaurant;
   const foodItems = foodItemsData?.data.foodItems || [];
 
+  const isCurrentlyOpen = restaurant?.isOpen ?? restaurant?.status === "Open";
+
   if (restaurantLoading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
@@ -177,12 +179,11 @@ export default function RestaurantDetails() {
 
               <View
                 className={`flex-row items-center px-3.5 py-2.5 rounded-xl ${
-                  restaurant.status === "Open" ? "bg-green-50" : "bg-red-50"
+                  isCurrentlyOpen ? "bg-green-50" : "bg-red-50"
                 }`}
                 style={{
                   borderWidth: 1,
-                  borderColor:
-                    restaurant.status === "Open" ? "#BBF7D0" : "#FECACA",
+                  borderColor: isCurrentlyOpen ? "#BBF7D0" : "#FECACA",
                 }}
               >
                 <View
