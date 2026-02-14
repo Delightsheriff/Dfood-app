@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { useSignUp } from "@/hooks/useAuthMutations";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import { Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff, Lock, Mail, User } from "lucide-react-native";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -67,10 +67,11 @@ export default function SignUp() {
       showBackButton={false}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="mb-6">
+        {/* Name */}
+        <View className="mb-5">
           <Label
             nativeID="name"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+            className="text-text-gray font-sen text-xs mb-2 uppercase tracking-widest"
           >
             NAME
           </Label>
@@ -78,28 +79,36 @@ export default function SignUp() {
             control={control}
             name="name"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="John Doe"
-                placeholderTextColor="#B4B9CA"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                aria-labelledby="name"
-                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.name ? "border border-red-500" : ""}`}
-              />
+              <View
+                className={`flex-row items-center bg-[#F6F8FA] rounded-2xl h-[56px] px-4 ${errors.name ? "border border-red-500" : ""}`}
+              >
+                <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
+                  <User color="#A0A5BA" size={16} />
+                </View>
+                <Input
+                  placeholder="John Doe"
+                  placeholderTextColor="#B4B9CA"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  aria-labelledby="name"
+                  className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
+                />
+              </View>
             )}
           />
           {errors.name && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
+            <Text className="text-red-500 text-[11px] font-sen mt-1.5 ml-1">
               {errors.name.message}
             </Text>
           )}
         </View>
 
-        <View className="mb-6">
+        {/* Email */}
+        <View className="mb-5">
           <Label
             nativeID="email"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+            className="text-text-gray font-sen text-xs mb-2 uppercase tracking-widest"
           >
             EMAIL
           </Label>
@@ -107,30 +116,38 @@ export default function SignUp() {
             control={control}
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="example@gmail.com"
-                placeholderTextColor="#B4B9CA"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                aria-labelledby="email"
-                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.email ? "border border-red-500" : ""}`}
-              />
+              <View
+                className={`flex-row items-center bg-[#F6F8FA] rounded-2xl h-[56px] px-4 ${errors.email ? "border border-red-500" : ""}`}
+              >
+                <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
+                  <Mail color="#A0A5BA" size={16} />
+                </View>
+                <Input
+                  placeholder="example@gmail.com"
+                  placeholderTextColor="#B4B9CA"
+                  value={value}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  aria-labelledby="email"
+                  className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
+                />
+              </View>
             )}
           />
           {errors.email && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
+            <Text className="text-red-500 text-[11px] font-sen mt-1.5 ml-1">
               {errors.email.message}
             </Text>
           )}
         </View>
 
-        <View className="mb-6">
+        {/* Password */}
+        <View className="mb-5">
           <Label
             nativeID="password"
-            className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
+            className="text-text-gray font-sen text-xs mb-2 uppercase tracking-widest"
           >
             PASSWORD
           </Label>
@@ -138,58 +155,74 @@ export default function SignUp() {
             control={control}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
-              <View className="relative">
+              <View
+                className={`flex-row items-center bg-[#F6F8FA] rounded-2xl h-[56px] px-4 ${errors.password ? "border border-red-500" : ""}`}
+              >
+                <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
+                  <Lock color="#A0A5BA" size={16} />
+                </View>
                 <Input
-                  placeholder="* * * * * * * * * *"
+                  placeholder="••••••••"
                   placeholderTextColor="#B4B9CA"
                   value={value}
                   onChangeText={onChange}
                   onBlur={onBlur}
                   secureTextEntry={!showPassword}
                   aria-labelledby="password"
-                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.password ? "border border-red-500" : ""}`}
+                  className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
                 />
                 <TouchableOpacity
                   onPress={() => setShowPassword(!showPassword)}
-                  className="absolute right-5 top-0 h-[62px] justify-center"
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   {showPassword ? (
-                    <EyeOff size={20} color="#A0A5BA" />
+                    <EyeOff size={18} color="#A0A5BA" />
                   ) : (
-                    <Eye size={20} color="#A0A5BA" />
+                    <Eye size={18} color="#A0A5BA" />
                   )}
                 </TouchableOpacity>
               </View>
             )}
           />
           {errors.password && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
+            <Text className="text-red-500 text-[11px] font-sen mt-1.5 ml-1">
               {errors.password.message}
             </Text>
           )}
         </View>
 
+        {/* Sign Up Button */}
         <Button
           onPress={handleSubmit(onSubmit)}
           disabled={signUpMutation.isPending}
-          className="h-[62px] bg-primary mt-4"
+          className="h-[56px] bg-primary mt-2 rounded-2xl"
+          style={{
+            shadowColor: "#FF7622",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
         >
           {signUpMutation.isPending ? (
             <ActivityIndicator color="#FFFFFF" />
           ) : (
-            <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
+            <Text className="text-white text-sm font-sen-bold uppercase tracking-wider">
               SIGN UP
             </Text>
           )}
         </Button>
 
-        <Text className="text-center text-[#646982] font-sen my-6">Or</Text>
+        {/* Divider */}
+        <View className="flex-row items-center my-6">
+          <View className="flex-1 h-px bg-[#F0F0F0]" />
+          <Text className="text-text-gray font-sen mx-4 text-xs">OR</Text>
+          <View className="flex-1 h-px bg-[#F0F0F0]" />
+        </View>
 
-        {/* Social login buttons - implement later */}
-
+        {/* Login Link */}
         <View className="flex-row items-center justify-center mb-8">
-          <Text className="text-[#646982] font-sen mr-1">
+          <Text className="text-text-gray font-sen mr-1">
             Already have an account?
           </Text>
           <TouchableOpacity onPress={() => router.push("/(auth)/signin")}>

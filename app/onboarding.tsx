@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "expo-router";
+import { ArrowRight } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
 import { FlatList, View } from "react-native";
 import Animated, {
@@ -78,11 +79,24 @@ export default function Onboarding() {
     handleComplete();
   };
 
-  const buttonText =
-    currentIndex === slides.length - 1 ? "Get Started" : "Next";
+  const isLast = currentIndex === slides.length - 1;
+  const buttonText = isLast ? "Get Started" : "Next";
 
   return (
     <SafeAreaView className="flex-1 bg-white">
+      {/* Skip Button */}
+      <View className="flex-row justify-end px-6 pt-2">
+        <Button
+          variant="ghost"
+          onPress={handleSkip}
+          className="px-4 py-2 rounded-xl bg-[#F6F8FA]"
+          style={{ borderWidth: 1, borderColor: "#F0F0F0" }}
+        >
+          <Text className="text-text-gray font-sen-bold text-xs">Skip</Text>
+        </Button>
+      </View>
+
+      {/* Slides */}
       <View className="flex-1">
         <Animated.FlatList
           ref={flatListRef}
@@ -100,17 +114,25 @@ export default function Onboarding() {
         />
       </View>
 
-      <View className="px-6 pb-8 gap-4">
+      {/* Bottom Controls */}
+      <View className="px-6 pb-8">
         <OnboardingPaginator data={slides} scrollX={scrollX} />
 
-        <Button onPress={handleNext} className="h-[62px]">
-          <Text className="font-sen-bold uppercase tracking-wider">
+        <Button
+          onPress={handleNext}
+          className="h-[56px] bg-primary rounded-2xl flex-row items-center justify-center"
+          style={{
+            shadowColor: "#FF7622",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <Text className="font-sen-bold uppercase tracking-wider text-white mr-2">
             {buttonText}
           </Text>
-        </Button>
-
-        <Button variant="ghost" onPress={handleSkip}>
-          <Text className="text-muted-foreground font-sen">Skip</Text>
+          <ArrowRight color="white" size={18} />
         </Button>
       </View>
     </SafeAreaView>

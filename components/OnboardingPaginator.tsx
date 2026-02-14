@@ -1,6 +1,7 @@
 import { View, useWindowDimensions } from "react-native";
 import Animated, {
   SharedValue,
+  interpolate,
   interpolateColor,
   useAnimatedStyle,
 } from "react-native-reanimated";
@@ -26,12 +27,22 @@ function Dot({ index, width, scrollX }: DotProps) {
       "#FFE1CE",
     ]);
 
-    return { backgroundColor };
+    const dotWidth = interpolate(scrollX.value, inputRange, [10, 28, 10], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+
+    const opacity = interpolate(scrollX.value, inputRange, [0.5, 1, 0.5], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+
+    return { backgroundColor, width: dotWidth, opacity };
   });
 
   return (
     <Animated.View
-      className="h-2.5 w-2.5 rounded-full mx-1.5"
+      className="h-2.5 rounded-full mx-1.5"
       style={animatedStyle}
     />
   );
@@ -41,7 +52,7 @@ export default function OnboardingPaginator({ data, scrollX }: PaginatorProps) {
   const { width } = useWindowDimensions();
 
   return (
-    <View className="flex-row justify-center mb-10">
+    <View className="flex-row justify-center items-center mb-8">
       {data.map((_, i) => (
         <Dot key={i.toString()} index={i} width={width} scrollX={scrollX} />
       ))}

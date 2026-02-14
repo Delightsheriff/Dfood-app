@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// FIXED: Corrected the duplicate/conflicting imports
 import Ellipse from "../../assets/images/Ellipse.svg";
 import TopLeftRay from "../../assets/images/Vector 142.svg";
 import BackButton from "../ui/BackButton";
@@ -45,6 +44,14 @@ export default function AuthLayout({
           <Ellipse width={140} height={140} />
         </View>
 
+        {/* Decorative circles for depth */}
+        <View className="absolute top-16 right-10" pointerEvents="none">
+          <View className="w-3 h-3 bg-white/10 rounded-full" />
+        </View>
+        <View className="absolute top-28 left-14" pointerEvents="none">
+          <View className="w-2 h-2 bg-white/8 rounded-full" />
+        </View>
+
         <SafeAreaView edges={["top"]} className="flex-1">
           {/* Header Content */}
           <View
@@ -53,7 +60,7 @@ export default function AuthLayout({
           >
             {showBackButton && (
               <View className="absolute left-6 top-4">
-                <BackButton />
+                <BackButton variant="light" />
               </View>
             )}
 
@@ -61,15 +68,23 @@ export default function AuthLayout({
               <Text className="text-[30px] text-white font-sen-bold text-center mb-2 leading-9">
                 {title}
               </Text>
-              <Text className="text-[16px] text-white font-sen text-center opacity-80">
+              <Text className="text-[16px] text-white font-sen text-center opacity-70 leading-6">
                 {subtitle}
               </Text>
             </View>
           </View>
 
           {/* White Content Container */}
-          {/* We use flex-1 here so it fills the rest of the screen */}
-          <View className="flex-1 bg-white rounded-t-[30px] overflow-hidden">
+          <View
+            className="flex-1 bg-white rounded-t-[30px] overflow-hidden"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: -4 },
+              shadowOpacity: 0.08,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+          >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View className="flex-1 px-6 pt-8">{children}</View>
             </TouchableWithoutFeedback>

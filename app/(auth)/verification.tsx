@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useForgotPassword, useVerifyOTP } from "@/hooks/useAuthMutations";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { Mail } from "lucide-react-native";
 import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
@@ -60,7 +61,6 @@ export default function Verification() {
       { email: email || "", otp },
       {
         onSuccess: (response) => {
-          // Navigate to reset password with resetToken
           router.push({
             pathname: "/(auth)/reset-password",
             params: { resetToken: response.data.resetToken },
@@ -71,7 +71,6 @@ export default function Verification() {
             error.response?.data?.message ||
             "Invalid or expired code. Please try again.";
           Alert.alert("Verification Failed", message);
-          // Clear code on error
           setCode(["", "", "", ""]);
           inputs.current[0]?.focus();
         },
@@ -106,19 +105,38 @@ export default function Verification() {
       subtitle="We have sent a code to your email"
       showBackButton={false}
     >
+      {/* Email Badge */}
       <View className="items-center mb-8">
-        <Text className="text-[#32343E] font-sen-bold text-[14px]">
-          {email || "example@gmail.com"}
-        </Text>
+        <View
+          className="flex-row items-center bg-[#F6F8FA] px-4 py-2.5 rounded-2xl"
+          style={{ borderWidth: 1, borderColor: "#F0F0F0" }}
+        >
+          <View className="w-7 h-7 bg-white rounded-lg items-center justify-center mr-2.5">
+            <Mail color="#FF7622" size={14} />
+          </View>
+          <Text className="text-secondary font-sen-bold text-sm">
+            {email || "example@gmail.com"}
+          </Text>
+        </View>
       </View>
 
+      {/* OTP Input */}
       <View className="flex-row justify-between px-2 mb-10">
         {[0, 1, 2, 3].map((i) => (
           <View
             key={i}
-            className={`w-[65px] h-[65px] bg-[#F0F5FA] rounded-[10px] justify-center items-center ${
-              code[i] ? "border-2 border-primary" : "border border-transparent"
+            className={`w-[65px] h-[65px] bg-[#F6F8FA] rounded-2xl justify-center items-center ${
+              code[i] ? "" : ""
             }`}
+            style={{
+              borderWidth: code[i] ? 2 : 1,
+              borderColor: code[i] ? "#FF7622" : "#F0F0F0",
+              shadowColor: code[i] ? "#FF7622" : "transparent",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: code[i] ? 0.15 : 0,
+              shadowRadius: 4,
+              elevation: code[i] ? 3 : 0,
+            }}
           >
             <TextInput
               ref={(ref) => {
@@ -137,42 +155,54 @@ export default function Verification() {
         ))}
       </View>
 
+      {/* Resend */}
       <View className="flex-row justify-between items-center mb-8">
-        <Text className="text-[#32343E] font-sen text-[14px] opacity-60">
-          I didn&apos;t receive a code?
+        <Text className="text-text-gray font-sen text-sm">
+          Didn&apos;t receive a code?
         </Text>
         <View className="flex-row items-center">
           <TouchableOpacity
             onPress={handleResend}
             disabled={timer > 0 || resendMutation.isPending}
+            className={`px-3 py-1.5 rounded-xl ${
+              timer > 0 ? "bg-[#F6F8FA]" : "bg-[#FFF5EE]"
+            }`}
+            style={
+              timer === 0
+                ? { borderWidth: 1, borderColor: "#FFE5D3" }
+                : undefined
+            }
           >
             <Text
-              className={`font-sen-bold text-[14px] ${
+              className={`font-sen-bold text-sm ${
                 timer > 0 || resendMutation.isPending
-                  ? "text-[#A0A5BA]"
-                  : "text-primary underline"
+                  ? "text-text-gray"
+                  : "text-primary"
               }`}
             >
-              Resend Code
+              {timer > 0 ? `Resend (${timer}s)` : "Resend Code"}
             </Text>
           </TouchableOpacity>
-          {timer > 0 && (
-            <Text className="text-[#32343E] font-sen text-[14px] ml-1">
-              ({timer}s)
-            </Text>
-          )}
         </View>
       </View>
 
+      {/* Verify Button */}
       <Button
         onPress={handleVerify}
         disabled={!isCodeComplete || verifyOTPMutation.isPending}
-        className="h-[62px] bg-primary"
+        className="h-[56px] bg-primary rounded-2xl"
+        style={{
+          shadowColor: "#FF7622",
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: isCodeComplete ? 0.3 : 0,
+          shadowRadius: 8,
+          elevation: isCodeComplete ? 6 : 0,
+        }}
       >
         {verifyOTPMutation.isPending ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
+          <Text className="text-white text-sm font-sen-bold uppercase tracking-wider">
             VERIFY
           </Text>
         )}
