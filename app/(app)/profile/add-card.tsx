@@ -1,12 +1,17 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useAddCard } from "@/hooks/usePaymentMethodMutations";
 import { useRouter } from "expo-router";
-import { ChevronLeft } from "lucide-react-native";
+import {
+  ChevronLeft,
+  CreditCard,
+  Lock,
+  RefreshCw,
+  Shield,
+} from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
   Alert,
-  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -65,68 +70,121 @@ function AddCardContent() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-6 pt-2" edges={["top"]}>
-      <StatusBar barStyle="dark-content" />
-
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
-      <View className="flex-row items-center mb-8">
+      <View className="flex-row items-center px-6 py-4">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-[45px] h-[45px] bg-[#ECF0F4] rounded-full items-center justify-center mr-4"
+          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.06,
+            shadowRadius: 4,
+            elevation: 2,
+          }}
         >
-          <ChevronLeft color="#181C2E" size={24} />
+          <ChevronLeft color="#181C2E" size={22} />
         </TouchableOpacity>
-        <Text className="text-[17px] font-sen-bold text-[#181C2E] flex-1">
+        <Text className="text-lg font-sen-bold text-secondary flex-1">
           Add Card
         </Text>
       </View>
 
       <View className="flex-1 items-center justify-center px-6">
-        <View className="bg-[#F0F5FA] rounded-2xl p-6 w-full">
-          <Text className="text-center text-secondary font-sen-bold text-lg mb-2">
-            Add Payment Card
-          </Text>
-          <Text className="text-center text-text-gray font-sen text-sm mb-6">
-            You&apos;ll be charged ₦1 to verify your card. This will be refunded
-            immediately.
-          </Text>
-
-          <View className="bg-white rounded-xl p-4 mb-6">
-            <View className="flex-row items-center mb-3">
-              <View className="w-2 h-2 bg-primary rounded-full mr-3" />
-              <Text className="text-secondary font-sen text-sm flex-1">
-                Secure payment via Paystack
-              </Text>
-            </View>
-            <View className="flex-row items-center mb-3">
-              <View className="w-2 h-2 bg-primary rounded-full mr-3" />
-              <Text className="text-secondary font-sen text-sm flex-1">
-                Card details are encrypted
-              </Text>
-            </View>
-            <View className="flex-row items-center">
-              <View className="w-2 h-2 bg-primary rounded-full mr-3" />
-              <Text className="text-secondary font-sen text-sm flex-1">
-                ₦1 verification fee refunded
-              </Text>
-            </View>
-          </View>
-
-          {addCardMutation.isPending ? (
-            <View className="h-[62px] bg-primary rounded-xl items-center justify-center">
-              <ActivityIndicator color="white" />
-            </View>
-          ) : (
-            <TouchableOpacity
-              onPress={handleAddCard}
-              className="h-[62px] bg-primary rounded-xl items-center justify-center"
-            >
-              <Text className="text-white font-sen-bold text-base">
-                Add Card via Paystack
-              </Text>
-            </TouchableOpacity>
-          )}
+        {/* Card Icon */}
+        <View
+          className="w-20 h-20 bg-[#FFF5EE] rounded-3xl items-center justify-center mb-6"
+          style={{
+            shadowColor: "#FF7622",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.12,
+            shadowRadius: 8,
+            elevation: 3,
+          }}
+        >
+          <CreditCard color="#FF7622" size={36} />
         </View>
+
+        <Text className="text-xl font-sen-bold text-secondary mb-2 text-center">
+          Add Payment Card
+        </Text>
+        <Text className="text-text-gray font-sen text-sm mb-8 text-center leading-5">
+          You&apos;ll be charged ₦1 to verify your card.{"\n"}This will be
+          refunded immediately.
+        </Text>
+
+        {/* Features Card */}
+        <View
+          className="bg-[#F6F8FA] rounded-2xl p-5 w-full mb-8"
+          style={{
+            borderWidth: 1,
+            borderColor: "#F0F0F0",
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.04,
+            shadowRadius: 6,
+            elevation: 1,
+          }}
+        >
+          <View className="flex-row items-center mb-4">
+            <View className="w-8 h-8 bg-[#EBF4FF] rounded-xl items-center justify-center mr-3">
+              <Shield color="#2D8EFF" size={16} />
+            </View>
+            <Text className="text-secondary font-sen text-sm flex-1">
+              Secure payment via Paystack
+            </Text>
+          </View>
+          <View className="flex-row items-center mb-4">
+            <View className="w-8 h-8 bg-[#FFF5EE] rounded-xl items-center justify-center mr-3">
+              <Lock color="#FF7622" size={16} />
+            </View>
+            <Text className="text-secondary font-sen text-sm flex-1">
+              Card details are encrypted
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-8 h-8 bg-[#DCFCE7] rounded-xl items-center justify-center mr-3">
+              <RefreshCw color="#16A34A" size={16} />
+            </View>
+            <Text className="text-secondary font-sen text-sm flex-1">
+              ₦1 verification fee refunded
+            </Text>
+          </View>
+        </View>
+
+        {/* CTA Button */}
+        {addCardMutation.isPending ? (
+          <View
+            className="h-[56px] bg-primary rounded-2xl items-center justify-center w-full"
+            style={{
+              shadowColor: "#FF7622",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 6,
+            }}
+          >
+            <ActivityIndicator color="white" />
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={handleAddCard}
+            className="h-[56px] bg-primary rounded-2xl items-center justify-center w-full flex-row"
+            style={{
+              shadowColor: "#FF7622",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 6,
+            }}
+          >
+            <CreditCard color="white" size={18} />
+            <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
+              Add Card via Paystack
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );

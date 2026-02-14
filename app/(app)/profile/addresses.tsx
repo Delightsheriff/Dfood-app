@@ -11,6 +11,7 @@ import {
   Edit2,
   Home,
   MapPin,
+  Plus,
   Trash2,
 } from "lucide-react-native";
 import React from "react";
@@ -18,7 +19,6 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
-  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -42,9 +42,9 @@ export default function Addresses() {
 
   const getLabelColor = (label: string) => {
     const normalizedLabel = label.toLowerCase();
-    if (normalizedLabel === "home") return "#2D8EFF";
-    if (normalizedLabel === "work") return "#FF7622";
-    return "#7E8CA0";
+    if (normalizedLabel === "home") return { color: "#2D8EFF", bg: "#EBF4FF" };
+    if (normalizedLabel === "work") return { color: "#FF7622", bg: "#FFF5EE" };
+    return { color: "#7E8CA0", bg: "#F0F5FA" };
   };
 
   const handleDelete = (address: Address) => {
@@ -90,39 +90,50 @@ export default function Addresses() {
 
   const AddressItem = ({ address }: { address: Address }) => {
     const Icon = getLabelIcon(address.label);
-    const color = getLabelColor(address.label);
+    const { color, bg } = getLabelColor(address.label);
 
     return (
       <TouchableOpacity
         onPress={() => handleSetDefault(address)}
         onLongPress={() => handleSetDefault(address)}
-        className={`rounded-[16px] p-4 mb-4 flex-row items-center ${
-          address.isDefault
-            ? "bg-[#FFF5EE] border-2 border-primary"
-            : "bg-[#F0F5FA]"
+        className={`rounded-2xl p-4 mb-3 flex-row items-center ${
+          address.isDefault ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
         }`}
+        style={{
+          borderWidth: address.isDefault ? 1.5 : 1,
+          borderColor: address.isDefault ? "#FF7622" : "#F0F0F0",
+          shadowColor: address.isDefault ? "#FF7622" : "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: address.isDefault ? 0.1 : 0.04,
+          shadowRadius: 6,
+          elevation: address.isDefault ? 3 : 1,
+        }}
+        activeOpacity={0.7}
       >
-        <View className="w-[40px] h-[40px] bg-white rounded-full items-center justify-center mr-4">
-          <Icon color={color} size={20} />
+        <View
+          className="w-10 h-10 rounded-xl items-center justify-center mr-3.5"
+          style={{ backgroundColor: bg }}
+        >
+          <Icon color={color} size={18} />
         </View>
         <View className="flex-1 mr-2">
           <View className="flex-row items-center mb-1">
-            <Text className="text-[14px] font-sen-bold text-[#181C2E] uppercase mr-2">
+            <Text className="text-sm font-sen-bold text-secondary uppercase mr-2">
               {address.label}
             </Text>
             {address.isDefault && (
-              <View className="bg-primary px-2 py-0.5 rounded-full">
+              <View className="bg-primary px-2 py-0.5 rounded-lg">
                 <Text className="text-white text-[10px] font-sen-bold">
                   DEFAULT
                 </Text>
               </View>
             )}
           </View>
-          <Text className="text-[13px] font-sen text-[#A0A5BA] leading-5">
+          <Text className="text-xs font-sen text-text-gray leading-5">
             {address.street}, {address.city}, {address.state}
           </Text>
         </View>
-        <View className="flex-row gap-2">
+        <View className="flex-row items-center gap-1.5">
           <TouchableOpacity
             onPress={() =>
               router.push({
@@ -130,17 +141,19 @@ export default function Addresses() {
                 params: { id: address._id },
               })
             }
+            className="w-9 h-9 bg-white rounded-xl items-center justify-center"
           >
-            <Edit2 color="#FF7622" size={20} />
+            <Edit2 color="#FF7622" size={16} />
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => handleDelete(address)}
             disabled={deleteAddressMutation.isPending}
+            className="w-9 h-9 bg-white rounded-xl items-center justify-center"
           >
             {deleteAddressMutation.isPending ? (
-              <ActivityIndicator size="small" color="#FF7622" />
+              <ActivityIndicator size="small" color="#FF4B4B" />
             ) : (
-              <Trash2 color="#FF7622" size={20} />
+              <Trash2 color="#FF4B4B" size={16} />
             )}
           </TouchableOpacity>
         </View>
@@ -149,21 +162,32 @@ export default function Addresses() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-6 pt-2">
-      <StatusBar barStyle="dark-content" />
-
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-8">
+      <View className="flex-row items-center px-6 py-4">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-[45px] h-[45px] bg-[#ECF0F4] rounded-full items-center justify-center"
+          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.06,
+            shadowRadius: 4,
+            elevation: 2,
+          }}
         >
-          <ChevronLeft color="#181C2E" size={24} />
+          <ChevronLeft color="#181C2E" size={22} />
         </TouchableOpacity>
-        <Text className="text-[17px] font-sen-bold text-[#181C2E]">
+        <Text className="text-lg font-sen-bold text-secondary flex-1">
           My Addresses
         </Text>
-        <View className="w-[45px]" />
+        {addresses.length > 0 && (
+          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
+            <Text className="text-text-gray font-sen text-xs">
+              {addresses.length}
+            </Text>
+          </View>
+        )}
       </View>
 
       {isLoading ? (
@@ -172,8 +196,10 @@ export default function Addresses() {
         </View>
       ) : addresses.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
-          <MapPin color="#A0A5BA" size={64} />
-          <Text className="text-xl font-sen-bold text-secondary mt-4 mb-2">
+          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
+            <MapPin color="#A0A5BA" size={32} />
+          </View>
+          <Text className="text-base font-sen-bold text-secondary mb-2">
             No Addresses Yet
           </Text>
           <Text className="text-text-gray font-sen text-sm text-center">
@@ -181,8 +207,12 @@ export default function Addresses() {
           </Text>
         </View>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-          <Text className="text-text-gray font-sen text-sm mb-4">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 16 }}
+        >
+          <Text className="text-text-gray font-sen text-xs mb-4">
             Tap to set as default • Long press for options
           </Text>
           {addresses.map((address) => (
@@ -191,14 +221,24 @@ export default function Addresses() {
         </ScrollView>
       )}
 
-      <TouchableOpacity
-        onPress={() => router.push("/profile/add-address" as any)}
-        className="w-full bg-primary h-[62px] rounded-[12px] items-center justify-center mb-6"
-      >
-        <Text className="text-white font-sen-bold text-[14px] uppercase tracking-wider">
-          ADD NEW ADDRESS
-        </Text>
-      </TouchableOpacity>
+      <View className="px-6 pb-6">
+        <TouchableOpacity
+          onPress={() => router.push("/profile/add-address" as any)}
+          className="w-full bg-primary h-[56px] rounded-2xl items-center justify-center flex-row"
+          style={{
+            shadowColor: "#FF7622",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <Plus color="white" size={20} />
+          <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
+            ADD NEW ADDRESS
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }

@@ -10,7 +10,16 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { Camera, ChevronLeft, Trash2 } from "lucide-react-native";
+import {
+  Camera,
+  ChevronLeft,
+  Lock,
+  Mail,
+  Phone,
+  Shield,
+  Trash2,
+  User,
+} from "lucide-react-native";
 import React from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
@@ -101,7 +110,6 @@ export default function PersonalInfo() {
     if (!result.canceled && result.assets[0]) {
       const asset = result.assets[0];
 
-      // Create FormData
       const formData = new FormData();
       formData.append("image", {
         uri: asset.uri,
@@ -165,12 +173,19 @@ export default function PersonalInfo() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+      <SafeAreaView className="flex-1 bg-[#F6F8FA]" edges={["top"]}>
         {/* Header */}
-        <View className="flex-row items-center px-6 py-4 border-b border-[#F0F5FA]">
+        <View className="flex-row items-center px-6 py-4 bg-[#F6F8FA]">
           <TouchableOpacity
             onPress={() => router.back()}
-            className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
+            className="w-11 h-11 bg-white rounded-2xl items-center justify-center mr-3"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.06,
+              shadowRadius: 4,
+              elevation: 2,
+            }}
           >
             <ChevronLeft color="#181C2E" size={22} />
           </TouchableOpacity>
@@ -181,161 +196,265 @@ export default function PersonalInfo() {
 
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24 }}
+          contentContainerStyle={{ paddingBottom: 32 }}
         >
-          {/* Profile Picture */}
-          <View className="items-center mb-8">
-            <View className="relative">
-              <View className="w-[120px] h-[120px] bg-[#FFD7C5] rounded-full items-center justify-center overflow-hidden">
-                {profile?.profileImage ? (
-                  <Image
-                    source={{ uri: profile.profileImage }}
-                    className="w-full h-full"
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <Text className="text-[48px] font-sen-bold text-[#FF7622]">
-                    {profile?.name?.charAt(0).toUpperCase() || "U"}
-                  </Text>
+          {/* ── Hero Avatar Section ── */}
+          <View
+            className="mx-6 mt-2 mb-6 rounded-3xl overflow-hidden"
+            style={{
+              shadowColor: "#FF7622",
+              shadowOffset: { width: 0, height: 6 },
+              shadowOpacity: 0.12,
+              shadowRadius: 16,
+              elevation: 6,
+            }}
+          >
+            {/* Gradient-like warm header */}
+            <View className="bg-[#FF7622] pt-8 pb-14 items-center relative">
+              <View className="absolute top-0 left-0 right-0 bottom-0 opacity-20">
+                <View className="absolute top-2 left-8 w-16 h-16 bg-white rounded-full" />
+                <View className="absolute top-6 right-12 w-8 h-8 bg-white rounded-full" />
+                <View className="absolute bottom-4 left-1/2 w-12 h-12 bg-white rounded-full" />
+              </View>
+
+              <Text className="text-white/70 font-sen text-xs uppercase tracking-widest mb-1">
+                YOUR PROFILE
+              </Text>
+              <Text className="text-white font-sen-bold text-lg">
+                {profile?.name || "Guest"}
+              </Text>
+            </View>
+
+            {/* Avatar overlapping the sections */}
+            <View className="bg-white px-6 pt-16 pb-5 items-center">
+              <View className="absolute -top-12 self-center">
+                <View
+                  className="w-24 h-24 bg-[#FFD7C5] rounded-2xl items-center justify-center overflow-hidden border-4 border-white"
+                  style={{
+                    shadowColor: "#000",
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 8,
+                    elevation: 6,
+                  }}
+                >
+                  {profile?.profileImage ? (
+                    <Image
+                      source={{ uri: profile.profileImage }}
+                      className="w-full h-full"
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <Text className="text-[36px] font-sen-bold text-primary">
+                      {profile?.name?.charAt(0).toUpperCase() || "U"}
+                    </Text>
+                  )}
+                </View>
+
+                {/* Camera Button */}
+                <TouchableOpacity
+                  onPress={handleImagePick}
+                  disabled={updateImageMutation.isPending}
+                  className="absolute -bottom-1 -right-1 w-9 h-9 bg-primary rounded-xl items-center justify-center border-[3px] border-white"
+                  style={{
+                    shadowColor: "#FF7622",
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 4,
+                    elevation: 4,
+                  }}
+                >
+                  {updateImageMutation.isPending ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Camera color="white" size={16} />
+                  )}
+                </TouchableOpacity>
+
+                {/* Delete Button */}
+                {profile?.profileImage && (
+                  <TouchableOpacity
+                    onPress={handleDeleteImage}
+                    disabled={deleteImageMutation.isPending}
+                    className="absolute -bottom-1 -left-1 w-9 h-9 bg-red-500 rounded-xl items-center justify-center border-[3px] border-white"
+                    style={{
+                      shadowColor: "#FF4B4B",
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 4,
+                      elevation: 4,
+                    }}
+                  >
+                    {deleteImageMutation.isPending ? (
+                      <ActivityIndicator size="small" color="white" />
+                    ) : (
+                      <Trash2 color="white" size={16} />
+                    )}
+                  </TouchableOpacity>
                 )}
               </View>
 
-              {/* Camera Button */}
-              <TouchableOpacity
-                onPress={handleImagePick}
-                disabled={updateImageMutation.isPending}
-                className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full items-center justify-center border-4 border-white"
+              {/* Role & Email under avatar */}
+              <View
+                className="flex-row items-center bg-[#FFF5EE] px-3 py-1.5 rounded-lg mb-2"
+                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
               >
-                {updateImageMutation.isPending ? (
-                  <ActivityIndicator size="small" color="white" />
-                ) : (
-                  <Camera color="white" size={18} />
-                )}
-              </TouchableOpacity>
-
-              {/* Delete Button */}
-              {profile?.profileImage && (
-                <TouchableOpacity
-                  onPress={handleDeleteImage}
-                  disabled={deleteImageMutation.isPending}
-                  className="absolute bottom-0 left-0 w-10 h-10 bg-red-500 rounded-full items-center justify-center border-4 border-white"
-                >
-                  {deleteImageMutation.isPending ? (
-                    <ActivityIndicator size="small" color="white" />
-                  ) : (
-                    <Trash2 color="white" size={18} />
-                  )}
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-
-          {/* Name Field */}
-          <View className="mb-6">
-            <Label
-              nativeID="name"
-              className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
-            >
-              NAME
-            </Label>
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="Your name"
-                  placeholderTextColor="#B4B9CA"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  aria-labelledby="name"
-                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.name ? "border border-red-500" : ""}`}
-                />
-              )}
-            />
-            {errors.name && (
-              <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-                {errors.name.message}
-              </Text>
-            )}
-          </View>
-
-          {/* Email Field (Read-only) */}
-          <View className="mb-6">
-            <Label
-              nativeID="email"
-              className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
-            >
-              EMAIL
-            </Label>
-            <Input
-              value={profile?.email || ""}
-              editable={false}
-              aria-labelledby="email"
-              className="h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 opacity-60"
-            />
-            <Text className="text-[#A0A5BA] text-[12px] font-sen mt-1.5 ml-1">
-              Email cannot be changed
-            </Text>
-          </View>
-
-          {/* Phone Field */}
-          <View className="mb-6">
-            <Label
-              nativeID="phone"
-              className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide"
-            >
-              PHONE NUMBER
-            </Label>
-            <Controller
-              control={control}
-              name="phone"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="+234 800 000 0000"
-                  placeholderTextColor="#B4B9CA"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType="phone-pad"
-                  aria-labelledby="phone"
-                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 ${errors.phone ? "border border-red-500" : ""}`}
-                />
-              )}
-            />
-            {errors.phone && (
-              <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-                {errors.phone.message}
-              </Text>
-            )}
-          </View>
-
-          {/* Role Badge */}
-          <View className="mb-8">
-            <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-              ACCOUNT TYPE
-            </Label>
-            <View className="bg-[#FFF5EE] rounded-xl px-4 py-3 self-start">
-              <Text className="text-primary font-sen-bold text-sm uppercase">
-                {profile?.role || "Customer"}
+                <Shield color="#FF7622" size={12} />
+                <Text className="text-primary font-sen-bold text-xs uppercase ml-1.5">
+                  {profile?.role || "Customer"}
+                </Text>
+              </View>
+              <Text className="text-text-gray font-sen text-xs">
+                {profile?.email}
               </Text>
             </View>
           </View>
 
-          {/* Save Button */}
-          <Button
-            onPress={handleSubmit(onSubmit)}
-            disabled={!isDirty || updateProfileMutation.isPending}
-            className="h-[62px] bg-primary mb-8"
+          {/* ── Form Section ── */}
+          <View
+            className="mx-6 bg-white rounded-3xl p-6"
+            style={{
+              shadowColor: "#000",
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.05,
+              shadowRadius: 10,
+              elevation: 3,
+            }}
           >
-            {updateProfileMutation.isPending ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Text className="text-white text-[14px] font-sen-bold uppercase tracking-wider">
-                SAVE CHANGES
+            {/* Section Title */}
+            <View className="flex-row items-center mb-5">
+              <View className="w-8 h-8 bg-[#FFF5EE] rounded-xl items-center justify-center mr-2.5">
+                <User color="#FF7622" size={16} />
+              </View>
+              <Text className="text-base font-sen-bold text-secondary">
+                Edit Profile
               </Text>
-            )}
-          </Button>
+            </View>
+
+            {/* Name Field */}
+            <View className="mb-5">
+              <Label
+                nativeID="name"
+                className="text-text-gray font-sen text-xs mb-2 uppercase tracking-widest"
+              >
+                FULL NAME
+              </Label>
+              <Controller
+                control={control}
+                name="name"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View
+                    className={`flex-row items-center bg-[#F6F8FA] rounded-2xl h-[56px] px-4 ${errors.name ? "border border-red-500" : ""}`}
+                  >
+                    <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
+                      <User color="#A0A5BA" size={16} />
+                    </View>
+                    <Input
+                      placeholder="Your name"
+                      placeholderTextColor="#B4B9CA"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      aria-labelledby="name"
+                      className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
+                    />
+                  </View>
+                )}
+              />
+              {errors.name && (
+                <Text className="text-red-500 text-[11px] font-sen mt-1.5 ml-1">
+                  {errors.name.message}
+                </Text>
+              )}
+            </View>
+
+            {/* Email Field (Read-only) */}
+            <View className="mb-5">
+              <Label
+                nativeID="email"
+                className="text-text-gray font-sen text-xs mb-2 uppercase tracking-widest"
+              >
+                EMAIL ADDRESS
+              </Label>
+              <View className="flex-row items-center bg-[#F6F8FA] rounded-2xl h-[56px] px-4 opacity-50">
+                <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
+                  <Mail color="#A0A5BA" size={16} />
+                </View>
+                <Input
+                  value={profile?.email || ""}
+                  editable={false}
+                  aria-labelledby="email"
+                  className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
+                />
+                <Lock color="#A0A5BA" size={14} />
+              </View>
+              <Text className="text-text-gray text-[11px] font-sen mt-1.5 ml-1">
+                Email cannot be changed
+              </Text>
+            </View>
+
+            {/* Phone Field */}
+            <View className="mb-2">
+              <Label
+                nativeID="phone"
+                className="text-text-gray font-sen text-xs mb-2 uppercase tracking-widest"
+              >
+                PHONE NUMBER
+              </Label>
+              <Controller
+                control={control}
+                name="phone"
+                render={({ field: { onChange, onBlur, value } }) => (
+                  <View
+                    className={`flex-row items-center bg-[#F6F8FA] rounded-2xl h-[56px] px-4 ${errors.phone ? "border border-red-500" : ""}`}
+                  >
+                    <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
+                      <Phone color="#A0A5BA" size={16} />
+                    </View>
+                    <Input
+                      placeholder="+234 800 000 0000"
+                      placeholderTextColor="#B4B9CA"
+                      value={value}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                      keyboardType="phone-pad"
+                      aria-labelledby="phone"
+                      className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
+                    />
+                  </View>
+                )}
+              />
+              {errors.phone && (
+                <Text className="text-red-500 text-[11px] font-sen mt-1.5 ml-1">
+                  {errors.phone.message}
+                </Text>
+              )}
+            </View>
+          </View>
+
+          {/* ── Save Button ── */}
+          <View className="mx-6 mt-6">
+            <Button
+              onPress={handleSubmit(onSubmit)}
+              disabled={!isDirty || updateProfileMutation.isPending}
+              className="h-[56px] bg-primary rounded-2xl"
+              style={{
+                shadowColor: "#FF7622",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: isDirty ? 0.35 : 0,
+                shadowRadius: 10,
+                elevation: isDirty ? 8 : 0,
+              }}
+            >
+              {updateProfileMutation.isPending ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Text className="text-white text-sm font-sen-bold uppercase tracking-wider">
+                  SAVE CHANGES
+                </Text>
+              )}
+            </Button>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>

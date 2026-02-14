@@ -17,7 +17,6 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
-  StatusBar,
   Text,
   TouchableOpacity,
   View,
@@ -94,29 +93,42 @@ export default function PaymentMethods() {
       <TouchableOpacity
         onPress={() => handleSetDefault(paymentMethod)}
         onLongPress={() => handleSetDefault(paymentMethod)}
-        className={`rounded-[16px] p-4 mb-4 flex-row items-center ${
-          paymentMethod.isDefault
-            ? "bg-[#FFF5EE] border-2 border-primary"
-            : "bg-[#F0F5FA]"
+        className={`rounded-2xl p-4 mb-3 flex-row items-center ${
+          paymentMethod.isDefault ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
         }`}
+        style={{
+          borderWidth: paymentMethod.isDefault ? 1.5 : 1,
+          borderColor: paymentMethod.isDefault ? "#FF7622" : "#F0F0F0",
+          shadowColor: paymentMethod.isDefault ? "#FF7622" : "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: paymentMethod.isDefault ? 0.1 : 0.04,
+          shadowRadius: 6,
+          elevation: paymentMethod.isDefault ? 3 : 1,
+        }}
+        activeOpacity={0.7}
       >
-        <View className="w-[40px] h-[40px] bg-white rounded-full items-center justify-center mr-4">
+        <View
+          className="w-10 h-10 rounded-xl items-center justify-center mr-3.5"
+          style={{
+            backgroundColor: isCash ? "#EBF4FF" : "#FFF5EE",
+          }}
+        >
           {isCash ? (
-            <Banknote color="#2D8EFF" size={20} />
+            <Banknote color="#2D8EFF" size={18} />
           ) : (
-            <CreditCard color="#FF7622" size={20} />
+            <CreditCard color="#FF7622" size={18} />
           )}
         </View>
 
         <View className="flex-1 mr-2">
           <View className="flex-row items-center mb-1">
-            <Text className="text-[14px] font-sen-bold text-[#181C2E] uppercase mr-2">
+            <Text className="text-sm font-sen-bold text-secondary mr-2">
               {isCash
-                ? "CASH ON DELIVERY"
+                ? "Cash on Delivery"
                 : `${paymentMethod.cardBrand} •••• ${paymentMethod.cardLast4}`}
             </Text>
             {paymentMethod.isDefault && (
-              <View className="bg-primary px-2 py-0.5 rounded-full">
+              <View className="bg-primary px-2 py-0.5 rounded-lg">
                 <Text className="text-white text-[10px] font-sen-bold">
                   DEFAULT
                 </Text>
@@ -124,7 +136,7 @@ export default function PaymentMethods() {
             )}
           </View>
           {!isCash && (
-            <Text className="text-[13px] font-sen text-[#A0A5BA]">
+            <Text className="text-xs font-sen text-text-gray">
               {paymentMethod.bank} • Expires {paymentMethod.cardExpMonth}/
               {paymentMethod.cardExpYear}
             </Text>
@@ -135,11 +147,12 @@ export default function PaymentMethods() {
           <TouchableOpacity
             onPress={() => handleDelete(paymentMethod)}
             disabled={deletePaymentMethodMutation.isPending}
+            className="w-9 h-9 bg-white rounded-xl items-center justify-center"
           >
             {deletePaymentMethodMutation.isPending ? (
-              <ActivityIndicator size="small" color="#FF7622" />
+              <ActivityIndicator size="small" color="#FF4B4B" />
             ) : (
-              <Trash2 color="#FF7622" size={20} />
+              <Trash2 color="#FF4B4B" size={16} />
             )}
           </TouchableOpacity>
         )}
@@ -148,21 +161,32 @@ export default function PaymentMethods() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white px-6 pt-2">
-      <StatusBar barStyle="dark-content" />
-
+    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
-      <View className="flex-row items-center justify-between mb-8">
+      <View className="flex-row items-center px-6 py-4">
         <TouchableOpacity
           onPress={() => router.back()}
-          className="w-[45px] h-[45px] bg-[#ECF0F4] rounded-full items-center justify-center"
+          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
+          style={{
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.06,
+            shadowRadius: 4,
+            elevation: 2,
+          }}
         >
-          <ChevronLeft color="#181C2E" size={24} />
+          <ChevronLeft color="#181C2E" size={22} />
         </TouchableOpacity>
-        <Text className="text-[17px] font-sen-bold text-[#181C2E]">
+        <Text className="text-lg font-sen-bold text-secondary flex-1">
           Payment Methods
         </Text>
-        <View className="w-[45px]" />
+        {paymentMethods.length > 0 && (
+          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
+            <Text className="text-text-gray font-sen text-xs">
+              {paymentMethods.length}
+            </Text>
+          </View>
+        )}
       </View>
 
       {isLoading ? (
@@ -170,8 +194,12 @@ export default function PaymentMethods() {
           <ActivityIndicator size="large" color="#FF7622" />
         </View>
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-          <Text className="text-text-gray font-sen text-sm mb-4">
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          className="flex-1"
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 16 }}
+        >
+          <Text className="text-text-gray font-sen text-xs mb-4">
             Tap to set as default • Cards can be deleted
           </Text>
           {paymentMethods.map((paymentMethod) => (
@@ -183,15 +211,24 @@ export default function PaymentMethods() {
         </ScrollView>
       )}
 
-      <TouchableOpacity
-        onPress={() => router.push("/profile/add-card" as any)}
-        className="w-full bg-primary h-[62px] rounded-[12px] items-center justify-center mb-6 flex-row gap-2"
-      >
-        <Plus color="white" size={20} />
-        <Text className="text-white font-sen-bold text-[14px] uppercase tracking-wider">
-          ADD CARD
-        </Text>
-      </TouchableOpacity>
+      <View className="px-6 pb-6">
+        <TouchableOpacity
+          onPress={() => router.push("/profile/add-card" as any)}
+          className="w-full bg-primary h-[56px] rounded-2xl items-center justify-center flex-row"
+          style={{
+            shadowColor: "#FF7622",
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <Plus color="white" size={20} />
+          <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
+            ADD CARD
+          </Text>
+        </TouchableOpacity>
+      </View>
     </SafeAreaView>
   );
 }
