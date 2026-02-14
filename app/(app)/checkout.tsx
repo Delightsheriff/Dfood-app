@@ -6,11 +6,15 @@ import {
   useDefaultAddress,
   useDefaultPaymentMethod,
   usePaymentMethods,
+  useRestaurant,
 } from "@/hooks/useDataQueries";
 import { useCreateOrder } from "@/hooks/useOrderMutations";
 import { useCartStore } from "@/store/cartStore";
 import { Address, PaymentMethod } from "@/types/api";
-import BottomSheet, { BottomSheetBackdrop } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { useRouter } from "expo-router";
 import {
   Banknote,
@@ -19,7 +23,7 @@ import {
   CreditCard,
   MapPin,
 } from "lucide-react-native";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -28,6 +32,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Checkout() {
@@ -42,6 +47,11 @@ export default function Checkout() {
   const { data: defaultPaymentData } = useDefaultPaymentMethod();
   const createOrderMutation = useCreateOrder();
 
+  // Get restaurant data for delivery fee
+  const restaurantId = items.length > 0 ? items[0].restaurantId : "";
+  const { data: restaurantData } = useRestaurant(restaurantId);
+  const restaurant = restaurantData?.data.restaurant;
+
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod | null>(null);
@@ -49,6 +59,10 @@ export default function Checkout() {
 
   const addressSheetRef = useRef<BottomSheet>(null);
   const paymentSheetRef = useRef<BottomSheet>(null);
+
+  // Bottom sheet snap points
+  const addressSnapPoints = useMemo(() => ["70%"], []);
+  const paymentSnapPoints = useMemo(() => ["50%"], []);
 
   const addresses = addressesData?.data.addresses || [];
   const paymentMethods = paymentMethodsData?.data.paymentMethods || [];
@@ -67,10 +81,9 @@ export default function Checkout() {
   }, [defaultPaymentData, selectedPaymentMethod]);
 
   // Calculate totals
-  const restaurantId = items.length > 0 ? items[0].restaurantId : "";
   const restaurantName = items.length > 0 ? items[0].restaurantName : "";
   const subtotal = getTotalPrice;
-  const deliveryFee = 500; // Fixed for now, should come from restaurant
+  const deliveryFee = restaurant?.deliveryFee || 0;
   const total = subtotal + deliveryFee;
 
   const handlePlaceOrder = () => {
@@ -104,7 +117,7 @@ export default function Checkout() {
         onSuccess: (response) => {
           clearCart();
           router.replace({
-            pathname: "/(app)/order-confirmation" as any,
+            pathname: "/(app)/order-confirmation",
             params: { orderId: response.data.order._id },
           });
         },
@@ -124,6 +137,7 @@ export default function Checkout() {
         {...props}
         disappearsOnIndex={-1}
         appearsOnIndex={0}
+        opacity={0.5}
       />
     ),
     [],
@@ -187,278 +201,304 @@ export default function Checkout() {
     );
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4 border-b border-[#F0F5FA]">
-        <TouchableOpacity
-          onPress={() => router.back()}
-          className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          Checkout
-        </Text>
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
-      >
-        {/* Restaurant Info */}
-        <View className="mt-6 mb-6">
-          <Text className="text-xs text-text-gray font-sen uppercase mb-2">
-            ORDERING FROM
+  // Show loading if restaurant data not loaded yet
+  if (!restaurant && restaurantId) {
+    return (
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color="#FF7622" />
+          <Text className="text-text-gray font-sen mt-4">
+            Loading restaurant details...
           </Text>
-          <View className="bg-[#F0F5FA] rounded-xl p-4">
-            <Text className="font-sen-bold text-secondary text-base">
-              {restaurantName}
-            </Text>
-          </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+        {/* Header */}
+        <View className="flex-row items-center px-6 py-4 border-b border-[#F0F5FA]">
+          <TouchableOpacity
+            onPress={() => router.back()}
+            className="w-11 h-11 bg-[#ECF0F4] rounded-full items-center justify-center mr-3"
+          >
+            <ChevronLeft color="#181C2E" size={22} />
+          </TouchableOpacity>
+          <Text className="text-lg font-sen-bold text-secondary flex-1">
+            Checkout
+          </Text>
         </View>
 
-        {/* Delivery Address */}
-        <View className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-xs text-text-gray font-sen uppercase">
-              DELIVERY ADDRESS
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
+        >
+          {/* Restaurant Info */}
+          <View className="mt-6 mb-6">
+            <Text className="text-xs text-text-gray font-sen uppercase mb-2">
+              ORDERING FROM
             </Text>
-            {addresses.length === 0 && (
+            <View className="bg-[#F0F5FA] rounded-xl p-4">
+              <Text className="font-sen-bold text-secondary text-base">
+                {restaurantName}
+              </Text>
+            </View>
+          </View>
+
+          {/* Delivery Address */}
+          <View className="mb-6">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-xs text-text-gray font-sen uppercase">
+                DELIVERY ADDRESS
+              </Text>
+              {addresses.length === 0 && (
+                <TouchableOpacity
+                  onPress={() => router.push("/profile/add-address" as any)}
+                >
+                  <Text className="text-primary font-sen-bold text-sm">
+                    ADD ADDRESS
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            {selectedAddress ? (
+              <TouchableOpacity
+                onPress={() => {
+                  console.log("Opening address sheet");
+                  addressSheetRef.current?.snapToIndex(0);
+                }}
+                className="bg-[#F0F5FA] rounded-xl p-4 flex-row items-center"
+              >
+                <MapPin color="#2D8EFF" size={20} />
+                <View className="flex-1 ml-3">
+                  <Text className="font-sen-bold text-secondary text-sm">
+                    {selectedAddress.label}
+                  </Text>
+                  <Text className="font-sen text-text-gray text-xs">
+                    {selectedAddress.street}, {selectedAddress.city}
+                  </Text>
+                </View>
+                <ChevronRight color="#181C2E" size={20} />
+              </TouchableOpacity>
+            ) : (
               <TouchableOpacity
                 onPress={() => router.push("/profile/add-address" as any)}
+                className="bg-[#FFF5EE] rounded-xl p-4 border-2 border-dashed border-primary"
               >
-                <Text className="text-primary font-sen-bold text-sm">
-                  ADD ADDRESS
+                <Text className="text-primary font-sen-bold text-center">
+                  + Add Delivery Address
                 </Text>
               </TouchableOpacity>
             )}
           </View>
 
-          {selectedAddress ? (
-            <TouchableOpacity
-              onPress={() => addressSheetRef.current?.expand()}
-              className="bg-[#F0F5FA] rounded-xl p-4 flex-row items-center"
-            >
-              <MapPin color="#2D8EFF" size={20} />
-              <View className="flex-1 ml-3">
-                <Text className="font-sen-bold text-secondary text-sm">
-                  {selectedAddress.label}
-                </Text>
-                <Text className="font-sen text-text-gray text-xs">
-                  {selectedAddress.street}, {selectedAddress.city}
-                </Text>
-              </View>
-              <ChevronRight color="#181C2E" size={20} />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity
-              onPress={() => router.push("/profile/add-address" as any)}
-              className="bg-[#FFF5EE] rounded-xl p-4 border-2 border-dashed border-primary"
-            >
-              <Text className="text-primary font-sen-bold text-center">
-                + Add Delivery Address
+          {/* Payment Method */}
+          <View className="mb-6">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-xs text-text-gray font-sen uppercase">
+                PAYMENT METHOD
               </Text>
-            </TouchableOpacity>
-          )}
-        </View>
+              {paymentMethods.length === 1 && (
+                <TouchableOpacity
+                  onPress={() => router.push("/profile/add-card" as any)}
+                >
+                  <Text className="text-primary font-sen-bold text-sm">
+                    ADD CARD
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
 
-        {/* Payment Method */}
-        <View className="mb-6">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-xs text-text-gray font-sen uppercase">
-              PAYMENT METHOD
-            </Text>
-            {paymentMethods.length === 1 && (
+            {selectedPaymentMethod ? (
               <TouchableOpacity
-                onPress={() => router.push("/profile/add-card" as any)}
+                onPress={() => {
+                  console.log("Opening payment sheet");
+                  paymentSheetRef.current?.snapToIndex(0);
+                }}
+                className="bg-[#F0F5FA] rounded-xl p-4 flex-row items-center"
               >
-                <Text className="text-primary font-sen-bold text-sm">
-                  ADD CARD
-                </Text>
+                <View className="w-10 h-10 bg-white rounded-full items-center justify-center mr-3">
+                  {selectedPaymentMethod.type === "cash" ? (
+                    <Banknote color="#2D8EFF" size={20} />
+                  ) : (
+                    <CreditCard color="#FF7622" size={20} />
+                  )}
+                </View>
+                <View className="flex-1">
+                  <Text className="font-sen-bold text-secondary text-sm">
+                    {selectedPaymentMethod.type === "cash"
+                      ? "Cash on Delivery"
+                      : `${selectedPaymentMethod.cardBrand} •••• ${selectedPaymentMethod.cardLast4}`}
+                  </Text>
+                </View>
+                <ChevronRight color="#181C2E" size={20} />
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
 
-          {selectedPaymentMethod ? (
-            <TouchableOpacity
-              onPress={() => paymentSheetRef.current?.expand()}
-              className="bg-[#F0F5FA] rounded-xl p-4 flex-row items-center"
-            >
-              <View className="w-10 h-10 bg-white rounded-full items-center justify-center mr-3">
-                {selectedPaymentMethod.type === "cash" ? (
-                  <Banknote color="#2D8EFF" size={20} />
-                ) : (
-                  <CreditCard color="#FF7622" size={20} />
-                )}
-              </View>
-              <View className="flex-1">
-                <Text className="font-sen-bold text-secondary text-sm">
-                  {selectedPaymentMethod.type === "cash"
-                    ? "Cash on Delivery"
-                    : `${selectedPaymentMethod.cardBrand} •••• ${selectedPaymentMethod.cardLast4}`}
-                </Text>
-              </View>
-              <ChevronRight color="#181C2E" size={20} />
-            </TouchableOpacity>
-          ) : null}
-        </View>
+          {/* Customer Notes */}
+          <View className="mb-6">
+            <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
+              DELIVERY INSTRUCTIONS (OPTIONAL)
+            </Label>
+            <Input
+              placeholder="e.g., Ring the doorbell, Leave at door"
+              placeholderTextColor="#B4B9CA"
+              value={customerNotes}
+              onChangeText={setCustomerNotes}
+              multiline
+              numberOfLines={3}
+              className="h-24 !bg-[#F0F5FA] text-text-gray-dark border-0"
+              style={{ textAlignVertical: "top", paddingTop: 12 }}
+              maxLength={500}
+            />
+            <Text className="text-xs text-text-gray font-sen mt-1">
+              {customerNotes.length}/500
+            </Text>
+          </View>
 
-        {/* Customer Notes */}
-        <View className="mb-6">
-          <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-            DELIVERY INSTRUCTIONS (OPTIONAL)
-          </Label>
-          <Input
-            placeholder="e.g., Ring the doorbell, Leave at door"
-            placeholderTextColor="#B4B9CA"
-            value={customerNotes}
-            onChangeText={setCustomerNotes}
-            multiline
-            numberOfLines={3}
-            className="h-24 !bg-[#F0F5FA] text-text-gray-dark border-0"
-            style={{ textAlignVertical: "top", paddingTop: 12 }}
-            maxLength={500}
-          />
-          <Text className="text-xs text-text-gray font-sen mt-1">
-            {customerNotes.length}/500
-          </Text>
-        </View>
+          {/* Order Summary */}
+          <View className="mb-6">
+            <Text className="text-xs text-text-gray font-sen uppercase mb-3">
+              ORDER SUMMARY
+            </Text>
+            <View className="bg-[#F0F5FA] rounded-xl p-4">
+              {items.map((item) => (
+                <View
+                  key={item.foodItem._id}
+                  className="flex-row justify-between mb-3"
+                >
+                  <Text className="font-sen text-secondary flex-1">
+                    {item.quantity}x {item.foodItem.name}
+                  </Text>
+                  <Text className="font-sen-bold text-secondary">
+                    ₦{(item.foodItem.price * item.quantity).toLocaleString()}
+                  </Text>
+                </View>
+              ))}
 
-        {/* Order Summary */}
-        <View className="mb-6">
-          <Text className="text-xs text-text-gray font-sen uppercase mb-3">
-            ORDER SUMMARY
-          </Text>
-          <View className="bg-[#F0F5FA] rounded-xl p-4">
-            {items.map((item) => (
-              <View
-                key={item.foodItem._id}
-                className="flex-row justify-between mb-3"
-              >
-                <Text className="font-sen text-secondary flex-1">
-                  {item.quantity}x {item.foodItem.name}
-                </Text>
-                <Text className="font-sen-bold text-secondary">
-                  ₦{(item.foodItem.price * item.quantity).toLocaleString()}
-                </Text>
-              </View>
-            ))}
-
-            <View className="border-t border-[#E0E0E0] pt-3 mt-3">
-              <View className="flex-row justify-between mb-2">
-                <Text className="font-sen text-text-gray">Subtotal</Text>
-                <Text className="font-sen-bold text-secondary">
-                  ₦{subtotal.toLocaleString()}
-                </Text>
-              </View>
-              <View className="flex-row justify-between mb-3">
-                <Text className="font-sen text-text-gray">Delivery Fee</Text>
-                <Text className="font-sen-bold text-secondary">
-                  ₦{deliveryFee.toLocaleString()}
-                </Text>
-              </View>
-              <View className="flex-row justify-between pt-3 border-t border-[#E0E0E0]">
-                <Text className="font-sen-bold text-secondary text-lg">
-                  Total
-                </Text>
-                <Text className="font-sen-extra-bold text-primary text-xl">
-                  ₦{total.toLocaleString()}
-                </Text>
+              <View className="border-t border-[#E0E0E0] pt-3 mt-3">
+                <View className="flex-row justify-between mb-2">
+                  <Text className="font-sen text-text-gray">Subtotal</Text>
+                  <Text className="font-sen-bold text-secondary">
+                    ₦{subtotal.toLocaleString()}
+                  </Text>
+                </View>
+                <View className="flex-row justify-between mb-3">
+                  <Text className="font-sen text-text-gray">Delivery Fee</Text>
+                  <Text className="font-sen-bold text-secondary">
+                    ₦{deliveryFee === 0 ? "Free" : deliveryFee.toLocaleString()}
+                  </Text>
+                </View>
+                <View className="flex-row justify-between pt-3 border-t border-[#E0E0E0]">
+                  <Text className="font-sen-bold text-secondary text-lg">
+                    Total
+                  </Text>
+                  <Text className="font-sen-extra-bold text-primary text-xl">
+                    ₦{total.toLocaleString()}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
 
-      {/* Place Order Button */}
-      <View className="px-6 py-4 border-t border-[#F0F5FA] bg-white">
-        <Button
-          onPress={handlePlaceOrder}
-          disabled={
-            !selectedAddress ||
-            !selectedPaymentMethod ||
-            createOrderMutation.isPending
-          }
-          className="h-[62px] bg-primary"
-        >
-          {createOrderMutation.isPending ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white font-sen-bold text-[15px] uppercase tracking-wider">
-              PLACE ORDER • ₦{total.toLocaleString()}
-            </Text>
-          )}
-        </Button>
-      </View>
-
-      {/* Address Selection Bottom Sheet */}
-      <BottomSheet
-        ref={addressSheetRef}
-        index={-1}
-        snapPoints={["70%"]}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop}
-      >
-        <View className="flex-1 px-6">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-sen-bold text-secondary">
-              Select Address
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                addressSheetRef.current?.close();
-                router.push("/profile/add-address" as any);
-              }}
-            >
-              <Text className="text-primary font-sen-bold text-sm">
-                + ADD NEW
+        {/* Place Order Button */}
+        <View className="px-6 py-4 border-t border-[#F0F5FA] bg-white">
+          <Button
+            onPress={handlePlaceOrder}
+            disabled={
+              !selectedAddress ||
+              !selectedPaymentMethod ||
+              createOrderMutation.isPending
+            }
+            className="h-[62px] bg-primary"
+          >
+            {createOrderMutation.isPending ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-sen-bold text-[15px] uppercase tracking-wider">
+                PLACE ORDER • ₦{total.toLocaleString()}
               </Text>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {addresses.map((address) => (
-              <AddressItem key={address._id} address={address} />
-            ))}
-          </ScrollView>
+            )}
+          </Button>
         </View>
-      </BottomSheet>
 
-      {/* Payment Method Selection Bottom Sheet */}
-      <BottomSheet
-        ref={paymentSheetRef}
-        index={-1}
-        snapPoints={["50%"]}
-        enablePanDownToClose
-        backdropComponent={renderBackdrop}
-      >
-        <View className="flex-1 px-6">
-          <View className="flex-row justify-between items-center mb-4">
-            <Text className="text-lg font-sen-bold text-secondary">
-              Select Payment
-            </Text>
-            {paymentMethods.length === 1 && (
+        {/* Address Selection Bottom Sheet */}
+        <BottomSheet
+          ref={addressSheetRef}
+          index={-1}
+          snapPoints={addressSnapPoints}
+          enablePanDownToClose={true}
+          backdropComponent={renderBackdrop}
+        >
+          <BottomSheetView
+            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 16 }}
+          >
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-sen-bold text-secondary">
+                Select Address
+              </Text>
               <TouchableOpacity
                 onPress={() => {
-                  paymentSheetRef.current?.close();
-                  router.push("/profile/add-card" as any);
+                  addressSheetRef.current?.close();
+                  router.push("/profile/add-address" as any);
                 }}
               >
                 <Text className="text-primary font-sen-bold text-sm">
-                  + ADD CARD
+                  + ADD NEW
                 </Text>
               </TouchableOpacity>
-            )}
-          </View>
+            </View>
 
-          <ScrollView showsVerticalScrollIndicator={false}>
-            {paymentMethods.map((method) => (
-              <PaymentItem key={method._id} method={method} />
-            ))}
-          </ScrollView>
-        </View>
-      </BottomSheet>
-    </SafeAreaView>
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {addresses.map((address) => (
+                <AddressItem key={address._id} address={address} />
+              ))}
+            </ScrollView>
+          </BottomSheetView>
+        </BottomSheet>
+
+        {/* Payment Method Selection Bottom Sheet */}
+        <BottomSheet
+          ref={paymentSheetRef}
+          index={-1}
+          snapPoints={paymentSnapPoints}
+          enablePanDownToClose={true}
+          backdropComponent={renderBackdrop}
+        >
+          <BottomSheetView
+            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 16 }}
+          >
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-sen-bold text-secondary">
+                Select Payment
+              </Text>
+              {paymentMethods.length === 1 && (
+                <TouchableOpacity
+                  onPress={() => {
+                    paymentSheetRef.current?.close();
+                    router.push("/profile/add-card" as any);
+                  }}
+                >
+                  <Text className="text-primary font-sen-bold text-sm">
+                    + ADD CARD
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {paymentMethods.map((method) => (
+                <PaymentItem key={method._id} method={method} />
+              ))}
+            </ScrollView>
+          </BottomSheetView>
+        </BottomSheet>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
