@@ -163,7 +163,7 @@ export default function Cart() {
           </View>
         </View>
 
-        {/* Place Order Button */}
+        {/* Checkout Button */}
         <TouchableOpacity
           onPress={() => router.push("/(app)/checkout")}
           className="w-full bg-primary h-[62px] rounded-[12px] items-center justify-center"
@@ -173,7 +173,7 @@ export default function Cart() {
           }}
         >
           <Text className="text-white font-sen-bold text-[15px] uppercase tracking-wider">
-            PLACE ORDER
+            PROCEED TO CHECKOUT
           </Text>
         </TouchableOpacity>
       </View>
