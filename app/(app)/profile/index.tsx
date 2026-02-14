@@ -85,7 +85,7 @@ export default function Profile() {
         label: "My Orders",
         color: "#FF7622",
         onPress: () => {
-          Alert.alert("Coming Soon", "Order history is not yet available");
+          router.push("/profile/orders" as any);
         },
       },
       {

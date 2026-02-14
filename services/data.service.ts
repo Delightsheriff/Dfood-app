@@ -335,9 +335,17 @@ export const dataService = {
    * Create order
    * POST /orders
    */
+  // async createOrder(data: CreateOrderRequest): Promise<OrderResponse> {
+  //   const response: AxiosResponse<OrderResponse> = await apiClient.post(
+  //     "/orders",
+  //     data,
+  //   );
+  //   return response.data;
+  // },
   async createOrder(data: CreateOrderRequest): Promise<OrderResponse> {
+    console.log("API Client sending order:", JSON.stringify(data, null, 2));
     const response: AxiosResponse<OrderResponse> = await apiClient.post(
-      "/orders",
+      "/orders", // Make sure this matches your backend route
       data,
     );
     return response.data;
