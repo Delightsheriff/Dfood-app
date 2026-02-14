@@ -1,3 +1,4 @@
+import { toastConfig } from "@/components/ui/toast-config";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { QueryProvider } from "@/providers/QueryProvider";
 import {
@@ -14,6 +15,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useRef, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
+import Toast from "react-native-toast-message";
 import CustomSplashScreen from "../components/SplashScreen";
 import "../global.css";
 
@@ -44,6 +46,7 @@ export default function RootLayout() {
           <RootNavigator />
           <StatusBar style="auto" />
           <PortalHost />
+          <Toast config={toastConfig} position="top" topOffset={60} />
         </AuthProvider>
       </QueryProvider>
     </GestureHandlerRootView>

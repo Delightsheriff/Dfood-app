@@ -3,6 +3,7 @@ import { FoodItem } from "@/types/api";
 import { Image } from "expo-image";
 import { Plus } from "lucide-react-native";
 import { Alert, Text, TouchableOpacity, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 interface FoodCardProps {
   food: FoodItem;
@@ -44,6 +45,12 @@ export default function FoodCard({
                 restaurantId,
                 restaurantName,
               });
+              Toast.show({
+                type: "cart",
+                text1: "Added to cart",
+                text2: `${food.name} added to your cart`,
+                visibilityTime: 2000,
+              });
             },
           },
         ],
@@ -57,6 +64,12 @@ export default function FoodCard({
       quantity: 1,
       restaurantId,
       restaurantName,
+    });
+    Toast.show({
+      type: "cart",
+      text1: "Added to cart",
+      text2: `${food.name} added to your cart`,
+      visibilityTime: 2000,
     });
   };
   return (
