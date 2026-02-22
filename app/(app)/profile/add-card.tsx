@@ -110,7 +110,7 @@ function AddCardContent() {
           Add Payment Card
         </Text>
         <Text className="text-text-gray font-sen text-sm mb-8 text-center leading-5">
-          You&apos;ll be charged ₦1 to verify your card.{"\n"}This will be
+          You&apos;ll be charged ₦100 to verify your card.{"\n"}This will be
           refunded immediately.
         </Text>
 
@@ -148,7 +148,7 @@ function AddCardContent() {
               <RefreshCw color="#16A34A" size={16} />
             </View>
             <Text className="text-secondary font-sen text-sm flex-1">
-              ₦1 verification fee refunded
+              ₦100 verification fee refunded
             </Text>
           </View>
         </View>
