@@ -20,9 +20,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      // "package": "com.delightsheriff.foodapp"
       "package": "com.yourcompany.food",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": "./google-services.json",
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
     },
     "web": {
       "output": "static",
@@ -48,6 +51,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "abe91b64-071f-42e1-b7f8-f7fe2e072a55"
+      }
+    },
+    "owner": "delightsheriff"
   }
 }
