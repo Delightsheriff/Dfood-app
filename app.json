@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.yourcompany.food"
+      "bundleIdentifier": "com.yourcompany.food",
+      "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +21,8 @@
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       // "package": "com.delightsheriff.foodapp"
-      "package": "com.yourcompany.food"
+      "package": "com.yourcompany.food",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "output": "static",

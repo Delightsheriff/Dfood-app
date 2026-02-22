@@ -61,3 +61,7 @@ ai-cache/
 .gemini/
 .github
 .agent
+
+# Firebase config files
+google-services.json
+GoogleService-Info.plist
