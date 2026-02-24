@@ -10,6 +10,7 @@ import {
   Sen_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/sen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -30,6 +31,15 @@ export default function RootLayout() {
     "Sen-Medium": Sen_500Medium,
     "Sen-ExtraBold": Sen_800ExtraBold,
   });
+
+  // ⚠️ TEMPORARY — clear all AsyncStorage (remove after debugging)
+  useEffect(() => {
+    AsyncStorage.clear().then(() => console.log("🧹 AsyncStorage cleared"));
+    // temporary, run once in dev
+    AsyncStorage.removeItem("@food_expo_push_token").then(() =>
+      console.log("🧹 AsyncStorage cleared"),
+    );
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {

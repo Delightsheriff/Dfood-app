@@ -1,14 +1,13 @@
-// services/notificationService.ts
 import { apiClient } from "@/lib/api-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Router } from "expo-router";
 import { Platform } from "react-native";
 
-const TOKEN_STORAGE_KEY = "@food_fcm_token";
+const TOKEN_STORAGE_KEY = "@food_expo_push_token";
 
-// Configure notification behavior
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -20,13 +19,21 @@ Notifications.setNotificationHandler({
 });
 
 export class NotificationService {
-  /**
-   * Request notification permissions
-   */
+  private tokenRefreshSubscription: Notifications.EventSubscription | null =
+    null;
+
   async requestPermissions(): Promise<boolean> {
     if (!Device.isDevice) {
       console.log("⚠️ Push notifications only work on physical devices");
       return false;
+    }
+
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "Default",
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+      });
     }
 
     const { status: existingStatus } =
@@ -47,33 +54,36 @@ export class NotificationService {
     return true;
   }
 
-  /**
-   * Get native device push token (FCM on Android, APNs on iOS)
-   */
-  async getDevicePushToken(): Promise<string | null> {
+  async getExpoPushToken(): Promise<string | null> {
     try {
-      const token = await Notifications.getDevicePushTokenAsync();
-      console.log("📱 FCM Device Token:", token.data);
-      return token.data as string;
+      const projectId =
+        Constants?.expoConfig?.extra?.eas?.projectId ??
+        Constants?.easConfig?.projectId;
+
+      if (!projectId) {
+        throw new Error("EAS projectId not found in app config");
+      }
+
+      const { data: token } = await Notifications.getExpoPushTokenAsync({
+        projectId,
+      });
+      console.log("📱 Expo Push Token:", token);
+      return token;
     } catch (error) {
-      console.error("Error getting device push token:", error);
+      console.error("Error getting Expo push token:", error);
       return null;
     }
   }
 
-  /**
-   * Register device token with backend
-   */
   async registerToken(): Promise<boolean> {
     try {
-      const cachedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-      const newToken = await this.getDevicePushToken();
-
+      const newToken = await this.getExpoPushToken();
       if (!newToken) {
         console.log("⚠️ No push token available");
         return false;
       }
 
+      const cachedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
       if (cachedToken === newToken) {
         console.log("✅ Token already registered");
         return true;
@@ -86,7 +96,7 @@ export class NotificationService {
 
       if (response.data.success) {
         await AsyncStorage.setItem(TOKEN_STORAGE_KEY, newToken);
-        console.log("✅ Device token registered with backend");
+        console.log("✅ Expo push token registered with backend");
         return true;
       }
 
@@ -97,9 +107,6 @@ export class NotificationService {
     }
   }
 
-  /**
-   * Unregister device token
-   */
   async unregisterToken(): Promise<void> {
     try {
       const token = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
@@ -113,23 +120,33 @@ export class NotificationService {
     }
   }
 
-  /**
-   * Setup notification listeners
-   */
+  // Call this once after successful login — listens for token rotation
+  // FCM can invalidate tokens after reinstalls or long inactivity
+  startTokenRefreshListener(): void {
+    this.tokenRefreshSubscription = Notifications.addPushTokenListener(
+      async () => {
+        console.log("🔄 Push token rotated — re-registering");
+        await AsyncStorage.removeItem(TOKEN_STORAGE_KEY); // invalidate cache
+        await this.registerToken();
+      },
+    );
+  }
+
+  stopTokenRefreshListener(): void {
+    this.tokenRefreshSubscription?.remove();
+    this.tokenRefreshSubscription = null;
+  }
+
   setupListeners(router: Router) {
-    // Foreground notifications
     const foregroundSubscription =
       Notifications.addNotificationReceivedListener((notification) => {
         console.log("📬 Notification received (foreground):", notification);
       });
 
-    // Notification taps
     const responseSubscription =
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log("👆 Notification tapped:", response);
-
         const data = response.notification.request.content.data;
-
         if (data.type === "order_update" && data.orderNumber) {
           router.push(`/(app)/orders/${data.orderNumber}` as any);
         }
@@ -141,17 +158,10 @@ export class NotificationService {
     };
   }
 
-  /**
-   * Handle initial notification
-   */
   async handleInitialNotification(router: Router) {
     const response = await Notifications.getLastNotificationResponseAsync();
-
     if (response) {
-      console.log("🚀 App opened from notification:", response);
-
       const data = response.notification.request.content.data;
-
       if (data.type === "order_update" && data.orderNumber) {
         setTimeout(() => {
           router.push(`/(app)/orders/${data.orderNumber}` as any);

@@ -33,6 +33,12 @@ export function useSignUp() {
 
       // Navigate to app
       router.replace("/(app)");
+      // useSignUp onSuccess — ADD the same block after router.replace("/(app)"):
+      const hasPermission = await notificationService.requestPermissions();
+      if (hasPermission) {
+        await notificationService.registerToken();
+        notificationService.startTokenRefreshListener();
+      }
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       console.error("Signup failed:", error.response?.data);
@@ -58,10 +64,11 @@ export function useSignIn() {
         data: { user: response.data.user },
       });
 
-      // ✅ REQUEST NOTIFICATION PERMISSION & REGISTER TOKEN
+      // inside useSignIn onSuccess — replace the notification block:
       const hasPermission = await notificationService.requestPermissions();
       if (hasPermission) {
         await notificationService.registerToken();
+        notificationService.startTokenRefreshListener(); // ADD THIS
       }
 
       // Navigate to app
@@ -75,21 +82,28 @@ export function useSignIn() {
 
 export function useSignOut() {
   const { signOut } = useAuth();
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => authService.signOut(),
-    onSuccess: async () => {
-      // ✅ UNREGISTER TOKEN ON LOGOUT
+    mutationFn: async () => {
+      // Unregister push token BEFORE clearing auth token
+      notificationService.stopTokenRefreshListener();
       await notificationService.unregisterToken();
 
+      // Now clear the auth token
+      await authService.signOut();
+    },
+    onSuccess: async () => {
       // Clear session cache
       queryClient.setQueryData(["session"], null);
-      queryClient.clear(); // Clear all queries
+      queryClient.clear();
 
-      // Sign out updates user state — the layout's useEffect
-      // will detect isAuthenticated=false and redirect to signin
+      // Sign out updates user state
       await signOut();
+
+      // Navigate to signin
+      router.replace("/(auth)/signin");
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       console.error("Signout failed:", error.response?.data);
