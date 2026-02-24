@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { tokenStorage } from "@/lib/api-client";
 import { authService } from "@/services/auth.service";
+import { notificationService } from "@/services/notificationService";
 import {
   ErrorResponse,
   ForgotPasswordRequest,
@@ -57,6 +58,12 @@ export function useSignIn() {
         data: { user: response.data.user },
       });
 
+      // ✅ REQUEST NOTIFICATION PERMISSION & REGISTER TOKEN
+      const hasPermission = await notificationService.requestPermissions();
+      if (hasPermission) {
+        await notificationService.registerToken();
+      }
+
       // Navigate to app
       router.replace("/(app)");
     },
@@ -81,8 +88,14 @@ export function useSignOut() {
       // Sign out updates user state
       await signOut();
 
+      // ✅ UNREGISTER TOKEN ON LOGOUT
+      await notificationService.unregisterToken();
+
       // Navigate to signin
       router.replace("/(auth)/signin");
+    },
+    onError: (error: AxiosError<ErrorResponse>) => {
+      console.error("Signout failed:", error.response?.data);
     },
   });
 }

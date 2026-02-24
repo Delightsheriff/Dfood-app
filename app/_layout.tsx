@@ -1,5 +1,7 @@
+// app/_layout.tsx
 import { toastConfig } from "@/components/ui/toast-config";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useNotifications } from "@/hooks/useNotifications"; // ← Add this
 import { QueryProvider } from "@/providers/QueryProvider";
 import {
   Sen_400Regular,
@@ -12,11 +14,11 @@ import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import Toast from "react-native-toast-message";
-import CustomSplashScreen from "../components/SplashScreen";
+
 import "../global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -55,12 +57,13 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { hasCompletedOnboarding, isAuthenticated, isLoading } = useAuth();
-  const [showContent, setShowContent] = useState(false);
   const segments = useSegments();
   const router = useRouter();
   const hasNavigated = useRef(false);
 
-  // Handle initial navigation once
+  // ✅ Setup notification listeners
+  useNotifications();
+
   useEffect(() => {
     if (isLoading || hasNavigated.current) return;
 
@@ -68,7 +71,6 @@ function RootNavigator() {
     const inAuth = segments[0] === "(auth)";
     const inApp = segments[0] === "(app)";
 
-    // Determine correct route
     let targetRoute: string | null = null;
 
     if (!hasCompletedOnboarding && !inOnboarding) {
@@ -79,19 +81,14 @@ function RootNavigator() {
       targetRoute = "/(app)";
     }
 
-    // Navigate if needed
     if (targetRoute) {
       hasNavigated.current = true;
       router.replace(targetRoute as any);
     }
-
-    // Show content after navigation decision
-    setShowContent(true);
   }, [isLoading, hasCompletedOnboarding, isAuthenticated, segments, router]);
 
-  // Show splash until ready
-  if (isLoading || !showContent) {
-    return <CustomSplashScreen onFinish={() => {}} />;
+  if (isLoading) {
+    return null;
   }
 
   return (
