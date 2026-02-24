@@ -1,6 +1,6 @@
+// services/notificationService.ts
 import { apiClient } from "@/lib/api-client";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Router } from "expo-router";
@@ -48,25 +48,15 @@ export class NotificationService {
   }
 
   /**
-   * Get Expo push token
+   * Get native device push token (FCM on Android, APNs on iOS)
    */
-  async getExpoPushToken(): Promise<string | null> {
+  async getDevicePushToken(): Promise<string | null> {
     try {
-      const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-
-      if (!projectId) {
-        console.error("❌ No Expo project ID found in app.json");
-        return null;
-      }
-
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId,
-      });
-
-      console.log("📱 Expo Push Token:", token.data);
-      return token.data;
+      const token = await Notifications.getDevicePushTokenAsync();
+      console.log("📱 FCM Device Token:", token.data);
+      return token.data as string;
     } catch (error) {
-      console.error("Error getting push token:", error);
+      console.error("Error getting device push token:", error);
       return null;
     }
   }
@@ -77,7 +67,7 @@ export class NotificationService {
   async registerToken(): Promise<boolean> {
     try {
       const cachedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-      const newToken = await this.getExpoPushToken();
+      const newToken = await this.getDevicePushToken();
 
       if (!newToken) {
         console.log("⚠️ No push token available");

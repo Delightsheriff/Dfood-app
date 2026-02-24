@@ -130,8 +130,6 @@ export default function Checkout() {
       orderData.customerNotes = customerNotes.trim();
     }
 
-    console.log("Submitting order:", JSON.stringify(orderData, null, 2));
-
     createOrderMutation.mutate(orderData, {
       onSuccess: (response) => {
         console.log("Order success response:", response);

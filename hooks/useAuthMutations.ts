@@ -75,24 +75,21 @@ export function useSignIn() {
 
 export function useSignOut() {
   const { signOut } = useAuth();
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: () => authService.signOut(),
     onSuccess: async () => {
+      // ✅ UNREGISTER TOKEN ON LOGOUT
+      await notificationService.unregisterToken();
+
       // Clear session cache
       queryClient.setQueryData(["session"], null);
       queryClient.clear(); // Clear all queries
 
-      // Sign out updates user state
+      // Sign out updates user state — the layout's useEffect
+      // will detect isAuthenticated=false and redirect to signin
       await signOut();
-
-      // ✅ UNREGISTER TOKEN ON LOGOUT
-      await notificationService.unregisterToken();
-
-      // Navigate to signin
-      router.replace("/(auth)/signin");
     },
     onError: (error: AxiosError<ErrorResponse>) => {
       console.error("Signout failed:", error.response?.data);

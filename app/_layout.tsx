@@ -61,7 +61,12 @@ function RootNavigator() {
   const router = useRouter();
   const hasNavigated = useRef(false);
 
-  // ✅ Setup notification listeners
+  // Reset navigation guard when auth state changes (e.g., logout)
+  useEffect(() => {
+    hasNavigated.current = false;
+  }, [isAuthenticated]);
+
+  // Setup notification listeners
   useNotifications();
 
   useEffect(() => {
