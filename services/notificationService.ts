@@ -10,7 +10,6 @@ const TOKEN_STORAGE_KEY = "@food_expo_push_token";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
     shouldShowBanner: true,
@@ -21,6 +20,7 @@ Notifications.setNotificationHandler({
 export class NotificationService {
   private tokenRefreshSubscription: Notifications.EventSubscription | null =
     null;
+  private isRegistering = false;
 
   async requestPermissions(): Promise<boolean> {
     if (!Device.isDevice) {
@@ -76,7 +76,14 @@ export class NotificationService {
   }
 
   async registerToken(): Promise<boolean> {
+    // Prevent concurrent registration attempts
+    if (this.isRegistering) {
+      console.log("⏳ Token registration already in progress, skipping");
+      return false;
+    }
+
     try {
+      this.isRegistering = true;
       const newToken = await this.getExpoPushToken();
       if (!newToken) {
         console.log("⚠️ No push token available");
@@ -104,6 +111,8 @@ export class NotificationService {
     } catch (error) {
       console.error("Failed to register device token:", error);
       return false;
+    } finally {
+      this.isRegistering = false;
     }
   }
 
@@ -123,11 +132,22 @@ export class NotificationService {
   // Call this once after successful login — listens for token rotation
   // FCM can invalidate tokens after reinstalls or long inactivity
   startTokenRefreshListener(): void {
+    // Prevent multiple listeners
+    if (this.tokenRefreshSubscription) {
+      console.log("⚠️ Token refresh listener already active");
+      return;
+    }
+
     this.tokenRefreshSubscription = Notifications.addPushTokenListener(
-      async () => {
-        console.log("🔄 Push token rotated — re-registering");
-        await AsyncStorage.removeItem(TOKEN_STORAGE_KEY); // invalidate cache
-        await this.registerToken();
+      async (tokenData) => {
+        const newToken = tokenData.data;
+        const cachedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
+
+        // Only re-register if the token actually changed
+        if (newToken !== cachedToken) {
+          console.log("🔄 Push token rotated — re-registering");
+          await this.registerToken();
+        }
       },
     );
   }
@@ -148,7 +168,10 @@ export class NotificationService {
         console.log("👆 Notification tapped:", response);
         const data = response.notification.request.content.data;
         if (data.type === "order_update" && data.orderNumber) {
-          router.push(`/(app)/orders/${data.orderNumber}` as any);
+          router.push({
+            pathname: "/(app)/profile/order-details",
+            params: { orderId: data.orderNumber },
+          } as any);
         }
       });
 
@@ -159,12 +182,15 @@ export class NotificationService {
   }
 
   async handleInitialNotification(router: Router) {
-    const response = await Notifications.getLastNotificationResponseAsync();
+    const response = await Notifications.getLastNotificationResponse();
     if (response) {
       const data = response.notification.request.content.data;
       if (data.type === "order_update" && data.orderNumber) {
         setTimeout(() => {
-          router.push(`/(app)/orders/${data.orderNumber}` as any);
+          router.push({
+            pathname: "/(app)/profile/order-details",
+            params: { orderId: data.orderNumber },
+          } as any);
         }, 1000);
       }
     }

@@ -13,6 +13,10 @@
       "bundleIdentifier": "com.yourcompany.food",
       "googleServicesFile": "./GoogleService-Info.plist"
     },
+    "notification": {
+      "icon": "./assets/images/icon.png",
+      "color": "#ffffff"
+    },
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
@@ -22,10 +26,7 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.yourcompany.food",
       "googleServicesFile": "./google-services.json",
-      "permissions": [
-        "RECEIVE_BOOT_COMPLETED",
-        "VIBRATE"
-      ]
+      "permissions": ["RECEIVE_BOOT_COMPLETED", "VIBRATE"]
     },
     "web": {
       "output": "static",
