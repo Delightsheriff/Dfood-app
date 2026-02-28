@@ -1,5 +1,6 @@
 import { Text } from "@/components/ui/text";
-import { Image, useWindowDimensions, View } from "react-native";
+import { Image } from "expo-image";
+import { useWindowDimensions, View } from "react-native";
 
 interface OnboardingItemProps {
   item: {
@@ -32,7 +33,7 @@ export default function OnboardingItem({ item }: OnboardingItemProps) {
           <Image
             source={item.image}
             style={{ width: "100%", height: "100%" }}
-            resizeMode="cover"
+            contentFit="cover"
           />
         </View>
       </View>

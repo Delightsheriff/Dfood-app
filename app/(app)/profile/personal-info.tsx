@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useProfile } from "@/hooks/useDataQueries";
+import { Image } from "expo-image";
 import {
   useDeleteProfileImage,
   useUpdateProfile,
@@ -25,7 +26,6 @@ import { Controller, useForm } from "react-hook-form";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -242,7 +242,7 @@ export default function PersonalInfo() {
                     <Image
                       source={{ uri: profile.profileImage }}
                       className="w-full h-full"
-                      resizeMode="cover"
+                      contentFit="cover"
                     />
                   ) : (
                     <Text className="text-[36px] font-sen-bold text-primary">

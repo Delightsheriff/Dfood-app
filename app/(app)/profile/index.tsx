@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useSignOut } from "@/hooks/useAuthMutations";
 import { useProfile } from "@/hooks/useDataQueries";
+import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import {
   Bell,
@@ -20,7 +21,6 @@ import React from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   ScrollView,
   StatusBar,
   Text,
@@ -234,7 +234,7 @@ export default function Profile() {
                 <Image
                   source={{ uri: profile.profileImage }}
                   className="w-full h-full"
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
               ) : (
                 <Text className="text-[28px] font-sen-bold text-primary">

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { useOrder } from "@/hooks/useDataQueries";
 import { useCancelOrder } from "@/hooks/useOrderMutations";
 import { Order } from "@/types/api";
+import { Image } from "expo-image";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
   Calendar,
@@ -18,7 +19,6 @@ import React from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -352,6 +352,7 @@ export default function OrderDetails() {
               <Image
                 source={{ uri: order.restaurantId.images[0] }}
                 className="w-12 h-12 rounded-xl mr-3"
+                contentFit="cover"
               />
             ) : (
               <View className="w-12 h-12 bg-white rounded-xl items-center justify-center mr-3">
@@ -416,6 +417,7 @@ export default function OrderDetails() {
                   <Image
                     source={{ uri: item.image }}
                     className="w-14 h-14 rounded-xl mr-3"
+                    contentFit="cover"
                   />
                 ) : (
                   <View className="w-14 h-14 bg-white rounded-xl items-center justify-center mr-3">

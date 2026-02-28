@@ -1,6 +1,7 @@
 import { Restaurant } from "@/types/api";
 import { Image } from "expo-image";
 import { Clock, MapPin, Star, Truck } from "lucide-react-native";
+import { memo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface RestaurantCardProps {
@@ -8,7 +9,7 @@ interface RestaurantCardProps {
   onPress: () => void;
 }
 
-export default function RestaurantCard({
+function RestaurantCard({
   restaurant,
   onPress,
 }: RestaurantCardProps) {
@@ -134,3 +135,5 @@ export default function RestaurantCard({
     </TouchableOpacity>
   );
 }
+
+export default memo(RestaurantCard);

@@ -1,5 +1,6 @@
 import { Category } from "@/types/api";
 import { Image } from "expo-image";
+import { memo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface CategoryItemProps {
@@ -7,7 +8,7 @@ interface CategoryItemProps {
   onPress: () => void;
 }
 
-export default function CategoryItem({ category, onPress }: CategoryItemProps) {
+function CategoryItem({ category, onPress }: CategoryItemProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -36,3 +37,5 @@ export default function CategoryItem({ category, onPress }: CategoryItemProps) {
     </TouchableOpacity>
   );
 }
+
+export default memo(CategoryItem);
