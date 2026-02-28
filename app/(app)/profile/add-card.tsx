@@ -13,7 +13,7 @@ import {
   ActivityIndicator,
   Alert,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { PaystackProvider, usePaystack } from "react-native-paystack-webview";
@@ -73,7 +73,7 @@ function AddCardContent() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
       <View className="flex-row items-center px-6 py-4">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
           style={{
@@ -85,7 +85,7 @@ function AddCardContent() {
           }}
         >
           <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-lg font-sen-bold text-secondary flex-1">
           Add Card
         </Text>
@@ -168,7 +168,7 @@ function AddCardContent() {
             <ActivityIndicator color="white" />
           </View>
         ) : (
-          <TouchableOpacity
+          <Pressable
             onPress={handleAddCard}
             className="h-[56px] bg-primary rounded-2xl items-center justify-center w-full flex-row"
             style={{
@@ -183,7 +183,7 @@ function AddCardContent() {
             <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
               Add Card via Paystack
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
     </SafeAreaView>

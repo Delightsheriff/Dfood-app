@@ -15,7 +15,7 @@ import {
   Alert,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
@@ -137,7 +137,7 @@ export default function EditAddress() {
   };
 
   const LabelChip = ({ label }: { label: string }) => (
-    <TouchableOpacity
+    <Pressable
       onPress={() => setSelectedLabel(label)}
       className={`px-6 py-3 rounded-2xl mr-3 ${
         selectedLabel === label ? "bg-primary" : "bg-[#F0F5FA]"
@@ -161,7 +161,7 @@ export default function EditAddress() {
       >
         {label}
       </Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 
   if (addressesLoading) {
@@ -196,7 +196,7 @@ export default function EditAddress() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header overlaying Map */}
       <View className="z-10 absolute top-12 left-6">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
           style={{
@@ -208,7 +208,7 @@ export default function EditAddress() {
           }}
         >
           <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Map View */}

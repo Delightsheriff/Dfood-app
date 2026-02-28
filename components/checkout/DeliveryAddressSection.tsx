@@ -1,7 +1,6 @@
 import { Address } from "@/types/api";
 import { ChevronRight, MapPin } from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 interface DeliveryAddressSectionProps {
   selectedAddress: Address | null;
@@ -23,16 +22,16 @@ export function DeliveryAddressSection({
           DELIVERY ADDRESS
         </Text>
         {!hasAddresses && (
-          <TouchableOpacity onPress={onAddPress}>
+          <Pressable onPress={onAddPress}>
             <Text className="text-primary font-sen-bold text-sm">
               ADD ADDRESS
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
 
       {selectedAddress ? (
-        <TouchableOpacity
+        <Pressable
           onPress={onSelectPress}
           className="bg-[#F0F5FA] rounded-xl p-4 flex-row items-center"
         >
@@ -46,16 +45,16 @@ export function DeliveryAddressSection({
             </Text>
           </View>
           <ChevronRight color="#181C2E" size={20} />
-        </TouchableOpacity>
+        </Pressable>
       ) : (
-        <TouchableOpacity
+        <Pressable
           onPress={onAddPress}
           className="bg-[#FFF5EE] rounded-xl p-4 border-2 border-dashed border-primary"
         >
           <Text className="text-primary font-sen-bold text-center">
             + Add Delivery Address
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       )}
     </View>
   );

@@ -21,7 +21,7 @@ import {
   Alert,
   StatusBar,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -220,7 +220,7 @@ export default function AddAddress() {
             className="px-6 pt-2 flex-row justify-between"
             pointerEvents="box-none"
           >
-            <TouchableOpacity
+            <Pressable
               onPress={() => router.back()}
               className="w-11 h-11 bg-white rounded-full items-center justify-center"
               style={{
@@ -232,10 +232,10 @@ export default function AddAddress() {
               }}
             >
               <ChevronLeft color="#181C2E" size={22} />
-            </TouchableOpacity>
+            </Pressable>
 
             {/* My Location Button */}
-            <TouchableOpacity
+            <Pressable
               onPress={getCurrentLocation}
               disabled={locationLoading}
               className="w-11 h-11 bg-white rounded-full items-center justify-center"
@@ -252,7 +252,7 @@ export default function AddAddress() {
               ) : (
                 <Crosshair color="#FF7622" size={20} />
               )}
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </SafeAreaView>
 
@@ -304,7 +304,7 @@ export default function AddAddress() {
             </Text>
             <View className="flex-row mb-5">
               {LABEL_OPTIONS.map((label) => (
-                <TouchableOpacity
+                <Pressable
                   key={label}
                   onPress={() => setSelectedLabel(label)}
                   className={`px-5 py-2.5 rounded-full mr-3 ${
@@ -318,7 +318,7 @@ export default function AddAddress() {
                   >
                     {label}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
 

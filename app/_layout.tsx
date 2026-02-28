@@ -31,15 +31,6 @@ export default function RootLayout() {
     "Sen-ExtraBold": Sen_800ExtraBold,
   });
 
-  // ⚠️ TEMPORARY — clear all AsyncStorage (remove after debugging)
-  // useEffect(() => {
-  //   AsyncStorage.clear().then(() => console.log("🧹 AsyncStorage cleared"));
-  //   // temporary, run once in dev
-  //   AsyncStorage.removeItem("@food_expo_push_token").then(() =>
-  //     console.log("🧹 AsyncStorage cleared"),
-  //   );
-  // }, []);
-
   useEffect(() => {
     if (fontsLoaded || fontError) {
       SplashScreen.hideAsync();

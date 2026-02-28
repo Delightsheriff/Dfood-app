@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Star, X } from "lucide-react-native";
 import React, { useState } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 export type FilterOptions = {
   offers: string[];
@@ -63,9 +63,9 @@ export default function FilterDialog({
               Filter your search
             </DialogTitle>
             <DialogClose asChild>
-              <TouchableOpacity className="w-10 h-10 bg-[#F6F6F6] rounded-full items-center justify-center">
+              <Pressable className="w-10 h-10 bg-[#F6F6F6] rounded-full items-center justify-center">
                 <X size={20} color="#181C2E" />
-              </TouchableOpacity>
+              </Pressable>
             </DialogClose>
           </View>
         </DialogHeader>
@@ -78,7 +78,7 @@ export default function FilterDialog({
             </Text>
             <View className="flex-row flex-wrap gap-2">
               {offers.map((offer) => (
-                <TouchableOpacity
+                <Pressable
                   key={offer}
                   onPress={() => toggleOffer(offer)}
                   className={`px-4 py-2.5 rounded-full border ${
@@ -96,7 +96,7 @@ export default function FilterDialog({
                   >
                     {offer}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -108,7 +108,7 @@ export default function FilterDialog({
             </Text>
             <View className="flex-row flex-wrap gap-2">
               {deliveryTimes.map((time) => (
-                <TouchableOpacity
+                <Pressable
                   key={time}
                   onPress={() => setSelectedDeliveryTime(time)}
                   className={`px-6 py-2.5 rounded-full border ${
@@ -126,7 +126,7 @@ export default function FilterDialog({
                   >
                     {time}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -138,7 +138,7 @@ export default function FilterDialog({
             </Text>
             <View className="flex-row gap-3">
               {pricingOptions.map((price) => (
-                <TouchableOpacity
+                <Pressable
                   key={price}
                   onPress={() => setSelectedPricing(price)}
                   className={`w-14 h-14 rounded-full items-center justify-center ${
@@ -154,7 +154,7 @@ export default function FilterDialog({
                   >
                     {price}
                   </Text>
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </View>
@@ -166,7 +166,7 @@ export default function FilterDialog({
             </Text>
             <View className="flex-row gap-3">
               {ratings.map((rating) => (
-                <TouchableOpacity
+                <Pressable
                   key={rating}
                   onPress={() => setSelectedRating(rating)}
                   className={`w-12 h-12 rounded-full items-center justify-center ${
@@ -182,7 +182,7 @@ export default function FilterDialog({
                     color="#FF7622"
                     fill={selectedRating >= rating ? "#FF7622" : "transparent"}
                   />
-                </TouchableOpacity>
+                </Pressable>
               ))}
             </View>
           </View>

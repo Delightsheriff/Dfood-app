@@ -24,7 +24,7 @@ import {
   ScrollView,
   StatusBar,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -149,7 +149,7 @@ export default function Profile() {
     color,
     bgColor,
   }: MenuItemType) => (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
       className="flex-row items-center justify-between bg-[#F6F8FA] p-4 rounded-2xl mb-3"
       style={{
@@ -171,7 +171,7 @@ export default function Profile() {
         <Text className="text-base font-sen text-secondary">{label}</Text>
       </View>
       <ChevronRight color="#A0A5BA" size={18} />
-    </TouchableOpacity>
+    </Pressable>
   );
 
   return (
@@ -180,7 +180,7 @@ export default function Profile() {
 
       {/* Header */}
       <View className="flex-row items-center px-6 py-4">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
           style={{
@@ -192,7 +192,7 @@ export default function Profile() {
           }}
         >
           <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-lg font-sen-bold text-secondary flex-1">
           Profile
         </Text>
@@ -208,7 +208,7 @@ export default function Profile() {
           contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 32 }}
         >
           {/* User Info Card */}
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.push("/profile/personal-info" as any)}
             className="flex-row items-center mb-8 p-4 bg-[#F6F8FA] rounded-2xl"
             activeOpacity={0.7}
@@ -258,7 +258,7 @@ export default function Profile() {
               )}
             </View>
             <ChevronRight color="#A0A5BA" size={18} />
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Menu Sections */}
           {menuSections.map((section, sectionIndex) => (
@@ -270,7 +270,7 @@ export default function Profile() {
           ))}
 
           {/* Log Out */}
-          <TouchableOpacity
+          <Pressable
             onPress={handleSignOut}
             disabled={signOutMutation.isPending}
             className="flex-row items-center justify-between bg-[#FFF0F0] p-4 rounded-2xl mb-6"
@@ -296,7 +296,7 @@ export default function Profile() {
               <Text className="text-base font-sen text-red-600">Log Out</Text>
             </View>
             <ChevronRight color="#FF4B4B" size={18} />
-          </TouchableOpacity>
+          </Pressable>
         </ScrollView>
       )}
     </SafeAreaView>

@@ -9,14 +9,8 @@ import {
   ShoppingBag,
   X,
 } from "lucide-react-native";
-import React, { useState } from "react";
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { useState } from "react";
+import { Pressable, ScrollView, StatusBar, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Cart() {
@@ -39,12 +33,12 @@ export default function Cart() {
       {/* Header */}
       <View className="px-6 py-4 flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
             className="w-11 h-11 bg-white/10 rounded-2xl items-center justify-center mr-4"
           >
             <ChevronLeft color="white" size={22} />
-          </TouchableOpacity>
+          </Pressable>
           <View>
             <Text className="text-lg font-sen-bold text-white">Cart</Text>
             {items.length > 0 && (
@@ -55,7 +49,7 @@ export default function Cart() {
           </View>
         </View>
         {items.length > 0 && (
-          <TouchableOpacity
+          <Pressable
             onPress={() => setIsEditing(!isEditing)}
             className={`px-4 py-2 rounded-xl ${isEditing ? "bg-primary" : "bg-white/10"}`}
           >
@@ -64,7 +58,7 @@ export default function Cart() {
             >
               {isEditing ? "DONE" : "EDIT"}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
 
@@ -124,30 +118,30 @@ export default function Cart() {
 
                 {/* Quantity Controls */}
                 <View className="flex-row items-center self-end">
-                  <TouchableOpacity
+                  <Pressable
                     onPress={() => decrementItem(item.foodItem._id)}
                     className="w-9 h-9 bg-white/10 rounded-xl items-center justify-center"
                   >
                     <Minus color="white" size={14} strokeWidth={2.5} />
-                  </TouchableOpacity>
+                  </Pressable>
 
                   <Text className="text-white font-sen-bold text-base mx-4 min-w-[20px] text-center">
                     {item.quantity}
                   </Text>
 
-                  <TouchableOpacity
+                  <Pressable
                     onPress={() => incrementItem(item.foodItem._id)}
                     className="w-9 h-9 bg-primary rounded-xl items-center justify-center"
                   >
                     <Plus color="white" size={14} strokeWidth={2.5} />
-                  </TouchableOpacity>
+                  </Pressable>
                 </View>
               </View>
             </View>
 
             {/* Remove Button */}
             {isEditing && (
-              <TouchableOpacity
+              <Pressable
                 onPress={() => removeItem(item.foodItem._id)}
                 className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-xl items-center justify-center"
                 style={{
@@ -159,7 +153,7 @@ export default function Cart() {
                 }}
               >
                 <X color="white" size={16} strokeWidth={3} />
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         ))}
@@ -211,7 +205,7 @@ export default function Cart() {
         </View>
 
         {/* Checkout Button */}
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/(app)/checkout")}
           className="w-full bg-primary h-[56px] rounded-2xl items-center justify-center flex-row"
           disabled={items.length === 0}
@@ -227,7 +221,7 @@ export default function Cart() {
           <Text className="text-white font-sen-bold text-[14px] uppercase tracking-wider">
             PROCEED TO CHECKOUT
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

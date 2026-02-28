@@ -20,7 +20,7 @@ import {
   Dimensions,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
@@ -81,7 +81,7 @@ export default function RestaurantDetails() {
 
         {/* Navigation Buttons */}
         <View className="absolute top-12 left-6 right-6 flex-row items-center justify-between">
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
             className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
             style={{
@@ -93,9 +93,9 @@ export default function RestaurantDetails() {
             }}
           >
             <ChevronLeft color="#181C2E" size={22} />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
             style={{
               shadowColor: "#000",
@@ -106,7 +106,7 @@ export default function RestaurantDetails() {
             }}
           >
             <MoreHorizontal color="#181C2E" size={20} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Pagination Dots */}

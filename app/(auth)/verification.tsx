@@ -8,7 +8,7 @@ import {
   Alert,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import AuthLayout from "../../components/layout/AuthLayout";
@@ -161,7 +161,7 @@ export default function Verification() {
           Didn&apos;t receive a code?
         </Text>
         <View className="flex-row items-center">
-          <TouchableOpacity
+          <Pressable
             onPress={handleResend}
             disabled={timer > 0 || resendMutation.isPending}
             className={`px-3 py-1.5 rounded-xl ${
@@ -182,7 +182,7 @@ export default function Verification() {
             >
               {timer > 0 ? `Resend (${timer}s)` : "Resend Code"}
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
 

@@ -12,7 +12,7 @@ import {
   Alert,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { z } from "zod";
@@ -171,7 +171,7 @@ export default function SignUp() {
                   aria-labelledby="password"
                   className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
                 />
-                <TouchableOpacity
+                <Pressable
                   onPress={() => setShowPassword(!showPassword)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
@@ -180,7 +180,7 @@ export default function SignUp() {
                   ) : (
                     <Eye size={18} color="#A0A5BA" />
                   )}
-                </TouchableOpacity>
+                </Pressable>
               </View>
             )}
           />
@@ -225,9 +225,9 @@ export default function SignUp() {
           <Text className="text-text-gray font-sen mr-1">
             Already have an account?
           </Text>
-          <TouchableOpacity onPress={() => router.push("/(auth)/signin")}>
+          <Pressable onPress={() => router.push("/(auth)/signin")}>
             <Text className="text-primary font-sen-bold">LOG IN</Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </ScrollView>
     </AuthLayout>

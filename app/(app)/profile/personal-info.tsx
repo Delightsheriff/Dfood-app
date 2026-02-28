@@ -30,7 +30,7 @@ import {
   Platform,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -176,7 +176,7 @@ export default function PersonalInfo() {
       <SafeAreaView className="flex-1 bg-[#F6F8FA]" edges={["top"]}>
         {/* Header */}
         <View className="flex-row items-center px-6 py-4 bg-[#F6F8FA]">
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
             className="w-11 h-11 bg-white rounded-2xl items-center justify-center mr-3"
             style={{
@@ -188,7 +188,7 @@ export default function PersonalInfo() {
             }}
           >
             <ChevronLeft color="#181C2E" size={22} />
-          </TouchableOpacity>
+          </Pressable>
           <Text className="text-lg font-sen-bold text-secondary flex-1">
             Personal Info
           </Text>
@@ -252,7 +252,7 @@ export default function PersonalInfo() {
                 </View>
 
                 {/* Camera Button */}
-                <TouchableOpacity
+                <Pressable
                   onPress={handleImagePick}
                   disabled={updateImageMutation.isPending}
                   className="absolute -bottom-1 -right-1 w-9 h-9 bg-primary rounded-xl items-center justify-center border-[3px] border-white"
@@ -269,11 +269,11 @@ export default function PersonalInfo() {
                   ) : (
                     <Camera color="white" size={16} />
                   )}
-                </TouchableOpacity>
+                </Pressable>
 
                 {/* Delete Button */}
                 {profile?.profileImage && (
-                  <TouchableOpacity
+                  <Pressable
                     onPress={handleDeleteImage}
                     disabled={deleteImageMutation.isPending}
                     className="absolute -bottom-1 -left-1 w-9 h-9 bg-red-500 rounded-xl items-center justify-center border-[3px] border-white"
@@ -290,7 +290,7 @@ export default function PersonalInfo() {
                     ) : (
                       <Trash2 color="white" size={16} />
                     )}
-                  </TouchableOpacity>
+                  </Pressable>
                 )}
               </View>
 

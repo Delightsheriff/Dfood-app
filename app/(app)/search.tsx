@@ -12,7 +12,7 @@ import {
   ScrollView,
   Text,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -42,7 +42,7 @@ export default function SearchPage() {
         <View className="px-6 py-4">
           <View className="flex-row items-center gap-3">
             {/* Back Button */}
-            <TouchableOpacity
+            <Pressable
               onPress={() => router.back()}
               className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center"
               style={{
@@ -54,7 +54,7 @@ export default function SearchPage() {
               }}
             >
               <ChevronLeft color="#181C2E" size={22} />
-            </TouchableOpacity>
+            </Pressable>
 
             {/* Search Input */}
             <View
@@ -78,12 +78,12 @@ export default function SearchPage() {
                 returnKeyType="search"
               />
               {searchQuery.length > 0 && (
-                <TouchableOpacity
+                <Pressable
                   onPress={() => setSearchQuery("")}
                   className="w-7 h-7 bg-white rounded-lg items-center justify-center"
                 >
                   <X color="#A0A5BA" size={14} />
-                </TouchableOpacity>
+                </Pressable>
               )}
             </View>
           </View>

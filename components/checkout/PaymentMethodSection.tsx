@@ -1,7 +1,6 @@
 import { PaymentMethod } from "@/types/api";
 import { Banknote, ChevronRight, CreditCard } from "lucide-react-native";
-import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 interface PaymentMethodSectionProps {
   selectedPaymentMethod: PaymentMethod | null;
@@ -23,14 +22,14 @@ export function PaymentMethodSection({
           PAYMENT METHOD
         </Text>
         {paymentMethodsCount === 1 && (
-          <TouchableOpacity onPress={onAddCardPress}>
+          <Pressable onPress={onAddCardPress}>
             <Text className="text-primary font-sen-bold text-sm">ADD CARD</Text>
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
 
       {selectedPaymentMethod ? (
-        <TouchableOpacity
+        <Pressable
           onPress={onSelectPress}
           className="bg-[#F0F5FA] rounded-xl p-4 flex-row items-center"
         >
@@ -49,7 +48,7 @@ export function PaymentMethodSection({
             </Text>
           </View>
           <ChevronRight color="#181C2E" size={20} />
-        </TouchableOpacity>
+        </Pressable>
       ) : null}
     </View>
   );

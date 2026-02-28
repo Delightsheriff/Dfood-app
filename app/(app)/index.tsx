@@ -9,7 +9,7 @@ import {
   RefreshControl,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -83,7 +83,7 @@ export default function Home() {
       >
         {/* Header */}
         <View className="flex-row justify-between items-center px-6 pt-4 pb-2">
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.push("/(app)/profile")}
             className="w-12 h-12 bg-[#F0F5FA] rounded-2xl items-center justify-center"
             style={{
@@ -95,9 +95,9 @@ export default function Home() {
             }}
           >
             <Menu color="#181C2E" size={22} />
-          </TouchableOpacity>
+          </Pressable>
 
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.push("/cart")}
             className="w-12 h-12 bg-secondary rounded-2xl items-center justify-center relative"
             style={{
@@ -116,7 +116,7 @@ export default function Home() {
                 </Text>
               </View>
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Greeting */}
@@ -140,7 +140,7 @@ export default function Home() {
             <Text className="text-lg font-sen-bold text-secondary">
               Categories
             </Text>
-            <TouchableOpacity
+            <Pressable
               onPress={() => router.push("/(app)/categories")}
               className="flex-row items-center"
             >
@@ -148,7 +148,7 @@ export default function Home() {
                 See All
               </Text>
               <ChevronRight color="#FF7622" size={16} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           <FlatList
@@ -186,7 +186,7 @@ export default function Home() {
             <Text className="text-lg font-sen-bold text-secondary">
               Open Restaurants
             </Text>
-            <TouchableOpacity
+            <Pressable
               onPress={() => router.push("/(app)/restaurants")}
               className="flex-row items-center"
             >
@@ -194,7 +194,7 @@ export default function Home() {
                 See All
               </Text>
               <ChevronRight color="#FF7622" size={16} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
 
           {restaurantsLoading ? (

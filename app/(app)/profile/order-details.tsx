@@ -21,7 +21,7 @@ import {
   Alert,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -165,7 +165,7 @@ export default function OrderDetails() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
       <View className="flex-row items-center px-6 py-4">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           className="w-11 h-11 bg-[#F0F5FA] rounded-full items-center justify-center mr-3"
           style={{
@@ -177,7 +177,7 @@ export default function OrderDetails() {
           }}
         >
           <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-lg font-sen-bold text-secondary flex-1">
           Order Details
         </Text>
@@ -373,7 +373,7 @@ export default function OrderDetails() {
               )}
             </View>
             {order.restaurantId.phone && (
-              <TouchableOpacity
+              <Pressable
                 className="w-10 h-10 bg-white rounded-xl items-center justify-center"
                 style={{
                   shadowColor: "#000",
@@ -384,7 +384,7 @@ export default function OrderDetails() {
                 }}
               >
                 <Phone color="#FF7622" size={18} />
-              </TouchableOpacity>
+              </Pressable>
             )}
           </View>
         </View>

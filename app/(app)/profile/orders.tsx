@@ -8,7 +8,7 @@ import {
   RefreshControl,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -45,7 +45,7 @@ export default function Orders() {
     const statusColors = getStatusColor(order.status);
 
     return (
-      <TouchableOpacity
+      <Pressable
         onPress={() =>
           router.push({
             pathname: "/profile/order-details" as any,
@@ -118,7 +118,7 @@ export default function Orders() {
           </Text>
           <ChevronRight color="#A0A5BA" size={16} />
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -126,7 +126,7 @@ export default function Orders() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
       <View className="flex-row items-center px-6 py-4">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
           style={{
@@ -138,7 +138,7 @@ export default function Orders() {
           }}
         >
           <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-lg font-sen-bold text-secondary flex-1">
           My Orders
         </Text>
@@ -166,7 +166,7 @@ export default function Orders() {
           <Text className="text-text-gray font-sen text-sm text-center mb-6">
             Your order history will appear here
           </Text>
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.push("/(app)")}
             className="bg-primary px-8 py-3.5 rounded-2xl"
             style={{
@@ -180,7 +180,7 @@ export default function Orders() {
             <Text className="text-white font-sen-bold text-sm uppercase tracking-wider">
               START ORDERING
             </Text>
-          </TouchableOpacity>
+          </Pressable>
         </View>
       ) : (
         <ScrollView

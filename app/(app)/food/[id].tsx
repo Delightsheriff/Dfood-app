@@ -23,7 +23,7 @@ import {
   Dimensions,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
@@ -148,7 +148,7 @@ export default function FoodDetails() {
 
         {/* Navigation Buttons */}
         <View className="absolute top-12 left-6 right-6 flex-row items-center justify-between">
-          <TouchableOpacity
+          <Pressable
             onPress={() => router.back()}
             className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
             style={{
@@ -160,10 +160,10 @@ export default function FoodDetails() {
             }}
           >
             <ChevronLeft color="#181C2E" size={22} />
-          </TouchableOpacity>
+          </Pressable>
 
           {/* Favorite Button */}
-          <TouchableOpacity
+          <Pressable
             onPress={handleToggleFavorite}
             disabled={
               addFavoriteMutation.isPending || removeFavoriteMutation.isPending
@@ -187,7 +187,7 @@ export default function FoodDetails() {
                 fill={isFavorite ? "#FF7622" : "transparent"}
               />
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         {/* Pagination Dots */}
@@ -324,23 +324,23 @@ export default function FoodDetails() {
           </View>
 
           <View className="flex-row items-center bg-[#F0F5FA] rounded-2xl">
-            <TouchableOpacity
+            <Pressable
               onPress={() => setQuantity(Math.max(1, quantity - 1))}
               className="w-11 h-11 items-center justify-center"
             >
               <Minus color="#181C2E" size={18} />
-            </TouchableOpacity>
+            </Pressable>
 
             <Text className="text-secondary font-sen-extra-bold text-lg px-4 min-w-[40px] text-center">
               {quantity}
             </Text>
 
-            <TouchableOpacity
+            <Pressable
               onPress={() => setQuantity(quantity + 1)}
               className="w-11 h-11 bg-primary rounded-xl items-center justify-center"
             >
               <Plus color="white" size={18} />
-            </TouchableOpacity>
+            </Pressable>
           </View>
         </View>
 

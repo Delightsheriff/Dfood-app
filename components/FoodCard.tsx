@@ -2,8 +2,16 @@ import { useCartStore } from "@/store/cartStore";
 import { FoodItem } from "@/types/api";
 import { Image } from "expo-image";
 import { Plus } from "lucide-react-native";
-import { Alert, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import Toast from "react-native-toast-message";
+
+const cardShadow = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+  elevation: 3,
+} as const;
 
 interface FoodCardProps {
   food: FoodItem;
@@ -73,17 +81,10 @@ export default function FoodCard({
     });
   };
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      activeOpacity={0.7}
+      style={({ pressed }) => [cardShadow, { opacity: pressed ? 0.7 : 1 }]}
       className="bg-white rounded-2xl overflow-hidden shadow-sm border border-[#EDEDED]"
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.06,
-        shadowRadius: 8,
-        elevation: 3,
-      }}
     >
       <Image
         source={{ uri: food.images[0] }}
@@ -100,30 +101,30 @@ export default function FoodCard({
         >
           {food.name}
         </Text>
-        {restaurantName && (
+        {restaurantName ? (
           <Text
             className="text-xs text-text-gray font-sen mb-3"
             numberOfLines={1}
           >
             {restaurantName}
           </Text>
-        )}
+        ) : null}
 
         <View className="flex-row items-center justify-between">
           <Text className="text-lg font-sen-bold text-secondary">
             ₦{food.price.toLocaleString()}
           </Text>
 
-          <TouchableOpacity
+          <Pressable
             className="w-8 h-8 bg-primary rounded-full items-center justify-center"
             onPress={(e) => {
               handleAddToCart(e);
             }}
           >
             <Plus color="white" size={18} strokeWidth={3} />
-          </TouchableOpacity>
+          </Pressable>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

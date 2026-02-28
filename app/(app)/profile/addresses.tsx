@@ -20,7 +20,7 @@ import {
   Alert,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -93,7 +93,7 @@ export default function Addresses() {
     const { color, bg } = getLabelColor(address.label);
 
     return (
-      <TouchableOpacity
+      <Pressable
         onPress={() => handleSetDefault(address)}
         onLongPress={() => handleSetDefault(address)}
         className={`rounded-2xl p-4 mb-3 flex-row items-center ${
@@ -134,7 +134,7 @@ export default function Addresses() {
           </Text>
         </View>
         <View className="flex-row items-center gap-1.5">
-          <TouchableOpacity
+          <Pressable
             onPress={() =>
               router.push({
                 pathname: "/profile/edit-address" as any,
@@ -144,8 +144,8 @@ export default function Addresses() {
             className="w-9 h-9 bg-white rounded-xl items-center justify-center"
           >
             <Edit2 color="#FF7622" size={16} />
-          </TouchableOpacity>
-          <TouchableOpacity
+          </Pressable>
+          <Pressable
             onPress={() => handleDelete(address)}
             disabled={deleteAddressMutation.isPending}
             className="w-9 h-9 bg-white rounded-xl items-center justify-center"
@@ -155,9 +155,9 @@ export default function Addresses() {
             ) : (
               <Trash2 color="#FF4B4B" size={16} />
             )}
-          </TouchableOpacity>
+          </Pressable>
         </View>
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -165,7 +165,7 @@ export default function Addresses() {
     <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
       {/* Header */}
       <View className="flex-row items-center px-6 py-4">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.back()}
           className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
           style={{
@@ -177,7 +177,7 @@ export default function Addresses() {
           }}
         >
           <ChevronLeft color="#181C2E" size={22} />
-        </TouchableOpacity>
+        </Pressable>
         <Text className="text-lg font-sen-bold text-secondary flex-1">
           My Addresses
         </Text>
@@ -222,7 +222,7 @@ export default function Addresses() {
       )}
 
       <View className="px-6 pb-6">
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/profile/add-address" as any)}
           className="w-full bg-primary h-[56px] rounded-2xl items-center justify-center flex-row"
           style={{
@@ -237,7 +237,7 @@ export default function Addresses() {
           <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
             ADD NEW ADDRESS
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

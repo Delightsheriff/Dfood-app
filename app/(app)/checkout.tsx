@@ -36,7 +36,7 @@ import {
   Alert,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -183,7 +183,7 @@ export default function Checkout() {
     const { color, bg } = getLabelColor(address.label);
 
     return (
-      <TouchableOpacity
+      <Pressable
         onPress={() => {
           setSelectedAddress(address);
           addressSheetRef.current?.close();
@@ -225,7 +225,7 @@ export default function Checkout() {
             <Check color="white" size={14} />
           </View>
         )}
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -234,7 +234,7 @@ export default function Checkout() {
     const isSelected = selectedPaymentMethod?._id === method._id;
 
     return (
-      <TouchableOpacity
+      <Pressable
         onPress={() => {
           setSelectedPaymentMethod(method);
           paymentSheetRef.current?.close();
@@ -286,7 +286,7 @@ export default function Checkout() {
             <Check color="white" size={14} />
           </View>
         )}
-      </TouchableOpacity>
+      </Pressable>
     );
   };
 
@@ -401,7 +401,7 @@ export default function Checkout() {
                   </View>
                 )}
               </View>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => {
                   addressSheetRef.current?.close();
                   router.push("/profile/add-address" as any);
@@ -413,7 +413,7 @@ export default function Checkout() {
                 <Text className="text-primary font-sen-bold text-xs ml-1">
                   ADD NEW
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -449,7 +449,7 @@ export default function Checkout() {
                   </View>
                 )}
               </View>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => {
                   paymentSheetRef.current?.close();
                   router.push("/profile/add-card" as any);
@@ -461,7 +461,7 @@ export default function Checkout() {
                 <Text className="text-primary font-sen-bold text-xs ml-1">
                   ADD CARD
                 </Text>
-              </TouchableOpacity>
+              </Pressable>
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>

@@ -12,7 +12,7 @@ import {
   Alert,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { z } from "zod";
@@ -122,7 +122,7 @@ export default function ResetPassword() {
                   aria-labelledby="password"
                   className="flex-1 h-full !bg-transparent text-secondary font-sen border-0 p-0"
                 />
-                <TouchableOpacity
+                <Pressable
                   onPress={() => setShowPassword(!showPassword)}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   disabled={resetPasswordMutation.isPending}
@@ -132,7 +132,7 @@ export default function ResetPassword() {
                   ) : (
                     <Eye size={18} color="#A0A5BA" />
                   )}
-                </TouchableOpacity>
+                </Pressable>
               </View>
             )}
           />

@@ -14,7 +14,7 @@ import {
   Animated,
   ScrollView,
   Text,
-  TouchableOpacity,
+  Pressable,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -338,14 +338,14 @@ export default function OrderConfirmation() {
             TRACK ORDER
           </Text>
         </Button>
-        <TouchableOpacity
+        <Pressable
           onPress={() => router.push("/(app)")}
           className="h-[48px] items-center justify-center bg-[#F0F5FA] rounded-2xl"
         >
           <Text className="text-secondary font-sen-bold text-[13px] uppercase tracking-wider">
             CONTINUE SHOPPING
           </Text>
-        </TouchableOpacity>
+        </Pressable>
       </View>
     </SafeAreaView>
   );

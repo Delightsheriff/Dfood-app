@@ -2,31 +2,37 @@ import { Restaurant } from "@/types/api";
 import { Image } from "expo-image";
 import { Clock, MapPin, Star, Truck } from "lucide-react-native";
 import { memo } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
+
+const cardShadow = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  elevation: 4,
+} as const;
+
+const badgeShadow = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3,
+} as const;
 
 interface RestaurantCardProps {
-  restaurant: Restaurant | any;
+  restaurant: Restaurant;
   onPress: () => void;
 }
 
-function RestaurantCard({
-  restaurant,
-  onPress,
-}: RestaurantCardProps) {
+function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
   const isCurrentlyOpen = restaurant.isOpen ?? restaurant.status === "Open";
 
   return (
-    <TouchableOpacity
+    <Pressable
       onPress={onPress}
-      activeOpacity={0.7}
+      style={({ pressed }) => [cardShadow, { opacity: pressed ? 0.7 : 1 }]}
       className="bg-white rounded-2xl mb-4 overflow-hidden border border-[#F0F0F0]"
-      style={{
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        elevation: 4,
-      }}
     >
       {/* Image Container */}
       <View className="relative">
@@ -49,13 +55,7 @@ function RestaurantCard({
         {/* Rating Badge */}
         <View
           className="absolute top-3 left-3 flex-row items-center bg-white px-2.5 py-1.5 rounded-xl"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
+          style={badgeShadow}
         >
           <Star color="#FF7622" size={13} fill="#FF7622" />
           <Text className="ml-1 font-sen-bold text-secondary text-xs">
@@ -66,13 +66,7 @@ function RestaurantCard({
         {/* Delivery Fee Badge */}
         <View
           className="absolute top-3 right-3 flex-row items-center bg-white px-2.5 py-1.5 rounded-xl"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.1,
-            shadowRadius: 4,
-            elevation: 3,
-          }}
+          style={badgeShadow}
         >
           <Truck color="#FF7622" size={13} />
           <Text className="ml-1 font-sen-bold text-secondary text-xs">
@@ -103,14 +97,14 @@ function RestaurantCard({
           {restaurant.name}
         </Text>
 
-        {restaurant.description && (
+        {restaurant.description ? (
           <Text
             className="text-text-gray font-sen text-xs mb-2.5"
             numberOfLines={1}
           >
             {restaurant.description}
           </Text>
-        )}
+        ) : null}
 
         {/* Info Row */}
         <View className="flex-row items-center">
@@ -132,7 +126,7 @@ function RestaurantCard({
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 

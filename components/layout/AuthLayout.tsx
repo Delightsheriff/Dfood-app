@@ -14,6 +14,14 @@ import Ellipse from "../../assets/images/Ellipse.svg";
 import TopLeftRay from "../../assets/images/Vector 142.svg";
 import BackButton from "../ui/BackButton";
 
+const contentShadow = {
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: -4 },
+  shadowOpacity: 0.08,
+  shadowRadius: 12,
+  elevation: 8,
+} as const;
+
 interface AuthLayoutProps {
   title: string;
   subtitle: string;
@@ -77,13 +85,7 @@ export default function AuthLayout({
           {/* White Content Container */}
           <View
             className="flex-1 bg-white rounded-t-[30px] overflow-hidden"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: -4 },
-              shadowOpacity: 0.08,
-              shadowRadius: 12,
-              elevation: 8,
-            }}
+            style={contentShadow}
           >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View className="flex-1 px-6 pt-8">{children}</View>
