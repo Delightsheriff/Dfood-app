@@ -11,7 +11,8 @@
     "preview": {
       "distribution": "internal",
       "android": {
-        "buildType": "apk"
+        "buildType": "apk",
+        "googleServicesFile": "./google-services.json"
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://food-api-7h3o.onrender.com/api",
