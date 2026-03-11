@@ -63,5 +63,5 @@ ai-cache/
 .agent
 
 # Firebase config files
-google-services.json
+# google-services.json
 GoogleService-Info.plist
