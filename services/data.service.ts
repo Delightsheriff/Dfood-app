@@ -1,395 +1,199 @@
-import { apiClient } from "@/lib/api-client";
 import {
-  AddressesResponse,
-  AddressResponse,
+  CATEGORY_TO_MEALDB,
+  CURATED_CATEGORIES,
+} from "@/lib/adapters/categories";
+import {
+  mealDbCategoryForRestaurant,
+  mealToFoodItem,
+  mealToSearchFoodItem,
+  pickMenuMeals,
+} from "@/lib/adapters/food-item";
+import {
+  placeholderRestaurant,
+  restaurantFromYelpBusiness,
+  restaurantFromYelpDetail,
+} from "@/lib/adapters/restaurant";
+import { mealDbService } from "@/services/mealdb.service";
+import { yelpService } from "@/services/yelp.service";
+import {
   CategoriesResponse,
-  CreateAddressRequest,
-  CreateOrderRequest,
-  FavoriteCheckResponse,
-  FavoritesResponse,
   FoodItemResponse,
   FoodItemsResponse,
-  OrderResponse,
-  OrdersResponse,
-  PaymentMethodResponse,
-  PaymentMethodsResponse,
   ProfileResponse,
   RestaurantResponse,
   RestaurantsResponse,
   SearchResponse,
-  UpdateAddressRequest,
   UpdateProfileRequest,
 } from "@/types/api";
-import { AxiosResponse } from "axios";
+
+const MEALDB_SEARCH_LIMIT = 10;
+const YELP_SEARCH_LIMIT = 20;
 
 export const dataService = {
   /**
-   * Get all categories
-   * GET /categories
+   * Get curated restaurant categories (static Phase 2 list pairing
+   * Yelp category aliases with TheMealDB menu categories).
    */
   async getCategories(): Promise<CategoriesResponse> {
-    const response: AxiosResponse<CategoriesResponse> =
-      await apiClient.get("/categories");
-    return response.data;
+    return { success: true, data: { categories: CURATED_CATEGORIES } };
   },
 
   /**
-   * Get all restaurants
-   * GET /restaurants?isOpen=true
+   * Get restaurants near the user, filtered by open state.
+   * Defaults to businesses that are currently open.
    */
   async getRestaurants(isOpen?: boolean): Promise<RestaurantsResponse> {
-    const response: AxiosResponse<RestaurantsResponse> = await apiClient.get(
-      "/restaurants",
-      {
-        params: isOpen !== undefined ? { isOpen } : undefined,
+    const response = await yelpService.searchBusinesses({
+      open_now: isOpen ?? true,
+      limit: YELP_SEARCH_LIMIT,
+    });
+    return {
+      success: true,
+      data: {
+        restaurants: response.businesses.map(restaurantFromYelpBusiness),
       },
-    );
-    return response.data;
+    };
   },
 
   /**
-   * Get restaurant by ID
-   * GET /restaurants/:id
+   * Get a restaurant by Yelp business ID.
    */
   async getRestaurantById(id: string): Promise<RestaurantResponse> {
-    const response: AxiosResponse<RestaurantResponse> = await apiClient.get(
-      `/restaurants/${id}`,
-    );
-    return response.data;
+    const business = await yelpService.getBusiness(id);
+    return { success: true, data: { restaurant: restaurantFromYelpDetail(business) } };
   },
 
   /**
-   * Get food items by restaurant
-   * GET /food-items/restaurant/:restaurantId
+   * Get a restaurant's menu. TheMealDB meals stand in for real menu items,
+   * picked deterministically from the restaurant's hashed ID.
    */
   async getFoodItemsByRestaurant(
     restaurantId: string,
   ): Promise<FoodItemsResponse> {
-    const response: AxiosResponse<FoodItemsResponse> = await apiClient.get(
-      `/food-items/restaurant/${restaurantId}`,
+    const mealDbCategory = mealDbCategoryForRestaurant(restaurantId);
+    const [business, { meals }] = await Promise.all([
+      yelpService.getBusiness(restaurantId),
+      mealDbService.getMealsByCategory(mealDbCategory),
+    ]);
+    const restaurant = restaurantFromYelpDetail(business);
+    const foodItems = pickMenuMeals(meals, restaurantId).map((meal) =>
+      mealToFoodItem(meal, restaurant, mealDbCategory),
     );
-    return response.data;
+    return { success: true, data: { foodItems } };
   },
 
   /**
-   * Get food items by category
-   * GET /food-items/category/:categoryId
+   * Get food items for a curated category, mapped to its TheMealDB category.
    */
   async getFoodItemsByCategory(categoryId: string): Promise<FoodItemsResponse> {
-    const response: AxiosResponse<FoodItemsResponse> = await apiClient.get(
-      `/food-items/category/${categoryId}`,
+    const mealDbCategory = CATEGORY_TO_MEALDB[categoryId];
+    if (!mealDbCategory) {
+      return { success: true, data: { foodItems: [] } };
+    }
+
+    const { meals } = await mealDbService.getMealsByCategory(mealDbCategory);
+    const categoryName =
+      CURATED_CATEGORIES.find((category) => category._id === categoryId)?.name ??
+      categoryId;
+    const restaurant = placeholderRestaurant(
+      `curated-${categoryId}`,
+      categoryName,
     );
-    return response.data;
+    const foodItems = pickMenuMeals(meals, categoryId).map((meal) =>
+      mealToFoodItem(meal, restaurant, mealDbCategory),
+    );
+    return { success: true, data: { foodItems } };
   },
 
   /**
-   * Get food item by ID
-   * GET /food-items/:id
+   * Get a food item by its composite ID (`<restaurantId>__<mealId>`),
+   * where restaurantId may be a Yelp business ID or a `curated-` alias.
    */
   async getFoodItemById(id: string): Promise<FoodItemResponse> {
-    const response: AxiosResponse<FoodItemResponse> = await apiClient.get(
-      `/food-items/${id}`,
-    );
-    return response.data;
+    const [restaurantId, mealId] = id.split("__");
+    if (!mealId) {
+      throw new Error("Food item not found");
+    }
+
+    const meal = await mealDbService.getMealById(mealId);
+    if (!meal) {
+      throw new Error("Food item not found");
+    }
+
+    const category = meal.strCategory ?? "Miscellaneous";
+    if (restaurantId.startsWith("curated-")) {
+      const categoryId = restaurantId.slice("curated-".length);
+      const mealDbCategory = CATEGORY_TO_MEALDB[categoryId];
+      const categoryName =
+        CURATED_CATEGORIES.find((c) => c._id === categoryId)?.name ??
+        categoryId;
+      const restaurant = placeholderRestaurant(
+        restaurantId,
+        categoryName,
+      );
+      return {
+        success: true,
+        data: {
+          foodItem: mealToFoodItem(
+            meal,
+            restaurant,
+            mealDbCategory ?? category,
+          ),
+        },
+      };
+    }
+
+    const business = await yelpService.getBusiness(restaurantId);
+    const restaurant = restaurantFromYelpDetail(business);
+    return {
+      success: true,
+      data: { foodItem: mealToFoodItem(meal, restaurant, category) },
+    };
   },
 
   /**
-   * Search for food items and restaurants
-   * GET /search?q=pizza
+   * Search for dishes (TheMealDB) and restaurants (Yelp).
    */
   async search(query: string): Promise<SearchResponse> {
-    const response: AxiosResponse<SearchResponse> = await apiClient.get(
-      "/search",
-      {
-        params: { q: query },
-      },
-    );
-    return response.data;
+    const [yelpResults, mealResults] = await Promise.all([
+      yelpService.searchBusinesses({ term: query, limit: YELP_SEARCH_LIMIT }),
+      mealDbService.searchMeals(query),
+    ]);
+
+    const restaurants = yelpResults.businesses.map(restaurantFromYelpBusiness);
+    const restaurantForFoods =
+      restaurants[0] ??
+      placeholderRestaurant(`mealdb-${query}`, query);
+
+    const foods = mealResults.meals
+      .slice(0, MEALDB_SEARCH_LIMIT)
+      .map((meal) =>
+        mealToSearchFoodItem(
+          meal,
+          restaurantForFoods,
+          meal.strCategory ?? "Miscellaneous",
+        ),
+      );
+
+    return { success: true, data: { foods, restaurants } };
   },
 
-  /**
-   * Get user profile
-   * GET /profile
-   */
+  // TODO(phase4): decide profile behavior without a backend. No local
+  // profile design was built in Phase 2, so profile calls fail instead
+  // of pretending to be real; screens degrade to guest fallbacks.
   async getProfile(): Promise<ProfileResponse> {
-    const response: AxiosResponse<ProfileResponse> =
-      await apiClient.get("/profile");
-    return response.data;
+    throw new Error("Profile is not available in Phase 2");
   },
 
-  /**
-   * Update user profile
-   * PATCH /profile
-   */
-  async updateProfile(data: UpdateProfileRequest): Promise<ProfileResponse> {
-    const response: AxiosResponse<ProfileResponse> = await apiClient.patch(
-      "/profile",
-      data,
-    );
-    return response.data;
+  async updateProfile(_data: UpdateProfileRequest): Promise<ProfileResponse> {
+    throw new Error("Profile is not available in Phase 2");
   },
 
-  /**
-   * Update profile image
-   * POST /profile/image
-   */
-  async updateProfileImage(imageFile: FormData): Promise<ProfileResponse> {
-    const response: AxiosResponse<ProfileResponse> = await apiClient.post(
-      "/profile/image",
-      imageFile,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      },
-    );
-    return response.data;
+  async updateProfileImage(_imageFile: FormData): Promise<ProfileResponse> {
+    throw new Error("Profile is not available in Phase 2");
   },
 
-  /**
-   * Delete profile image
-   * DELETE /profile/image
-   */
   async deleteProfileImage(): Promise<ProfileResponse> {
-    const response: AxiosResponse<ProfileResponse> =
-      await apiClient.delete("/profile/image");
-    return response.data;
-  },
-
-  /**
-   * Get user favorites
-   * GET /favorites
-   */
-  async getFavorites(): Promise<FavoritesResponse> {
-    const response: AxiosResponse<FavoritesResponse> =
-      await apiClient.get("/favorites");
-    return response.data;
-  },
-
-  /**
-   * Add food item to favorites
-   * POST /favorites/:foodItemId
-   */
-  async addFavorite(
-    foodItemId: string,
-  ): Promise<{ success: true; message: string }> {
-    const response = await apiClient.post(`/favorites/${foodItemId}`);
-    return response.data;
-  },
-
-  /**
-   * Remove food item from favorites
-   * DELETE /favorites/:foodItemId
-   */
-  async removeFavorite(
-    foodItemId: string,
-  ): Promise<{ success: true; message: string }> {
-    const response = await apiClient.delete(`/favorites/${foodItemId}`);
-    return response.data;
-  },
-
-  /**
-   * Check if food item is favorited
-   * GET /favorites/:foodItemId/check
-   */
-  async checkFavorite(foodItemId: string): Promise<FavoriteCheckResponse> {
-    const response: AxiosResponse<FavoriteCheckResponse> = await apiClient.get(
-      `/favorites/${foodItemId}/check`,
-    );
-    return response.data;
-  },
-
-  /**
-   * Get all addresses
-   * GET /addresses
-   */
-  async getAddresses(): Promise<AddressesResponse> {
-    const response: AxiosResponse<AddressesResponse> =
-      await apiClient.get("/addresses");
-    return response.data;
-  },
-
-  /**
-   * Get default address
-   * GET /addresses/default
-   */
-  async getDefaultAddress(): Promise<AddressResponse> {
-    const response: AxiosResponse<AddressResponse> =
-      await apiClient.get("/addresses/default");
-    return response.data;
-  },
-
-  /**
-   * Get address by ID
-   * GET /addresses/:id
-   */
-  async getAddressById(id: string): Promise<AddressResponse> {
-    const response: AxiosResponse<AddressResponse> = await apiClient.get(
-      `/addresses/${id}`,
-    );
-    return response.data;
-  },
-
-  /**
-   * Create address
-   * POST /addresses
-   */
-  async createAddress(data: CreateAddressRequest): Promise<AddressResponse> {
-    const response: AxiosResponse<AddressResponse> = await apiClient.post(
-      "/addresses",
-      data,
-    );
-    return response.data;
-  },
-
-  /**
-   * Update address
-   * PATCH /addresses/:id
-   */
-  async updateAddress(
-    id: string,
-    data: UpdateAddressRequest,
-  ): Promise<AddressResponse> {
-    const response: AxiosResponse<AddressResponse> = await apiClient.patch(
-      `/addresses/${id}`,
-      data,
-    );
-    return response.data;
-  },
-
-  /**
-   * Set default address
-   * PATCH /addresses/:id/default
-   */
-  async setDefaultAddress(id: string): Promise<AddressResponse> {
-    const response: AxiosResponse<AddressResponse> = await apiClient.patch(
-      `/addresses/${id}/default`,
-    );
-    return response.data;
-  },
-
-  /**
-   * Delete address
-   * DELETE /addresses/:id
-   */
-  async deleteAddress(id: string): Promise<{ success: true; message: string }> {
-    const response = await apiClient.delete(`/addresses/${id}`);
-    return response.data;
-  },
-
-  /**
-   * Get all payment methods
-   * GET /payment-methods
-   */
-  async getPaymentMethods(): Promise<PaymentMethodsResponse> {
-    const response: AxiosResponse<PaymentMethodsResponse> =
-      await apiClient.get("/payment-methods");
-    return response.data;
-  },
-
-  /**
-   * Get default payment method
-   * GET /payment-methods/default
-   */
-  async getDefaultPaymentMethod(): Promise<PaymentMethodResponse> {
-    const response: AxiosResponse<PaymentMethodResponse> = await apiClient.get(
-      "/payment-methods/default",
-    );
-    return response.data;
-  },
-
-  /**
-   * Add card payment method
-   * POST /payment-methods/card
-   */
-  async addCard(reference: string): Promise<PaymentMethodResponse> {
-    const response: AxiosResponse<PaymentMethodResponse> = await apiClient.post(
-      "/payment-methods/card",
-      { reference },
-    );
-    return response.data;
-  },
-
-  /**
-   * Set default payment method
-   * PATCH /payment-methods/:id/default
-   */
-  async setDefaultPaymentMethod(id: string): Promise<PaymentMethodResponse> {
-    const response: AxiosResponse<PaymentMethodResponse> =
-      await apiClient.patch(`/payment-methods/${id}/default`);
-    return response.data;
-  },
-
-  /**
-   * Delete payment method
-   * DELETE /payment-methods/:id
-   */
-  async deletePaymentMethod(
-    id: string,
-  ): Promise<{ success: true; message: string }> {
-    const response = await apiClient.delete(`/payment-methods/${id}`);
-    return response.data;
-  },
-
-  /**
-   * Create order
-   * POST /orders
-   */
-  // async createOrder(data: CreateOrderRequest): Promise<OrderResponse> {
-  //   const response: AxiosResponse<OrderResponse> = await apiClient.post(
-  //     "/orders",
-  //     data,
-  //   );
-  //   return response.data;
-  // },
-  async createOrder(data: CreateOrderRequest): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await apiClient.post(
-      "/orders", // Make sure this matches your backend route
-      data,
-    );
-    return response.data;
-  },
-
-  /**
-   * Get user's orders
-   * GET /orders
-   */
-  async getOrders(): Promise<OrdersResponse> {
-    const response: AxiosResponse<OrdersResponse> =
-      await apiClient.get("/orders");
-    return response.data;
-  },
-
-  /**
-   * Get order by ID
-   * GET /orders/:id
-   */
-  async getOrderById(id: string): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await apiClient.get(
-      `/orders/${id}`,
-    );
-    return response.data;
-  },
-
-  /**
-   * Get order by order number
-   * GET /orders/number/:orderNumber
-   */
-  async getOrderByNumber(orderNumber: string): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await apiClient.get(
-      `/orders/number/${orderNumber}`,
-    );
-    return response.data;
-  },
-
-  /**
-   * Cancel order
-   * PATCH /orders/:id/cancel
-   */
-  async cancelOrder(id: string): Promise<OrderResponse> {
-    const response: AxiosResponse<OrderResponse> = await apiClient.patch(
-      `/orders/${id}/cancel`,
-    );
-    return response.data;
+    throw new Error("Profile is not available in Phase 2");
   },
 };
