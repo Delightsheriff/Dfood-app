@@ -69,11 +69,17 @@ function isRetryableError(error: unknown): boolean {
 
 async function runQuery(query: string): Promise<OverpassResponse> {
   const attempt = async (): Promise<OverpassResponse> => {
-    const response = await osmClient.post<OverpassResponse>(
+    const response = await osmClient.post(
       "",
       new URLSearchParams({ data: query }).toString(),
     );
-    return response.data;
+    const data = response.data as Partial<OverpassResponse>;
+    if (!Array.isArray(data.elements)) {
+      // The public instance answers HTTP 200 with an HTML error page
+      // when it is too busy; treat that like a transient failure.
+      throw new Error("Overpass server is too busy");
+    }
+    return data as OverpassResponse;
   };
 
   try {
