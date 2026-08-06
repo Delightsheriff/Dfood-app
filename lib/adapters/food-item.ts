@@ -68,6 +68,27 @@ function synthesizedDescription(
   return `A classic ${category.toLowerCase()} dish, served fresh.`;
 }
 
+// TheMealDB lists ingredients as strIngredient1..20 paired with
+// strMeasure1..20. Only MealDetail carries them (menu-list summaries
+// don't), so the MealSummary-only path leaves ingredients undefined.
+function ingredientsFromMeal(
+  meal: MealDetail | MealSummary,
+): { name: string; measure: string }[] | undefined {
+  if (!("strIngredient1" in meal)) {
+    return undefined;
+  }
+  const ingredients: { name: string; measure: string }[] = [];
+  for (let index = 1; index <= 20; index++) {
+    const name = meal[`strIngredient${index}`]?.trim();
+    if (!name) {
+      continue;
+    }
+    const measure = meal[`strMeasure${index}`]?.trim() ?? "";
+    ingredients.push({ name, measure });
+  }
+  return ingredients.length > 0 ? ingredients : undefined;
+}
+
 /**
  * Maps a TheMealDB meal to a FoodItem with deterministic placeholder
  * price, rating, calories, and review count.
@@ -86,6 +107,7 @@ export function mealToFoodItem(
     price: ((hash % 25) + 10) * 100 + 99,
     images: [meal.strMealThumb],
     calories: ((hash % 9) + 3) * 50,
+    ingredients: ingredientsFromMeal(meal),
     restaurantId: restaurant,
     categories: [category],
     categoryIds: [category],

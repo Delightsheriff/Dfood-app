@@ -45,6 +45,7 @@ export type FoodItem = {
   price: number;
   images: string[];
   calories?: number;
+  ingredients?: { name: string; measure: string }[];
   restaurantId: string | Restaurant;
   categories?: string[];
   categoryIds?: string[];
