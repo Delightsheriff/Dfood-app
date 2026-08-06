@@ -1,8 +1,4 @@
-export enum UserRole {
-  CUSTOMER = "customer",
-  VENDOR = "vendor",
-  ADMIN = "admin",
-}
+import { UserRole } from "./api";
 
 export type User = {
   id: string;
@@ -35,12 +31,6 @@ export type AuthResponse = {
     user: User;
     token: string;
   };
-};
-
-export type ErrorResponse = {
-  success: false;
-  message: string;
-  errors?: string[];
 };
 
 export type ForgotPasswordRequest = {

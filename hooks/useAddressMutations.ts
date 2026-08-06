@@ -1,6 +1,6 @@
 import { dataService } from "@/services/data.service";
 import { CreateAddressRequest, UpdateAddressRequest } from "@/types/api";
-import { ErrorResponse } from "@/types/auth";
+import { ErrorResponse } from "@/types/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 

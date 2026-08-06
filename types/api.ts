@@ -1,4 +1,14 @@
-import { UserRole } from "./auth";
+export enum UserRole {
+  CUSTOMER = "customer",
+  VENDOR = "vendor",
+  ADMIN = "admin",
+}
+
+export type ErrorResponse = {
+  success: false;
+  message: string;
+  errors?: string[];
+};
 
 export type Category = {
   _id: string;

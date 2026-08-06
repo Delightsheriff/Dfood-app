@@ -1,4 +1,4 @@
-import { ErrorResponse } from "@/types/auth";
+import { ErrorResponse } from "@/types/api";
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
