@@ -36,24 +36,40 @@ const osmClient = axios.create({
   timeout: 25000,
   headers: {
     "Content-Type": "application/x-www-form-urlencoded",
+    // Overpass's Apache front-end returns 406 Not Acceptable for axios's
+    // default headers (a generic "axios/x.x.x" User-Agent). A descriptive
+    // one — which OSM-adjacent APIs generally ask for anyway as an
+    // anti-abuse courtesy — fixes it. Confirmed by reproducing the 406
+    // outside the app and testing headers directly against the live API.
+    "User-Agent": "Dfood-app/1.0 (portfolio project)",
+    Accept: "*/*",
   },
 });
 
 async function resolveCoordinates(): Promise<OsmCoordinates> {
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== "granted") {
+  // Every failure mode here falls back rather than throwing: permission
+  // denied, but also a granted permission that still can't produce a fix
+  // (getCurrentPositionAsync throws LocationUnavailable on a simulator with
+  // no location set, and on a real device that can't get a GPS lock). An
+  // uncaught throw here kills the whole restaurant query.
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      return FALLBACK_LOCATION;
+    }
+
+    const position = await Location.getCurrentPositionAsync({});
+    if (!position?.coords?.latitude) {
+      return FALLBACK_LOCATION;
+    }
+
+    return {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+  } catch {
     return FALLBACK_LOCATION;
   }
-
-  const position = await Location.getCurrentPositionAsync({});
-  if (!position?.coords?.latitude) {
-    return FALLBACK_LOCATION;
-  }
-
-  return {
-    latitude: position.coords.latitude,
-    longitude: position.coords.longitude,
-  };
 }
 
 function isRetryableError(error: unknown): boolean {
