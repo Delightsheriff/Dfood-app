@@ -56,9 +56,21 @@ export const dataService = {
   },
 
   /**
-   * Get a restaurant by Yelp business ID.
+   * Get a restaurant by ID. Curated category placeholders (prefixed with
+   * `curated-`) resolve to their category restaurant instead of hitting Yelp.
    */
   async getRestaurantById(id: string): Promise<RestaurantResponse> {
+    if (id.startsWith("curated-")) {
+      const categoryId = id.slice("curated-".length);
+      const categoryName =
+        CURATED_CATEGORIES.find((category) => category._id === categoryId)
+          ?.name ?? categoryId;
+      return {
+        success: true,
+        data: { restaurant: placeholderRestaurant(id, categoryName) },
+      };
+    }
+
     const business = await yelpService.getBusiness(id);
     return { success: true, data: { restaurant: restaurantFromYelpDetail(business) } };
   },
