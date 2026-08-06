@@ -1,3 +1,4 @@
+import { useStoreHydrated } from "@/hooks/useStoreHydrated";
 import { dataService } from "@/services/data.service";
 import { useAddressStore } from "@/store/addressStore";
 import { useFavoritesStore } from "@/store/favoritesStore";
@@ -81,104 +82,84 @@ export function useProfile() {
   });
 }
 
+// The hooks below read local zustand-persisted stores rather than a
+// network resource. They deliberately don't use useQuery: these stores
+// rehydrate from AsyncStorage asynchronously, and a queryFn that reads
+// `store.getState()` once would cache whatever the store held at that
+// instant (often still the empty default) for the query's whole
+// staleTime, making saved data appear to vanish after a cold app launch.
+// Reactive selectors re-render as soon as rehydration completes, and
+// `isLoading` reflects real hydration state instead of guessing.
+// `data`/`isLoading`/`refetch` are kept shaped like a useQuery result so
+// existing screens don't need to change.
+
 export function useFavorites() {
-  return useQuery({
-    queryKey: ["favorites"],
-    queryFn: (): FavoritesResponse => ({
-      success: true,
-      data: { favorites: useFavoritesStore.getState().favorites },
-    }),
-    staleTime: 30 * 60 * 1000, // 30 minutes
-  });
+  const favorites = useFavoritesStore((state) => state.favorites);
+  const isLoading = !useStoreHydrated(useFavoritesStore.persist);
+  const data: FavoritesResponse = { success: true, data: { favorites } };
+  return { data, isLoading, refetch: () => Promise.resolve() };
 }
 
 export function useCheckFavorite(foodItemId: string) {
-  return useQuery({
-    queryKey: ["favorite-check", foodItemId],
-    queryFn: (): FavoriteCheckResponse => ({
-      success: true,
-      data: { isFavorite: useFavoritesStore.getState().isFavorite(foodItemId) },
-    }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const isFavorite = useFavoritesStore((state) =>
+    state.isFavorite(foodItemId),
+  );
+  const isLoading = !useStoreHydrated(useFavoritesStore.persist);
+  const data: FavoriteCheckResponse = { success: true, data: { isFavorite } };
+  return { data, isLoading };
 }
 
 export function useAddresses() {
-  return useQuery({
-    queryKey: ["addresses"],
-    queryFn: (): AddressesResponse => ({
-      success: true,
-      data: { addresses: useAddressStore.getState().addresses },
-    }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const addresses = useAddressStore((state) => state.addresses);
+  const isLoading = !useStoreHydrated(useAddressStore.persist);
+  const data: AddressesResponse = { success: true, data: { addresses } };
+  return { data, isLoading };
 }
 
 export function useDefaultAddress() {
-  return useQuery({
-    queryKey: ["address", "default"],
-    queryFn: (): AddressResponse => {
-      const address = useAddressStore.getState().getDefaultAddress();
-      if (!address) {
-        throw new Error("No default address");
-      }
-      return { success: true, data: { address } };
-    },
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-  });
+  const address = useAddressStore((state) => state.getDefaultAddress());
+  const isLoading = !useStoreHydrated(useAddressStore.persist);
+  const data: AddressResponse | undefined = address
+    ? { success: true, data: { address } }
+    : undefined;
+  return { data, isLoading };
 }
 
 export function usePaymentMethods() {
-  return useQuery({
-    queryKey: ["paymentMethods"],
-    queryFn: (): PaymentMethodsResponse => ({
-      success: true,
-      data: { paymentMethods: usePaymentMethodStore.getState().paymentMethods },
-    }),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  const paymentMethods = usePaymentMethodStore(
+    (state) => state.paymentMethods,
+  );
+  const isLoading = !useStoreHydrated(usePaymentMethodStore.persist);
+  const data: PaymentMethodsResponse = {
+    success: true,
+    data: { paymentMethods },
+  };
+  return { data, isLoading };
 }
 
 export function useDefaultPaymentMethod() {
-  return useQuery({
-    queryKey: ["paymentMethod", "default"],
-    queryFn: (): PaymentMethodResponse => {
-      const paymentMethod = usePaymentMethodStore
-        .getState()
-        .getDefaultPaymentMethod();
-      if (!paymentMethod) {
-        throw new Error("No default payment method");
-      }
-      return { success: true, data: { paymentMethod } };
-    },
-    staleTime: 5 * 60 * 1000,
-    retry: false,
-  });
+  const paymentMethod = usePaymentMethodStore((state) =>
+    state.getDefaultPaymentMethod(),
+  );
+  const isLoading = !useStoreHydrated(usePaymentMethodStore.persist);
+  const data: PaymentMethodResponse | undefined = paymentMethod
+    ? { success: true, data: { paymentMethod } }
+    : undefined;
+  return { data, isLoading };
 }
 
 export function useOrders() {
-  return useQuery({
-    queryKey: ["orders"],
-    queryFn: (): OrdersResponse => ({
-      success: true,
-      data: { orders: useOrderStore.getState().orders },
-    }),
-    staleTime: 1 * 60 * 1000, // 1 minute - orders change frequently
-  });
+  const orders = useOrderStore((state) => state.orders);
+  const isLoading = !useStoreHydrated(useOrderStore.persist);
+  const data: OrdersResponse = { success: true, data: { orders } };
+  return { data, isLoading, refetch: () => Promise.resolve() };
 }
 
 export function useOrder(id: string) {
-  return useQuery({
-    queryKey: ["order", id],
-    queryFn: (): OrderResponse => {
-      const order = useOrderStore.getState().getOrderById(id);
-      if (!order) {
-        throw new Error("Order not found");
-      }
-      return { success: true, data: { order } };
-    },
-    staleTime: 1 * 60 * 1000,
-    retry: false,
-  });
+  const order = useOrderStore((state) => state.getOrderById(id));
+  const isLoading = !useStoreHydrated(useOrderStore.persist);
+  const data: OrderResponse | undefined = order
+    ? { success: true, data: { order } }
+    : undefined;
+  return { data, isLoading };
 }
