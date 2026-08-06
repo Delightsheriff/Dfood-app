@@ -1,4 +1,3 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { useAddCard } from "@/hooks/usePaymentMethodMutations";
 import { useRouter } from "expo-router";
 import {
@@ -24,13 +23,12 @@ const PAYSTACK_PUBLIC_KEY =
 
 function AddCardContent() {
   const router = useRouter();
-  const { user } = useAuth();
   const addCardMutation = useAddCard();
   const { popup } = usePaystack();
 
   const handleAddCard = () => {
     popup.checkout({
-      email: user?.email || "user@example.com",
+      email: "user@example.com",
       amount: 100,
       onSuccess: (response) => {
         console.log(response);
