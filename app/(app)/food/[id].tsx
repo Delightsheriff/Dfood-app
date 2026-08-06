@@ -284,44 +284,74 @@ export default function FoodDetails() {
         )}
       </View>
 
-      {/* Content sheet overlapping the hero's bottom edge */}
-      <View
-        className="flex-1 bg-white -mt-[30px] rounded-t-[32px]"
-        style={{ borderCurve: "continuous" }}
-      >
+      {/* Content — a flat, hard edge below the hero, not a rounded overlap
+          card. Neither DoorDash's hero screen nor Epicurious "scoop" the
+          content over the image; they cut cleanly and let a badge + byline
+          row do the transition work instead. */}
+      <View className="flex-1 bg-white">
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 28,
+            paddingTop: 20,
             paddingBottom: 28,
           }}
         >
+          {/* Category badge, editorial-style (Epicurious's genre pill) */}
+          {food.categories?.[0] && (
+            <View className="self-start bg-surface-muted rounded-full px-3 py-1">
+              <Text className="text-[11px] font-sen-bold text-secondary uppercase tracking-wide">
+                {food.categories[0]}
+              </Text>
+            </View>
+          )}
+
           {/* Name */}
-          <Text className="text-[26px] leading-8 font-sen-extra-bold text-secondary">
+          <Text className="mt-3 text-[26px] leading-8 font-sen-extra-bold text-secondary">
             {food.name}
           </Text>
 
-          {/* Rating row — the one place the accent color does its job */}
-          <View className="flex-row items-center gap-1.5 mt-2.5">
-            <HugeiconsIcon icon={StarIcon} size={15} color={ACCENT} fill={ACCENT} />
-            <Text className="text-sm font-sen-bold text-secondary">
-              {food.rating}
-            </Text>
-            <Text className="text-sm font-sen text-text-gray">
-              ({food.totalReviews} reviews)
-            </Text>
+          {/* Byline row: which restaurant, and the rating — the one place
+              the accent color does its job. restaurant.osmId only exists on
+              real OSM-backed restaurants — items reached via category
+              browse attach to a synthetic placeholder restaurant named
+              after the category itself (e.g. "Pizza"), which would read as
+              nonsense here, so the byline is omitted rather than shown
+              blank (left-aligns the rating instead of stranding it right). */}
+          <View
+            className={cn(
+              "flex-row items-center mt-2.5",
+              restaurant?.osmId ? "justify-between" : "gap-3",
+            )}
+          >
+            {restaurant?.osmId && (
+              <Text className="text-xs font-sen uppercase tracking-wide text-text-gray">
+                By {restaurant.name}
+              </Text>
+            )}
+            <View className="flex-row items-center gap-1.5">
+              <HugeiconsIcon icon={StarIcon} size={14} color={ACCENT} fill={ACCENT} />
+              <Text className="text-sm font-sen-bold text-secondary">
+                {food.rating}
+              </Text>
+              <Text className="text-sm font-sen text-text-gray">
+                ({food.totalReviews})
+              </Text>
+            </View>
           </View>
 
-          {/* Stat grid, evenly spaced, no dividers */}
-          <View className="flex-row justify-between gap-4 mt-8">
+          {/* Divider */}
+          <View className="h-[1px] bg-surface-muted mt-5" />
+
+          {/* Stat grid, evenly spaced, no dividers between columns */}
+          <View className="flex-row justify-between gap-4 mt-5">
             {stats.map((stat) => (
               <Stat key={stat.label} label={stat.label} value={stat.value} />
             ))}
           </View>
 
           {/* Description */}
-          <Text className="mt-8 text-[15px] leading-6 font-sen text-text-gray">
+          <Text className="mt-6 text-[15px] leading-6 font-sen text-text-gray">
             {food.description}
           </Text>
 
