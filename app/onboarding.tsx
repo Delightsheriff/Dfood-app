@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
-import { useAuth } from "@/contexts/AuthContext";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useRouter } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import { useCallback, useRef, useState } from "react";
@@ -40,7 +40,7 @@ const slides = [
 export default function Onboarding() {
   const router = useRouter();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const { completeOnboarding } = useAuth();
+  const { completeOnboarding } = useOnboarding();
   const flatListRef = useRef<FlatList>(null);
   const scrollX = useSharedValue(0);
 
@@ -61,7 +61,7 @@ export default function Onboarding() {
   const handleComplete = async () => {
     try {
       await completeOnboarding();
-      router.replace("/(auth)/signin");
+      router.replace("/(app)");
     } catch (error) {
       console.error("Failed to complete onboarding:", error);
     }
