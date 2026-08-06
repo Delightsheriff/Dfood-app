@@ -10,54 +10,120 @@ import {
 } from "@/lib/adapters/food-item";
 import {
   placeholderRestaurant,
-  restaurantFromYelpBusiness,
-  restaurantFromYelpDetail,
+  restaurantFromOsmElement,
 } from "@/lib/adapters/restaurant";
 import { mealDbService } from "@/services/mealdb.service";
-import { yelpService } from "@/services/yelp.service";
+import { osmService } from "@/services/osm.service";
 import {
   CategoriesResponse,
   FoodItemResponse,
   FoodItemsResponse,
   ProfileResponse,
+  Restaurant,
   RestaurantResponse,
   RestaurantsResponse,
   SearchResponse,
   UpdateProfileRequest,
+  UserProfile,
+  UserRole,
 } from "@/types/api";
 
 const MEALDB_SEARCH_LIMIT = 10;
-const YELP_SEARCH_LIMIT = 20;
+const RESTAURANT_SEARCH_LIMIT = 20;
+
+// TODO(phase4): decide profile behavior without a backend. Phase 2
+// returns a minimal local placeholder profile so screens render
+// without network access.
+const PLACEHOLDER_PROFILE: UserProfile = {
+  id: "local-user",
+  name: "Guest",
+  email: "guest@dfood.local",
+  role: UserRole.CUSTOMER,
+};
+
+// The OSM restaurant list is fetched once per session and reused for
+// category browsing and search; Overpass is not called per category.
+let cachedRestaurants: Restaurant[] | null = null;
+
+async function ensureRestaurants(): Promise<Restaurant[]> {
+  if (!cachedRestaurants) {
+    const elements = await osmService.searchRestaurants();
+    cachedRestaurants = elements.map(restaurantFromOsmElement);
+  }
+  return cachedRestaurants;
+}
+
+// Resolves a restaurant for food-item fabrication. Curated ids map to
+// their category placeholder; OSM refs resolve from the session cache,
+// falling back to a placeholder when an id arrived via a deep link.
+async function getRestaurantForFoods(
+  restaurantId: string,
+): Promise<Restaurant> {
+  if (restaurantId.startsWith("curated-")) {
+    const categoryId = restaurantId.slice("curated-".length);
+    const categoryName =
+      CURATED_CATEGORIES.find((category) => category._id === categoryId)
+        ?.name ?? categoryId;
+    return placeholderRestaurant(restaurantId, categoryName);
+  }
+
+  const cached = cachedRestaurants?.find(
+    (restaurant) => restaurant._id === restaurantId,
+  );
+  if (cached) {
+    return cached;
+  }
+
+  const restaurants = await ensureRestaurants();
+  return (
+    restaurants.find((restaurant) => restaurant._id === restaurantId) ??
+    placeholderRestaurant(restaurantId, restaurantId)
+  );
+}
+
+async function searchRestaurants(query: string): Promise<Restaurant[]> {
+  const normalized = query.trim().toLowerCase();
+  const restaurants = await ensureRestaurants();
+  if (!normalized) {
+    return restaurants.slice(0, RESTAURANT_SEARCH_LIMIT);
+  }
+  return restaurants
+    .filter(
+      (restaurant) =>
+        restaurant.name.toLowerCase().includes(normalized) ||
+        restaurant.cuisineTags?.some((tag) =>
+          tag.toLowerCase().includes(normalized),
+        ),
+    )
+    .slice(0, RESTAURANT_SEARCH_LIMIT);
+}
 
 export const dataService = {
   /**
    * Get curated restaurant categories (static Phase 2 list pairing
-   * Yelp category aliases with TheMealDB menu categories).
+   * OSM `cuisine` tag values with TheMealDB menu categories).
    */
   async getCategories(): Promise<CategoriesResponse> {
     return { success: true, data: { categories: CURATED_CATEGORIES } };
   },
 
   /**
-   * Get restaurants near the user, filtered by open state.
-   * Defaults to businesses that are currently open.
+   * Get restaurants near the user, optionally filtered by open state.
+   * The list is fetched once per session and reused by category
+   * browsing and search.
    */
   async getRestaurants(isOpen?: boolean): Promise<RestaurantsResponse> {
-    const response = await yelpService.searchBusinesses({
-      open_now: isOpen ?? true,
-      limit: YELP_SEARCH_LIMIT,
-    });
-    return {
-      success: true,
-      data: {
-        restaurants: response.businesses.map(restaurantFromYelpBusiness),
-      },
-    };
+    const restaurants = await ensureRestaurants();
+    const filtered =
+      isOpen === undefined
+        ? restaurants
+        : restaurants.filter((restaurant) => restaurant.isOpen === isOpen);
+    return { success: true, data: { restaurants: filtered } };
   },
 
   /**
    * Get a restaurant by ID. Curated category placeholders (prefixed with
-   * `curated-`) resolve to their category restaurant instead of hitting Yelp.
+   * `curated-`) resolve to their category restaurant instead of OSM.
    */
   async getRestaurantById(id: string): Promise<RestaurantResponse> {
     if (id.startsWith("curated-")) {
@@ -71,8 +137,12 @@ export const dataService = {
       };
     }
 
-    const business = await yelpService.getBusiness(id);
-    return { success: true, data: { restaurant: restaurantFromYelpDetail(business) } };
+    const restaurants = await ensureRestaurants();
+    const restaurant = restaurants.find((candidate) => candidate._id === id);
+    if (!restaurant) {
+      throw new Error("Restaurant not found");
+    }
+    return { success: true, data: { restaurant } };
   },
 
   /**
@@ -83,11 +153,8 @@ export const dataService = {
     restaurantId: string,
   ): Promise<FoodItemsResponse> {
     const mealDbCategory = mealDbCategoryForRestaurant(restaurantId);
-    const [business, { meals }] = await Promise.all([
-      yelpService.getBusiness(restaurantId),
-      mealDbService.getMealsByCategory(mealDbCategory),
-    ]);
-    const restaurant = restaurantFromYelpDetail(business);
+    const restaurant = await getRestaurantForFoods(restaurantId);
+    const { meals } = await mealDbService.getMealsByCategory(mealDbCategory);
     const foodItems = pickMenuMeals(meals, restaurantId).map((meal) =>
       mealToFoodItem(meal, restaurant, mealDbCategory),
     );
@@ -119,7 +186,7 @@ export const dataService = {
 
   /**
    * Get a food item by its composite ID (`<restaurantId>__<mealId>`),
-   * where restaurantId may be a Yelp business ID or a `curated-` alias.
+   * where restaurantId is an OSM ref or a `curated-` alias.
    */
   async getFoodItemById(id: string): Promise<FoodItemResponse> {
     const [restaurantId, mealId] = id.split("__");
@@ -133,30 +200,7 @@ export const dataService = {
     }
 
     const category = meal.strCategory ?? "Miscellaneous";
-    if (restaurantId.startsWith("curated-")) {
-      const categoryId = restaurantId.slice("curated-".length);
-      const mealDbCategory = CATEGORY_TO_MEALDB[categoryId];
-      const categoryName =
-        CURATED_CATEGORIES.find((c) => c._id === categoryId)?.name ??
-        categoryId;
-      const restaurant = placeholderRestaurant(
-        restaurantId,
-        categoryName,
-      );
-      return {
-        success: true,
-        data: {
-          foodItem: mealToFoodItem(
-            meal,
-            restaurant,
-            mealDbCategory ?? category,
-          ),
-        },
-      };
-    }
-
-    const business = await yelpService.getBusiness(restaurantId);
-    const restaurant = restaurantFromYelpDetail(business);
+    const restaurant = await getRestaurantForFoods(restaurantId);
     return {
       success: true,
       data: { foodItem: mealToFoodItem(meal, restaurant, category) },
@@ -164,15 +208,15 @@ export const dataService = {
   },
 
   /**
-   * Search for dishes (TheMealDB) and restaurants (Yelp).
+   * Search restaurants (filtering the session's OSM list by name or
+   * cuisine) and dishes (TheMealDB).
    */
   async search(query: string): Promise<SearchResponse> {
-    const [yelpResults, mealResults] = await Promise.all([
-      yelpService.searchBusinesses({ term: query, limit: YELP_SEARCH_LIMIT }),
+    const [restaurants, mealResults] = await Promise.all([
+      searchRestaurants(query),
       mealDbService.searchMeals(query),
     ]);
 
-    const restaurants = yelpResults.businesses.map(restaurantFromYelpBusiness);
     const restaurantForFoods =
       restaurants[0] ??
       placeholderRestaurant(`mealdb-${query}`, query);
@@ -190,22 +234,22 @@ export const dataService = {
     return { success: true, data: { foods, restaurants } };
   },
 
-  // TODO(phase4): decide profile behavior without a backend. No local
-  // profile design was built in Phase 2, so profile calls fail instead
-  // of pretending to be real; screens degrade to guest fallbacks.
+  // TODO(phase4): decide profile behavior without a backend. Phase 2
+  // returns a minimal local placeholder profile so screens render
+  // without network access.
   async getProfile(): Promise<ProfileResponse> {
-    throw new Error("Profile is not available in Phase 2");
+    return { success: true, data: { profile: PLACEHOLDER_PROFILE } };
   },
 
   async updateProfile(_data: UpdateProfileRequest): Promise<ProfileResponse> {
-    throw new Error("Profile is not available in Phase 2");
+    return { success: true, data: { profile: PLACEHOLDER_PROFILE } };
   },
 
   async updateProfileImage(_imageFile: FormData): Promise<ProfileResponse> {
-    throw new Error("Profile is not available in Phase 2");
+    return { success: true, data: { profile: PLACEHOLDER_PROFILE } };
   },
 
   async deleteProfileImage(): Promise<ProfileResponse> {
-    throw new Error("Profile is not available in Phase 2");
+    return { success: true, data: { profile: PLACEHOLDER_PROFILE } };
   },
 };
