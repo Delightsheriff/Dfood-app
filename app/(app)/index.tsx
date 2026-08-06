@@ -31,6 +31,7 @@ export default function Home() {
   const {
     data: restaurantsData,
     isLoading: restaurantsLoading,
+    error: restaurantsError,
     refetch: refetchRestaurants,
   } = useRestaurants();
 
@@ -196,9 +197,11 @@ export default function Home() {
               <ActivityIndicator size="small" color="#FF7622" />
             </View>
           ) : restaurants.length === 0 ? (
-            <View className="py-12 items-center bg-[#F0F5FA] rounded-2xl">
-              <Text className="text-text-gray font-sen text-sm">
-                No open restaurants at the moment
+            <View className="py-12 px-4 items-center bg-[#F0F5FA] rounded-2xl">
+              <Text className="text-text-gray font-sen text-sm text-center">
+                {restaurantsError
+                  ? "Couldn't load restaurants. Pull down to try again."
+                  : "No open restaurants at the moment"}
               </Text>
             </View>
           ) : (
