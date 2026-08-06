@@ -1,4 +1,3 @@
-import { useAuth } from "@/contexts/AuthContext";
 import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
 import { Category } from "@/types/api";
 import { useRouter } from "expo-router";
@@ -22,7 +21,6 @@ import { useCartStore } from "@/store/cartStore";
 
 export default function Home() {
   const router = useRouter();
-  const { user } = useAuth();
 
   // Data fetching
   const {
@@ -58,7 +56,6 @@ export default function Home() {
 
   const restaurants = restaurantsData?.data.restaurants || [];
 
-  const firstName = user?.name?.split(" ")[0] || "Guest";
   const greeting = getGreeting();
   const cartItemCount = useCartStore((state) => state.getItemCount());
 
@@ -121,9 +118,6 @@ export default function Home() {
 
         {/* Greeting */}
         <View className="px-6 mt-4 mb-6">
-          <Text className="font-sen text-text-gray text-sm mb-1">
-            Hey {firstName} 👋
-          </Text>
           <Text className="font-sen-extra-bold text-secondary text-2xl">
             {greeting}
           </Text>
