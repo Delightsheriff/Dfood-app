@@ -19,14 +19,23 @@ module.exports = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        // Phase 3 accent: a deep coral-red ("sun-dried tomato") in place of
+        // the old template orange (#FF7622). Still warm for appetite appeal,
+        // but deeper and redder so it reads as a deliberate choice, and
+        // white stays legible on top of it.
         primary: {
-          DEFAULT: "#FF7622",
+          DEFAULT: "#E0533A",
           foreground: "#FFFFFF",
         },
+        // Dark neutral ink for headings and body text, slightly softer than
+        // pure black.
         secondary: {
-          DEFAULT: "#32343E",
+          DEFAULT: "#262B33",
           foreground: "#FFFFFF",
         },
+        // Warm-tinted light gray for soft surfaces (stepper, cards) that
+        // sit on white without going cool-gray.
+        "surface-muted": "#F4F1ED",
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
