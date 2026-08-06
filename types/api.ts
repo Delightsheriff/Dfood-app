@@ -29,9 +29,11 @@ export type Restaurant = {
   isOpen?: boolean;
   status?: string; // "Open" | "Closed"
   images: string[];
-  owner: string;
   rating: number;
   totalReviews: number;
+  priceLevel?: string; // Yelp price tier: "$" | "$$" | "$$$" | "$$$$"
+  distanceMeters?: number; // Yelp distance from the search origin
+  yelpUrl?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -50,18 +52,6 @@ export type FoodItem = {
   totalReviews: number;
   createdAt: string;
   updatedAt: string;
-};
-
-export type SearchRestaurant = {
-  _id: string;
-  name: string;
-  openingTime: string;
-  closingTime: string;
-  status: "Open" | "Closed";
-  description?: string;
-  address?: string;
-  deliveryFee: number;
-  imageUrls: string[];
 };
 
 export type SearchFoodItem = FoodItem & {
@@ -320,6 +310,6 @@ export type SearchResponse = {
   success: true;
   data: {
     foods: SearchFoodItem[];
-    restaurants: SearchRestaurant[];
+    restaurants: Restaurant[];
   };
 };
