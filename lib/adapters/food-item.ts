@@ -118,8 +118,8 @@ export function searchRestaurantRefFromRestaurant(
 }
 
 /**
- * Placeholder restaurant used when a dish search has no matching Yelp
- * business to attach the food items to.
+ * Placeholder restaurant used when a dish search has no matching OSM
+ * restaurant to attach the food items to.
  */
 export function mealToSearchFoodItem(
   meal: MealDetail,

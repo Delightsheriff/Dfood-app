@@ -2,7 +2,7 @@
 >
 > This documentation suite is a technical audit written against the legacy
 > Dfood-app architecture (custom JWT-auth backend, Firebase, Paystack). The app
-> is being rewritten on public APIs (Yelp Fusion + TheMealDB) with auth removed,
+> is being rewritten on public APIs (OpenStreetMap Overpass + TheMealDB) with auth removed,
 > so this is **not** a current roadmap. It is kept for reference only — the
 > per-screen bug notes (nested ScrollView/FlatList virtualization, hardcoded
 > `isRefreshing`, un-memoized bottom sheet snap points, missing skeleton
