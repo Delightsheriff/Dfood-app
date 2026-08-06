@@ -77,10 +77,11 @@ function descriptionFromYelp(business: YelpBusiness): string {
   return business.categories.map((category) => category.title).join(", ");
 }
 
-function baseRestaurantFields(business: YelpBusiness): Restaurant {
-  const { openingTime, closingTime } = hoursRange(
-    "hours" in business ? business.hours : undefined,
-  );
+function baseRestaurantFields(
+  business: YelpBusiness,
+  hours?: YelpHours[],
+): Restaurant {
+  const { openingTime, closingTime } = hoursRange(hours);
 
   return {
     _id: business.id,
@@ -121,7 +122,7 @@ export function restaurantFromYelpBusiness(
 export function restaurantFromYelpDetail(
   business: YelpBusinessDetail,
 ): Restaurant {
-  const restaurant = baseRestaurantFields(business);
+  const restaurant = baseRestaurantFields(business, business.hours);
   const isOpen = business.hours?.[0]?.is_open_now;
 
   return {
@@ -129,5 +130,27 @@ export function restaurantFromYelpDetail(
     isOpen,
     status: isOpen ? "Open" : "Closed",
     images: [business.image_url, ...business.photos.slice(0, 4)],
+  };
+}
+
+/**
+ * Stand-in restaurant used to attach fabricated menu items when no real
+ * Yelp business backs them (e.g. curated category pages).
+ */
+export function placeholderRestaurant(_id: string, name: string): Restaurant {
+  return {
+    _id,
+    name,
+    address: undefined,
+    deliveryFee: 1500,
+    openingTime: FALLBACK_OPENING_TIME,
+    closingTime: FALLBACK_CLOSING_TIME,
+    isOpen: true,
+    status: "Open",
+    images: [],
+    rating: 4.5,
+    totalReviews: 0,
+    createdAt: SYNTHETIC_DATE,
+    updatedAt: SYNTHETIC_DATE,
   };
 }

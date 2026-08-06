@@ -26,8 +26,6 @@ const MEALDB_CATEGORIES = [
 
 const SYNTHETIC_DATE = "2026-01-01T00:00:00.000Z";
 
-export type RestaurantRef = Pick<Restaurant, "_id" | "name">;
-
 export type SearchRestaurantRef = {
   _id: string;
   name: string;
@@ -76,7 +74,7 @@ function synthesizedDescription(
  */
 export function mealToFoodItem(
   meal: MealDetail | MealSummary,
-  restaurant: RestaurantRef,
+  restaurant: Restaurant,
   category: string,
 ): FoodItem {
   const hash = hashString(`${restaurant._id}-${meal.idMeal}`);
@@ -123,27 +121,13 @@ export function searchRestaurantRefFromRestaurant(
  * Placeholder restaurant used when a dish search has no matching Yelp
  * business to attach the food items to.
  */
-export function placeholderSearchRestaurant(
-  name: string,
-): SearchRestaurantRef {
-  return {
-    _id: `mealdb-${name}`,
-    name,
-    images: [],
-    address: "",
-    deliveryFee: 1500,
-    openingTime: "8:00 AM",
-    closingTime: "10:00 PM",
-    rating: 4.5,
-    totalReviews: 0,
-    status: "Open",
-  };
-}
-
 export function mealToSearchFoodItem(
   meal: MealDetail,
-  restaurant: SearchRestaurantRef,
+  restaurant: Restaurant,
   category: string,
 ): SearchFoodItem {
-  return { ...mealToFoodItem(meal, restaurant, category), restaurant };
+  return {
+    ...mealToFoodItem(meal, restaurant, category),
+    restaurant: searchRestaurantRefFromRestaurant(restaurant),
+  };
 }
