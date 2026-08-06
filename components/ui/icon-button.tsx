@@ -1,6 +1,7 @@
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
 import { cn } from "@/lib/utils";
-import { StyleProp, ViewStyle } from "react-native";
+import { BlurView } from "expo-blur";
+import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   interpolate,
@@ -26,10 +27,10 @@ type IconButtonProps = {
 };
 
 /**
- * Floating rounded-square icon button: ~44x44dp frosted-white fill, soft
- * drop shadow, continuous corner curve, dark glyph. Press feedback is a
- * gesture-driven scale/opacity on the GPU (shared-value press state), not
- * Pressable state.
+ * Floating rounded-square icon button: ~44x44dp genuine glass (native
+ * BlurView, not a translucent color), soft drop shadow, continuous corner
+ * curve, dark glyph. Press feedback is a gesture-driven scale/opacity on
+ * the GPU (shared-value press state), not Pressable state.
  */
 export function IconButton({
   icon,
@@ -72,20 +73,29 @@ export function IconButton({
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
         className={cn(
-          "h-11 w-11 items-center justify-center rounded-[14px] bg-white/90",
-          "shadow-[0_2px_10px_rgba(0,0,0,0.14)]",
+          "h-11 w-11 items-center justify-center rounded-[14px] overflow-hidden",
+          "shadow-[0_2px_10px_rgba(0,0,0,0.16)]",
           disabled && "opacity-50",
           className,
         )}
         style={[{ borderCurve: "continuous" }, animatedStyle, style]}
       >
-        <HugeiconsIcon
-          icon={icon}
-          size={size}
-          color={color}
-          strokeWidth={2}
-          fill={filled && fillColor ? fillColor : "transparent"}
-        />
+        <BlurView
+          intensity={45}
+          tint="systemUltraThinMaterialLight"
+          style={[
+            StyleSheet.absoluteFill,
+            { alignItems: "center", justifyContent: "center" },
+          ]}
+        >
+          <HugeiconsIcon
+            icon={icon}
+            size={size}
+            color={color}
+            strokeWidth={2}
+            fill={filled && fillColor ? fillColor : "transparent"}
+          />
+        </BlurView>
       </Animated.View>
     </GestureDetector>
   );
