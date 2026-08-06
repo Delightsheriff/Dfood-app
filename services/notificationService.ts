@@ -1,12 +1,8 @@
-import { apiClient } from "@/lib/api-client";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import { Router } from "expo-router";
 import { Platform } from "react-native";
-
-const TOKEN_STORAGE_KEY = "@food_expo_push_token";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -18,10 +14,6 @@ Notifications.setNotificationHandler({
 });
 
 export class NotificationService {
-  private tokenRefreshSubscription: Notifications.EventSubscription | null =
-    null;
-  private isRegistering = false;
-
   async requestPermissions(): Promise<boolean> {
     if (!Device.isDevice) {
       console.log("⚠️ Push notifications only work on physical devices");
@@ -73,88 +65,6 @@ export class NotificationService {
       console.error("Error getting Expo push token:", error);
       return null;
     }
-  }
-
-  async registerToken(): Promise<boolean> {
-    // Prevent concurrent registration attempts
-    if (this.isRegistering) {
-      console.log("⏳ Token registration already in progress, skipping");
-      return false;
-    }
-
-    try {
-      this.isRegistering = true;
-      const newToken = await this.getExpoPushToken();
-      if (!newToken) {
-        console.log("⚠️ No push token available");
-        return false;
-      }
-
-      const cachedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-      if (cachedToken === newToken) {
-        console.log("✅ Token already registered");
-        return true;
-      }
-
-      const response = await apiClient.post("/device-tokens/register", {
-        token: newToken,
-        platform: Platform.OS === "ios" ? "ios" : "android",
-      });
-
-      if (response.data.success) {
-        await AsyncStorage.setItem(TOKEN_STORAGE_KEY, newToken);
-        console.log("✅ Expo push token registered with backend");
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.error("Failed to register device token:", error);
-      return false;
-    } finally {
-      this.isRegistering = false;
-    }
-  }
-
-  async unregisterToken(): Promise<void> {
-    try {
-      const token = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-      if (!token) return;
-
-      await apiClient.post("/device-tokens/unregister", { token });
-      await AsyncStorage.removeItem(TOKEN_STORAGE_KEY);
-      console.log("✅ Device token unregistered");
-    } catch (error) {
-      console.error("Failed to unregister token:", error);
-    }
-  }
-
-  // Call this once after successful login — listens for token rotation
-  // FCM can invalidate tokens after reinstalls or long inactivity
-  startTokenRefreshListener(): void {
-    // Prevent multiple listeners
-    if (this.tokenRefreshSubscription) {
-      console.log("⚠️ Token refresh listener already active");
-      return;
-    }
-
-    this.tokenRefreshSubscription = Notifications.addPushTokenListener(
-      async (tokenData) => {
-        const newToken = tokenData.data;
-        const cachedToken = await AsyncStorage.getItem(TOKEN_STORAGE_KEY);
-
-        // Only re-register if the token actually changed
-        if (newToken !== cachedToken) {
-          console.log("🔄 Push token rotated — re-registering");
-          await this.registerToken();
-        }
-      },
-    );
-  }
-
-  stopTokenRefreshListener(): void {
-    this.tokenRefreshSubscription?.remove();
-    this.tokenRefreshSubscription = null;
   }
 
   setupListeners(router: Router) {
