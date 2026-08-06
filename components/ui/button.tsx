@@ -1,7 +1,8 @@
-import { TextClassContext } from '@/components/ui/text';
+import { Text, TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { Platform, Pressable } from 'react-native';
+import { forwardRef } from 'react';
+import { Platform, Pressable, View } from 'react-native';
 
 const buttonVariants = cva(
   cn(
@@ -104,5 +105,35 @@ function Button({ className, variant, size, ...props }: ButtonProps) {
   );
 }
 
-export { Button, buttonTextVariants, buttonVariants };
+/**
+ * Text part of the compound button pattern (Button / ButtonText /
+ * ButtonIcon). Inherits variant colors when nested inside a Button;
+ * defaults to primary-foreground (white) when used standalone on a
+ * primary surface.
+ */
+const ButtonText = forwardRef<
+  React.ElementRef<typeof Text>,
+  React.ComponentProps<typeof Text>
+>(({ className, ...props }, ref) => (
+  <Text
+    ref={ref}
+    className={cn('text-primary-foreground text-sm font-medium', className)}
+    {...props}
+  />
+));
+ButtonText.displayName = 'ButtonText';
+
+/**
+ * Icon part of the compound button pattern; wraps an icon with a
+ * shrink-0 box so text and icon align on the same row.
+ */
+const ButtonIcon = forwardRef<
+  React.ElementRef<typeof View>,
+  React.ComponentProps<typeof View>
+>(({ className, ...props }, ref) => (
+  <View ref={ref} className={cn('shrink-0', className)} {...props} />
+));
+ButtonIcon.displayName = 'ButtonIcon';
+
+export { Button, ButtonText, ButtonIcon, buttonTextVariants, buttonVariants };
 export type { ButtonProps };
