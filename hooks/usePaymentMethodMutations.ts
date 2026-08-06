@@ -1,19 +1,27 @@
-import { dataService } from "@/services/data.service";
-import { ErrorResponse } from "@/types/api";
+import { usePaymentMethodStore } from "@/store/paymentMethodStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+
+function invalidatePaymentMethods(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  queryClient.invalidateQueries({ queryKey: ["paymentMethods"] });
+  queryClient.invalidateQueries({ queryKey: ["paymentMethod", "default"] });
+}
 
 export function useAddCard() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (reference: string) => dataService.addCard(reference),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentMethods"] });
-      queryClient.invalidateQueries({ queryKey: ["paymentMethod", "default"] });
+    mutationFn: async (reference: string) => {
+      const paymentMethod = usePaymentMethodStore.getState().addCard(reference);
+      return {
+        success: true,
+        data: { paymentMethod },
+        message: "Card added successfully",
+      };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Add card failed:", error.response?.data);
+    onSuccess: () => {
+      invalidatePaymentMethods(queryClient);
     },
   });
 }
@@ -22,13 +30,14 @@ export function useSetDefaultPaymentMethod() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => dataService.setDefaultPaymentMethod(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentMethods"] });
-      queryClient.invalidateQueries({ queryKey: ["paymentMethod", "default"] });
+    mutationFn: async (id: string) => {
+      const paymentMethod = usePaymentMethodStore
+        .getState()
+        .setDefaultPaymentMethod(id);
+      return { success: true, data: { paymentMethod } };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Set default payment method failed:", error.response?.data);
+    onSuccess: () => {
+      invalidatePaymentMethods(queryClient);
     },
   });
 }
@@ -37,13 +46,12 @@ export function useDeletePaymentMethod() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => dataService.deletePaymentMethod(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["paymentMethods"] });
-      queryClient.invalidateQueries({ queryKey: ["paymentMethod", "default"] });
+    mutationFn: async (id: string) => {
+      usePaymentMethodStore.getState().deletePaymentMethod(id);
+      return { success: true as const, message: "Card deleted" };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Delete payment method failed:", error.response?.data);
+    onSuccess: () => {
+      invalidatePaymentMethods(queryClient);
     },
   });
 }

@@ -1,4 +1,18 @@
 import { dataService } from "@/services/data.service";
+import { useAddressStore } from "@/store/addressStore";
+import { useFavoritesStore } from "@/store/favoritesStore";
+import { useOrderStore } from "@/store/orderStore";
+import { usePaymentMethodStore } from "@/store/paymentMethodStore";
+import {
+  AddressesResponse,
+  AddressResponse,
+  FavoriteCheckResponse,
+  FavoritesResponse,
+  OrderResponse,
+  OrdersResponse,
+  PaymentMethodResponse,
+  PaymentMethodsResponse,
+} from "@/types/api";
 import { useQuery } from "@tanstack/react-query";
 
 export function useCategories() {
@@ -70,7 +84,10 @@ export function useProfile() {
 export function useFavorites() {
   return useQuery({
     queryKey: ["favorites"],
-    queryFn: () => dataService.getFavorites(),
+    queryFn: (): FavoritesResponse => ({
+      success: true,
+      data: { favorites: useFavoritesStore.getState().favorites },
+    }),
     staleTime: 30 * 60 * 1000, // 30 minutes
   });
 }
@@ -78,7 +95,10 @@ export function useFavorites() {
 export function useCheckFavorite(foodItemId: string) {
   return useQuery({
     queryKey: ["favorite-check", foodItemId],
-    queryFn: () => dataService.checkFavorite(foodItemId),
+    queryFn: (): FavoriteCheckResponse => ({
+      success: true,
+      data: { isFavorite: useFavoritesStore.getState().isFavorite(foodItemId) },
+    }),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -86,7 +106,10 @@ export function useCheckFavorite(foodItemId: string) {
 export function useAddresses() {
   return useQuery({
     queryKey: ["addresses"],
-    queryFn: () => dataService.getAddresses(),
+    queryFn: (): AddressesResponse => ({
+      success: true,
+      data: { addresses: useAddressStore.getState().addresses },
+    }),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -94,15 +117,25 @@ export function useAddresses() {
 export function useDefaultAddress() {
   return useQuery({
     queryKey: ["address", "default"],
-    queryFn: () => dataService.getDefaultAddress(),
+    queryFn: (): AddressResponse => {
+      const address = useAddressStore.getState().getDefaultAddress();
+      if (!address) {
+        throw new Error("No default address");
+      }
+      return { success: true, data: { address } };
+    },
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 }
 
 export function usePaymentMethods() {
   return useQuery({
     queryKey: ["paymentMethods"],
-    queryFn: () => dataService.getPaymentMethods(),
+    queryFn: (): PaymentMethodsResponse => ({
+      success: true,
+      data: { paymentMethods: usePaymentMethodStore.getState().paymentMethods },
+    }),
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
@@ -110,15 +143,27 @@ export function usePaymentMethods() {
 export function useDefaultPaymentMethod() {
   return useQuery({
     queryKey: ["paymentMethod", "default"],
-    queryFn: () => dataService.getDefaultPaymentMethod(),
+    queryFn: (): PaymentMethodResponse => {
+      const paymentMethod = usePaymentMethodStore
+        .getState()
+        .getDefaultPaymentMethod();
+      if (!paymentMethod) {
+        throw new Error("No default payment method");
+      }
+      return { success: true, data: { paymentMethod } };
+    },
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
 }
 
 export function useOrders() {
   return useQuery({
     queryKey: ["orders"],
-    queryFn: () => dataService.getOrders(),
+    queryFn: (): OrdersResponse => ({
+      success: true,
+      data: { orders: useOrderStore.getState().orders },
+    }),
     staleTime: 1 * 60 * 1000, // 1 minute - orders change frequently
   });
 }
@@ -126,7 +171,14 @@ export function useOrders() {
 export function useOrder(id: string) {
   return useQuery({
     queryKey: ["order", id],
-    queryFn: () => dataService.getOrderById(id),
+    queryFn: (): OrderResponse => {
+      const order = useOrderStore.getState().getOrderById(id);
+      if (!order) {
+        throw new Error("Order not found");
+      }
+      return { success: true, data: { order } };
+    },
     staleTime: 1 * 60 * 1000,
+    retry: false,
   });
 }

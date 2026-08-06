@@ -1,20 +1,22 @@
-import { dataService } from "@/services/data.service";
+import { useAddressStore } from "@/store/addressStore";
 import { CreateAddressRequest, UpdateAddressRequest } from "@/types/api";
-import { ErrorResponse } from "@/types/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+
+function invalidateAddresses(queryClient: ReturnType<typeof useQueryClient>) {
+  queryClient.invalidateQueries({ queryKey: ["addresses"] });
+  queryClient.invalidateQueries({ queryKey: ["address", "default"] });
+}
 
 export function useCreateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateAddressRequest) => dataService.createAddress(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
-      queryClient.invalidateQueries({ queryKey: ["address", "default"] });
+    mutationFn: async (data: CreateAddressRequest) => {
+      const address = useAddressStore.getState().createAddress(data);
+      return { success: true, data: { address } };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Create address failed:", error.response?.data);
+    onSuccess: () => {
+      invalidateAddresses(queryClient);
     },
   });
 }
@@ -23,14 +25,18 @@ export function useUpdateAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateAddressRequest }) =>
-      dataService.updateAddress(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
-      queryClient.invalidateQueries({ queryKey: ["address", "default"] });
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: UpdateAddressRequest;
+    }) => {
+      const address = useAddressStore.getState().updateAddress(id, data);
+      return { success: true, data: { address } };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Update address failed:", error.response?.data);
+    onSuccess: () => {
+      invalidateAddresses(queryClient);
     },
   });
 }
@@ -39,13 +45,12 @@ export function useSetDefaultAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => dataService.setDefaultAddress(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
-      queryClient.invalidateQueries({ queryKey: ["address", "default"] });
+    mutationFn: async (id: string) => {
+      const address = useAddressStore.getState().setDefaultAddress(id);
+      return { success: true, data: { address } };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Set default address failed:", error.response?.data);
+    onSuccess: () => {
+      invalidateAddresses(queryClient);
     },
   });
 }
@@ -54,13 +59,12 @@ export function useDeleteAddress() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => dataService.deleteAddress(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
-      queryClient.invalidateQueries({ queryKey: ["address", "default"] });
+    mutationFn: async (id: string) => {
+      useAddressStore.getState().deleteAddress(id);
+      return { success: true as const, message: "Address deleted" };
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Delete address failed:", error.response?.data);
+    onSuccess: () => {
+      invalidateAddresses(queryClient);
     },
   });
 }

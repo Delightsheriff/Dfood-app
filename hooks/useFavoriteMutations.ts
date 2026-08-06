@@ -1,13 +1,18 @@
 import { dataService } from "@/services/data.service";
-import { ErrorResponse } from "@/types/api";
+import { useFavoritesStore } from "@/store/favoritesStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 
 export function useAddFavorite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (foodItemId: string) => dataService.addFavorite(foodItemId),
+    mutationFn: async (foodItemId: string) => {
+      // Resolve the full food item so the favorites screen can render it
+      // without refetching.
+      const { data } = await dataService.getFoodItemById(foodItemId);
+      useFavoritesStore.getState().addFavorite(data.foodItem);
+      return { success: true as const, message: "Added to favorites" };
+    },
     onSuccess: (_, foodItemId) => {
       // Invalidate favorites list
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
@@ -17,9 +22,6 @@ export function useAddFavorite() {
         data: { isFavorite: true },
       });
     },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Add favorite failed:", error.response?.data);
-    },
   });
 }
 
@@ -27,7 +29,10 @@ export function useRemoveFavorite() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (foodItemId: string) => dataService.removeFavorite(foodItemId),
+    mutationFn: async (foodItemId: string) => {
+      useFavoritesStore.getState().removeFavorite(foodItemId);
+      return { success: true as const, message: "Removed from favorites" };
+    },
     onSuccess: (_, foodItemId) => {
       // Invalidate favorites list
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
@@ -36,9 +41,6 @@ export function useRemoveFavorite() {
         success: true,
         data: { isFavorite: false },
       });
-    },
-    onError: (error: AxiosError<ErrorResponse>) => {
-      console.error("Remove favorite failed:", error.response?.data);
     },
   });
 }
