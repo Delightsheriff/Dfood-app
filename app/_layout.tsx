@@ -1,6 +1,6 @@
 // app/_layout.tsx
 import { toastConfig } from "@/components/ui/toast-config";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { useNotifications } from "@/hooks/useNotifications"; // ← Add this
 import { QueryProvider } from "@/providers/QueryProvider";
 import {
@@ -44,27 +44,25 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryProvider>
-        <AuthProvider>
-          <RootNavigator />
-          <StatusBar style="auto" />
-          <PortalHost />
-          <Toast config={toastConfig} position="top" topOffset={60} />
-        </AuthProvider>
+        <RootNavigator />
+        <StatusBar style="auto" />
+        <PortalHost />
+        <Toast config={toastConfig} position="top" topOffset={60} />
       </QueryProvider>
     </GestureHandlerRootView>
   );
 }
 
 function RootNavigator() {
-  const { hasCompletedOnboarding, isAuthenticated, isLoading } = useAuth();
+  const { hasCompletedOnboarding, isLoading } = useOnboarding();
   const segments = useSegments();
   const router = useRouter();
   const hasNavigated = useRef(false);
 
-  // Reset navigation guard when auth state changes (e.g., logout)
+  // Reset navigation guard when onboarding state changes
   useEffect(() => {
     hasNavigated.current = false;
-  }, [isAuthenticated]);
+  }, [hasCompletedOnboarding]);
 
   // Setup notification listeners
   useNotifications();
@@ -73,16 +71,13 @@ function RootNavigator() {
     if (isLoading || hasNavigated.current) return;
 
     const inOnboarding = segments[0] === "onboarding";
-    const inAuth = segments[0] === "(auth)";
     const inApp = segments[0] === "(app)";
 
     let targetRoute: string | null = null;
 
     if (!hasCompletedOnboarding && !inOnboarding) {
       targetRoute = "/onboarding";
-    } else if (hasCompletedOnboarding && !isAuthenticated && !inAuth) {
-      targetRoute = "/(auth)/signin";
-    } else if (isAuthenticated && !inApp) {
+    } else if (hasCompletedOnboarding && !inApp) {
       targetRoute = "/(app)";
     }
 
@@ -90,7 +85,7 @@ function RootNavigator() {
       hasNavigated.current = true;
       router.replace(targetRoute as any);
     }
-  }, [isLoading, hasCompletedOnboarding, isAuthenticated, segments, router]);
+  }, [isLoading, hasCompletedOnboarding, segments, router]);
 
   if (isLoading) {
     return null;
@@ -100,7 +95,6 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(app)" />
-      <Stack.Screen name="(auth)" />
     </Stack>
   );
 }
