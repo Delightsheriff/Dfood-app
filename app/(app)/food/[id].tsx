@@ -18,6 +18,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -54,6 +55,12 @@ function Stat({ label, value }: { label: string; value: string }) {
       <Text className="mt-1 text-lg font-sen-bold text-secondary">{value}</Text>
     </View>
   );
+}
+
+// TheMealDB serves ingredient photography at this fixed path, sized via a
+// suffix on the image URL (same convention as strMealThumb).
+function ingredientThumbUrl(name: string): string {
+  return `https://www.themealdb.com/images/ingredients/${encodeURIComponent(name)}.png/small`;
 }
 
 export default function FoodDetails() {
@@ -214,6 +221,20 @@ export default function FoodDetails() {
           )}
         />
 
+        {/* Subtle top scrim so the status bar and icon buttons stay legible
+            over any photo, regardless of how bright it is. */}
+        <LinearGradient
+          pointerEvents="none"
+          colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0)"]}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: insets.top + 96,
+          }}
+        />
+
         {/* Floating icon buttons, safe-area aware */}
         <View
           className="absolute flex-row items-center justify-between px-4"
@@ -272,17 +293,17 @@ export default function FoodDetails() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 24,
-            paddingBottom: 24,
+            paddingTop: 28,
+            paddingBottom: 28,
           }}
         >
           {/* Name */}
-          <Text className="text-[28px] leading-9 font-sen-extra-bold text-secondary">
+          <Text className="text-[26px] leading-8 font-sen-extra-bold text-secondary">
             {food.name}
           </Text>
 
-          {/* Rating row */}
-          <View className="flex-row items-center gap-1.5 mt-2">
+          {/* Rating row — the one place the accent color does its job */}
+          <View className="flex-row items-center gap-1.5 mt-2.5">
             <HugeiconsIcon icon={StarIcon} size={15} color={ACCENT} fill={ACCENT} />
             <Text className="text-sm font-sen-bold text-secondary">
               {food.rating}
@@ -293,20 +314,20 @@ export default function FoodDetails() {
           </View>
 
           {/* Stat grid, evenly spaced, no dividers */}
-          <View className="flex-row justify-between gap-4 mt-6">
+          <View className="flex-row justify-between gap-4 mt-8">
             {stats.map((stat) => (
               <Stat key={stat.label} label={stat.label} value={stat.value} />
             ))}
           </View>
 
           {/* Description */}
-          <Text className="mt-6 text-[15px] leading-6 font-sen text-text-gray">
+          <Text className="mt-8 text-[15px] leading-6 font-sen text-text-gray">
             {food.description}
           </Text>
 
-          {/* Ingredients */}
+          {/* Ingredients — real TheMealDB thumbnails, not text-only chips */}
           {ingredients && ingredients.length > 0 && (
-            <View className="mt-6">
+            <View className="mt-8">
               <Text className="mb-3 text-lg font-sen-extra-bold text-secondary">
                 Ingredients
               </Text>
@@ -315,16 +336,33 @@ export default function FoodDetails() {
                 data={ingredients}
                 keyExtractor={(item) => item.name}
                 renderItem={({ item }) => (
-                  <View className="bg-surface-muted rounded-[16px] px-4 py-3">
-                    <Text className="text-sm font-sen-bold text-secondary">
-                      {item.name}
-                    </Text>
-                    <Text className="mt-0.5 text-xs font-sen text-text-gray">
-                      {item.measure}
-                    </Text>
+                  <View
+                    className="w-[104px] bg-surface-muted rounded-[18px] overflow-hidden"
+                    style={{ borderCurve: "continuous" }}
+                  >
+                    <Image
+                      source={{ uri: ingredientThumbUrl(item.name) }}
+                      style={{ width: "100%", height: 72 }}
+                      contentFit="cover"
+                      transition={150}
+                    />
+                    <View className="px-2.5 py-2">
+                      <Text
+                        numberOfLines={1}
+                        className="text-xs font-sen-bold text-secondary"
+                      >
+                        {item.name}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        className="mt-0.5 text-[11px] font-sen text-text-gray"
+                      >
+                        {item.measure}
+                      </Text>
+                    </View>
                   </View>
                 )}
-                ItemSeparatorComponent={() => <View className="w-2" />}
+                ItemSeparatorComponent={() => <View className="w-2.5" />}
                 showsHorizontalScrollIndicator={false}
               />
             </View>
@@ -370,7 +408,7 @@ export default function FoodDetails() {
               accessibilityRole="button"
               accessibilityLabel="Add to cart"
               className={cn(
-                "h-14 flex-1 flex-row items-center justify-center gap-2 bg-primary rounded-full",
+                "h-14 flex-1 flex-row items-center justify-center gap-2 bg-secondary rounded-full",
                 !restaurant && "opacity-50",
               )}
               style={addToCartStyle}
