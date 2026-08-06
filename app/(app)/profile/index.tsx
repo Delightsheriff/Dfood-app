@@ -1,5 +1,3 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { useSignOut } from "@/hooks/useAuthMutations";
 import { useProfile } from "@/hooks/useDataQueries";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -11,7 +9,6 @@ import {
   FileText,
   Heart,
   HelpCircle,
-  LogOut,
   MapPin,
   Settings,
   ShoppingBag,
@@ -42,22 +39,10 @@ type MenuSection = MenuItemType[];
 
 export default function Profile() {
   const router = useRouter();
-  const { user } = useAuth();
   const { data: profileData, isLoading } = useProfile();
-  const signOutMutation = useSignOut();
+  // TODO(phase-2): rework this screen once the local-profile approach is decided
 
   const profile = profileData?.data.profile;
-
-  const handleSignOut = () => {
-    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Sign Out",
-        style: "destructive",
-        onPress: () => signOutMutation.mutate(),
-      },
-    ]);
-  };
 
   const menuSections: MenuSection[] = [
     [
@@ -238,18 +223,16 @@ export default function Profile() {
                 />
               ) : (
                 <Text className="text-[28px] font-sen-bold text-primary">
-                  {profile?.name?.charAt(0).toUpperCase() ||
-                    user?.name?.charAt(0).toUpperCase() ||
-                    "U"}
+                  {profile?.name?.charAt(0).toUpperCase() || "U"}
                 </Text>
               )}
             </View>
             <View className="flex-1">
               <Text className="text-lg font-sen-bold text-secondary mb-0.5">
-                {profile?.name || user?.name || "Guest"}
+                {profile?.name || "Guest"}
               </Text>
               <Text className="text-text-gray font-sen text-sm mb-0.5">
-                {profile?.email || user?.email}
+                {profile?.email}
               </Text>
               {profile?.phone && (
                 <Text className="text-text-gray font-sen text-xs">
@@ -268,35 +251,6 @@ export default function Profile() {
               ))}
             </View>
           ))}
-
-          {/* Log Out */}
-          <Pressable
-            onPress={handleSignOut}
-            disabled={signOutMutation.isPending}
-            className="flex-row items-center justify-between bg-[#FFF0F0] p-4 rounded-2xl mb-6"
-            style={{
-              borderWidth: 1,
-              borderColor: "#FECACA",
-              shadowColor: "#FF4B4B",
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.06,
-              shadowRadius: 4,
-              elevation: 1,
-            }}
-            activeOpacity={0.7}
-          >
-            <View className="flex-row items-center">
-              <View className="w-10 h-10 bg-white rounded-xl items-center justify-center mr-4">
-                {signOutMutation.isPending ? (
-                  <ActivityIndicator size="small" color="#FF4B4B" />
-                ) : (
-                  <LogOut color="#FF4B4B" size={20} />
-                )}
-              </View>
-              <Text className="text-base font-sen text-red-600">Log Out</Text>
-            </View>
-            <ChevronRight color="#FF4B4B" size={18} />
-          </Pressable>
         </ScrollView>
       )}
     </SafeAreaView>
