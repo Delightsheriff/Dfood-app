@@ -63,9 +63,12 @@ export function restaurantFromOsmElement(element: OsmElement): Restaurant {
   const ref = osmElementRef(element);
   const hash = hashString(ref);
 
+  // Unsigned shifts throughout: `>>` is signed, so any hash above 2^31
+  // (hashString returns unsigned) shifts to a negative number, and a
+  // negative `%` remainder then yields a negative count.
   const isOpen = hash % 10 < 8; // ~80% of places open at any given moment
   const rating = Math.round((3.5 + (hash % 15) / 10) * 10) / 10; // 3.5-4.9
-  const totalReviews = ((hash >> 3) % 480) + 20;
+  const totalReviews = ((hash >>> 3) % 480) + 20;
 
   return {
     _id: ref,
@@ -75,13 +78,13 @@ export function restaurantFromOsmElement(element: OsmElement): Restaurant {
     address: addressFromElement(element),
     deliveryFee: DELIVERY_FEES[hash % DELIVERY_FEES.length],
     openingTime: OPENING_TIMES[hash % OPENING_TIMES.length],
-    closingTime: CLOSING_TIMES[(hash >> 2) % CLOSING_TIMES.length],
+    closingTime: CLOSING_TIMES[(hash >>> 2) % CLOSING_TIMES.length],
     isOpen,
     status: isOpen ? "Open" : "Closed",
     images: [categoryThumbFor(element)],
     rating,
     totalReviews,
-    priceLevel: "$".repeat((hash >> 4) % 4 + 1),
+    priceLevel: "$".repeat(((hash >>> 4) % 4) + 1),
     cuisineTags: cuisineTagsOf(element),
     createdAt: SYNTHETIC_DATE,
     updatedAt: SYNTHETIC_DATE,
