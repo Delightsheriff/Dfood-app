@@ -31,9 +31,9 @@ export type Restaurant = {
   images: string[];
   rating: number;
   totalReviews: number;
-  priceLevel?: string; // Yelp price tier: "$" | "$$" | "$$$" | "$$$$"
-  distanceMeters?: number; // Yelp distance from the search origin
-  yelpUrl?: string;
+  priceLevel?: string; // Fabricated tier: "$" | "$$" | "$$$" | "$$$$"
+  cuisineTags?: string[]; // OSM `cuisine` tag values (semicolon-delimited)
+  osmId?: string; // Raw OSM numeric element id (ids are only unique per type)
   createdAt: string;
   updatedAt: string;
 };

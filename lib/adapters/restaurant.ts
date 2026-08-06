@@ -1,141 +1,96 @@
+import { mealDbCategoryForRestaurant } from "@/lib/adapters/food-item";
+import { hashString } from "@/lib/utils";
+import { OsmElement } from "@/services/osm.service";
 import { Restaurant } from "@/types/api";
-import { YelpBusiness, YelpBusinessDetail, YelpHours } from "@/services/yelp.service";
 
 // TODO(phase4): add attribution for restaurant/food data sources
 //
 // Fixed timestamps; no screen renders restaurant createdAt/updatedAt.
 const SYNTHETIC_DATE = "2026-01-01T00:00:00.000Z";
 
-const FALLBACK_OPENING_TIME = "8:00 AM";
-const FALLBACK_CLOSING_TIME = "10:00 PM";
+const OPENING_TIMES = ["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM"];
+const CLOSING_TIMES = ["9:00 PM", "10:00 PM", "11:00 PM"];
+const DELIVERY_FEES = [1000, 1500, 2500, 3500];
 
-// Yelp has no delivery fee; synthesize a naira fee from the price tier.
-function deliveryFeeFromPriceLevel(price?: string): number {
-  switch (price) {
-    case "$":
-      return 1000;
-    case "$$":
-      return 1500;
-    case "$$$":
-      return 2500;
-    case "$$$$":
-      return 3500;
-    default:
-      return 1500;
-  }
+// OSM has no photos, so a deterministic TheMealDB category thumbnail
+// (the same category that stands in for the restaurant's menu) is used.
+function categoryThumbFor(element: OsmElement): string {
+  const category = mealDbCategoryForRestaurant(osmElementRef(element));
+  return `https://www.themealdb.com/images/category/${category.toLowerCase()}.png`;
 }
 
-// Converts Yelp's 24h HHmm format ("0900") to display format ("9:00 AM").
-function formatYelpTime(hhmm: string): string {
-  const minutes = Number(hhmm);
-  if (Number.isNaN(minutes)) return hhmm;
-
-  const hours = Math.floor(minutes / 100);
-  const mins = minutes % 100;
-  const period = hours >= 12 ? "PM" : "AM";
-  const hour12 = hours % 12 === 0 ? 12 : hours % 12;
-
-  return `${hour12}:${String(mins).padStart(2, "0")} ${period}`;
+// OSM numeric ids collide across element types (a node and a way can both
+// be id 5), so the composite ref includes the type.
+export function osmElementRef(element: {
+  type: string;
+  id: number;
+}): string {
+  return `${element.type}/${element.id}`;
 }
 
-// Derives today's opening/closing times from Yelp's weekly hours.
-function hoursRange(hours?: YelpHours[]): {
-  openingTime: string;
-  closingTime: string;
-} {
-  const openSlots = hours?.[0]?.open;
-  if (!openSlots?.length) {
-    return {
-      openingTime: FALLBACK_OPENING_TIME,
-      closingTime: FALLBACK_CLOSING_TIME,
-    };
+function cuisineTagsOf(element: OsmElement): string[] {
+  const cuisine = element.tags?.cuisine;
+  if (!cuisine) {
+    return [];
   }
+  return cuisine
+    .split(";")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
+}
 
-  // Yelp day index: 0 = Monday; JS getDay(): 0 = Sunday.
-  const yelpToday = (new Date().getDay() + 6) % 7;
-  const todaySlots = openSlots.filter((slot) => slot.day === yelpToday);
-  const slots = todaySlots.length > 0 ? todaySlots : openSlots;
+function addressFromElement(element: OsmElement): string | undefined {
+  const street = element.tags?.["addr:street"];
+  const city = element.tags?.["addr:city"];
+  if (street && city) {
+    return `${street}, ${city}`;
+  }
+  return street ?? city;
+}
 
-  const opening = Math.min(...slots.map((slot) => Number(slot.start)));
-  const closing = Math.max(...slots.map((slot) => Number(slot.end)));
+function descriptionFromElement(element: OsmElement): string {
+  const tags = cuisineTagsOf(element);
+  return tags.length > 0 ? tags.join(", ") : "A local favourite";
+}
+
+/**
+ * Maps an OSM restaurant/cafe/fast_food element to a Restaurant. OSM
+ * carries no ratings, prices, or hours, so those are fabricated
+ * deterministically from the element ref: the same place always gets the
+ * same numbers. `opening_hours` tags are deliberately not parsed.
+ */
+export function restaurantFromOsmElement(element: OsmElement): Restaurant {
+  const ref = osmElementRef(element);
+  const hash = hashString(ref);
+
+  const isOpen = hash % 10 < 8; // ~80% of places open at any given moment
+  const rating = Math.round((3.5 + (hash % 15) / 10) * 10) / 10; // 3.5-4.9
+  const totalReviews = ((hash >> 3) % 480) + 20;
 
   return {
-    openingTime: formatYelpTime(String(opening)),
-    closingTime: formatYelpTime(String(closing)),
-  };
-}
-
-function addressFromYelp(business: YelpBusiness): string | undefined {
-  return (
-    business.location.display_address?.join(", ") ??
-    business.location.address1 ??
-    undefined
-  );
-}
-
-function descriptionFromYelp(business: YelpBusiness): string {
-  return business.categories.map((category) => category.title).join(", ");
-}
-
-function baseRestaurantFields(
-  business: YelpBusiness,
-  hours?: YelpHours[],
-): Restaurant {
-  const { openingTime, closingTime } = hoursRange(hours);
-
-  return {
-    _id: business.id,
-    name: business.name,
-    description: descriptionFromYelp(business),
-    address: addressFromYelp(business),
-    deliveryFee: deliveryFeeFromPriceLevel(business.price),
-    openingTime,
-    closingTime,
-    // Search results are filtered with open_now, so anything not permanently
-    // closed is currently open.
-    isOpen: !business.is_closed,
-    status: business.is_closed ? "Closed" : "Open",
-    images: [business.image_url],
-    rating: business.rating,
-    totalReviews: business.review_count,
-    priceLevel: business.price,
-    distanceMeters: business.distance,
-    yelpUrl: business.url,
+    _id: ref,
+    osmId: String(element.id),
+    name: element.tags?.name ?? "Unnamed restaurant",
+    description: descriptionFromElement(element),
+    address: addressFromElement(element),
+    deliveryFee: DELIVERY_FEES[hash % DELIVERY_FEES.length],
+    openingTime: OPENING_TIMES[hash % OPENING_TIMES.length],
+    closingTime: CLOSING_TIMES[(hash >> 2) % CLOSING_TIMES.length],
+    isOpen,
+    status: isOpen ? "Open" : "Closed",
+    images: [categoryThumbFor(element)],
+    rating,
+    totalReviews,
+    priceLevel: "$".repeat((hash >> 4) % 4 + 1),
+    cuisineTags: cuisineTagsOf(element),
     createdAt: SYNTHETIC_DATE,
     updatedAt: SYNTHETIC_DATE,
   };
 }
 
 /**
- * Maps a Yelp Business Search result to a Restaurant.
- */
-export function restaurantFromYelpBusiness(
-  business: YelpBusiness,
-): Restaurant {
-  return baseRestaurantFields(business);
-}
-
-/**
- * Maps a Yelp Business Details result to a Restaurant, enriching it with
- * photos and real open/closed state from the business hours.
- */
-export function restaurantFromYelpDetail(
-  business: YelpBusinessDetail,
-): Restaurant {
-  const restaurant = baseRestaurantFields(business, business.hours);
-  const isOpen = business.hours?.[0]?.is_open_now;
-
-  return {
-    ...restaurant,
-    isOpen,
-    status: isOpen ? "Open" : "Closed",
-    images: [business.image_url, ...business.photos.slice(0, 4)],
-  };
-}
-
-/**
  * Stand-in restaurant used to attach fabricated menu items when no real
- * Yelp business backs them (e.g. curated category pages).
+ * OSM element backs them (e.g. curated category pages).
  */
 export function placeholderRestaurant(_id: string, name: string): Restaurant {
   return {
@@ -143,8 +98,8 @@ export function placeholderRestaurant(_id: string, name: string): Restaurant {
     name,
     address: undefined,
     deliveryFee: 1500,
-    openingTime: FALLBACK_OPENING_TIME,
-    closingTime: FALLBACK_CLOSING_TIME,
+    openingTime: "8:00 AM",
+    closingTime: "10:00 PM",
     isOpen: true,
     status: "Open",
     images: [],
