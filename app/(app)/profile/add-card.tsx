@@ -4,7 +4,6 @@ import { useAddCard } from "@/hooks/usePaymentMethodMutations";
 import {
   ArrowLeft01Icon,
   CreditCardIcon,
-  SecurityCheckIcon,
   Shield01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";

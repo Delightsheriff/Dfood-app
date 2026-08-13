@@ -9,7 +9,7 @@ import {
 import { matchesCategory } from "@/lib/adapters/categories";
 import { getGreeting } from "@/lib/greeting";
 import { useCartStore } from "@/store/cartStore";
-import { Category, Restaurant } from "@/types/api";
+import { Category } from "@/types/api";
 import {
   ArrowDown01Icon,
   ArrowRight01Icon,
@@ -36,10 +36,16 @@ import Carousel from "react-native-reanimated-carousel";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
-const INK = "#262B33";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const BANNER_WIDTH = SCREEN_WIDTH - 40;
 const BANNER_HEIGHT = 140;
+
+const ALL_CATEGORY: Category = {
+  _id: "all",
+  name: "All",
+  image: "https://www.themealdb.com/images/category/miscellaneous.png",
+  createdAt: "",
+  updatedAt: "",
+};
 
 type FilterType = "all" | "open" | "free_delivery" | "top_rated" | "nearby";
 
@@ -100,17 +106,9 @@ export default function Home() {
     await Promise.all([refetchCategories(), refetchRestaurants()]);
   };
 
-  const allCategory: Category = {
-    _id: "all",
-    name: "All",
-    image: "https://www.themealdb.com/images/category/miscellaneous.png",
-    createdAt: "",
-    updatedAt: "",
-  };
-
   const categories = useMemo(() => {
     const list = categoriesData?.data.categories || [];
-    return [allCategory, ...list];
+    return [ALL_CATEGORY, ...list];
   }, [categoriesData]);
 
   const rawRestaurants = useMemo(

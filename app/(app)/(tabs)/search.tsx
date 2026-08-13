@@ -5,7 +5,7 @@ import { useSearch } from "@/hooks/useDataQueries";
 import { useDebounce } from "@/hooks/useDebounce";
 import { CURATED_CATEGORIES } from "@/lib/adapters/categories";
 import { useSearchStore } from "@/store/searchStore";
-import { FoodItem, Restaurant, SearchFoodItem } from "@/types/api";
+import { Restaurant, SearchFoodItem } from "@/types/api";
 import {
   Cancel01Icon,
   FilterVerticalIcon,
@@ -61,17 +61,14 @@ export default function SearchPage() {
 
   const isSearchActive = debouncedQuery.trim().length >= 2;
 
-  const { data, isLoading, error } = useSearch(
+  const { data, isLoading } = useSearch(
     debouncedQuery.trim(),
     isSearchActive,
   );
 
-  const rawFoods: SearchFoodItem[] = data?.data.foods || [];
-  const rawRestaurants: Restaurant[] = data?.data.restaurants || [];
-
   // Filter & sort results
   const filteredRestaurants = useMemo(() => {
-    let list = [...rawRestaurants];
+    let list = [...(data?.data.restaurants || [])];
 
     if (filters.openNow) {
       list = list.filter((r) => r.isOpen !== false && r.status !== "Closed");
@@ -93,10 +90,10 @@ export default function SearchPage() {
     }
 
     return list;
-  }, [rawRestaurants, filters]);
+  }, [data?.data.restaurants, filters]);
 
   const filteredFoods = useMemo(() => {
-    let list = [...rawFoods];
+    let list = [...(data?.data.foods || [])];
 
     if (filters.topRated) {
       list = list.filter((f) => f.rating >= 4.5);
@@ -109,7 +106,7 @@ export default function SearchPage() {
     }
 
     return list;
-  }, [rawFoods, filters]);
+  }, [data?.data.foods, filters]);
 
   // Combine items for FlashList virtualization
   const listItems: ListItem[] = useMemo(() => {

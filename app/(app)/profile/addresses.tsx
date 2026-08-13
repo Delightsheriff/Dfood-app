@@ -8,7 +8,6 @@ import { Address } from "@/types/api";
 import {
   ArrowLeft01Icon,
   Briefcase01Icon,
-  CheckmarkCircle02Icon,
   Delete02Icon,
   Edit02Icon,
   Home01Icon,

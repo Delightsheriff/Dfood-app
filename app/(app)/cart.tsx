@@ -9,7 +9,6 @@ import {
   Clock01Icon,
   Coupon01Icon,
   Delete02Icon,
-  Location01Icon,
   MinusSignIcon,
   Note01Icon,
   ShoppingBag01Icon,
@@ -43,7 +42,6 @@ export default function Cart() {
   const items = useCartStore((state) => state.items);
   const incrementItem = useCartStore((state) => state.incrementItem);
   const decrementItem = useCartStore((state) => state.decrementItem);
-  const removeItem = useCartStore((state) => state.removeItem);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice());
   const restaurantId = useCartStore((state) => state.getRestaurantId());
 

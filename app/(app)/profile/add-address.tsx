@@ -11,7 +11,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -103,10 +103,6 @@ export default function AddAddress() {
       setLocationLoading(false);
     }
   };
-
-  useEffect(() => {
-    handleGetCurrentLocation();
-  }, []);
 
   const handleMapPress = async (e: any) => {
     const newCoords = e.nativeEvent.coordinate;

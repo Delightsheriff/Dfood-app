@@ -38,7 +38,7 @@ export default function RestaurantDetails() {
   const insets = useSafeAreaInsets();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [activeOrderType, setActiveOrderType] = useState<"delivery" | "pickup">(
+  const [activeOrderType] = useState<"delivery" | "pickup">(
     "delivery",
   );
 

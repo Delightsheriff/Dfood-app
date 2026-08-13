@@ -13,7 +13,6 @@ import { Address, PaymentMethod } from "@/types/api";
 import {
   ArrowDown01Icon,
   ArrowLeft01Icon,
-  ArrowRight01Icon,
   ArrowUp01Icon,
   Clock01Icon,
   CreditCardIcon,
@@ -24,7 +23,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,

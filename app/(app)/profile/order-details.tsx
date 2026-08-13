@@ -5,7 +5,6 @@ import { Order } from "@/types/api";
 import {
   ArrowLeft01Icon,
   CheckmarkCircle02Icon,
-  Clock01Icon,
   CreditCardIcon,
   Location01Icon,
   Money01Icon,

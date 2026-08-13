@@ -12,7 +12,7 @@ import {
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -39,39 +39,29 @@ export default function EditAddress() {
 
   const address = addressesData?.data.addresses.find((a) => a._id === id);
 
-  const [label, setLabel] = useState<string>("Home");
-  const [street, setStreet] = useState<string>("");
-  const [city, setCity] = useState<string>("");
-  const [state, setState] = useState<string>("");
-  const [coords, setCoords] = useState({ latitude: 6.5244, longitude: 3.3792 });
-  const [mapRegion, setMapRegion] = useState<Region>({
-    latitude: 6.5244,
-    longitude: 3.3792,
+  const [labelOverride, setLabelOverride] = useState<string | null>(null);
+  const [streetOverride, setStreetOverride] = useState<string | null>(null);
+  const [cityOverride, setCityOverride] = useState<string | null>(null);
+  const [stateOverride, setStateOverride] = useState<string | null>(null);
+  const [coordsOverride, setCoordsOverride] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+
+  const label = labelOverride ?? address?.label ?? "Home";
+  const street = streetOverride ?? address?.street ?? "";
+  const city = cityOverride ?? address?.city ?? "";
+  const state = stateOverride ?? address?.state ?? "Lagos";
+  const coords = coordsOverride ?? {
+    latitude: address?.coordinates?.lat || 6.5244,
+    longitude: address?.coordinates?.lng || 3.3792,
+  };
+  const mapRegion: Region = {
+    ...coords,
     latitudeDelta: 0.008,
     longitudeDelta: 0.008,
-  });
-  const [locationLoading, setLocationLoading] = useState(false);
-  const [initialized, setInitialized] = useState(false);
-
-  useEffect(() => {
-    if (address && !initialized) {
-      setLabel(address.label || "Home");
-      setStreet(address.street || "");
-      setCity(address.city || "");
-      setState(address.state || "Lagos");
-      const c = {
-        latitude: address.coordinates?.lat || 6.5244,
-        longitude: address.coordinates?.lng || 3.3792,
-      };
-      setCoords(c);
-      setMapRegion({
-        ...c,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-      });
-      setInitialized(true);
-    }
-  }, [address, initialized]);
+  };
 
   const reverseGeocode = async (lat: number, lng: number) => {
     try {
@@ -84,10 +74,10 @@ export default function EditAddress() {
         const streetName = [item.streetNumber, item.street, item.name]
           .filter(Boolean)
           .join(" ");
-        if (streetName) setStreet(streetName);
+        if (streetName) setStreetOverride(streetName);
         if (item.city || item.subregion)
-          setCity(item.city || item.subregion || "");
-        if (item.region) setState(item.region);
+          setCityOverride(item.city || item.subregion || "");
+        if (item.region) setStateOverride(item.region);
       }
     } catch {
       // Graceful fallback
@@ -113,15 +103,7 @@ export default function EditAddress() {
         longitude: location.coords.longitude,
       };
 
-      setCoords(newCoords);
-      const newRegion: Region = {
-        ...newCoords,
-        latitudeDelta: 0.008,
-        longitudeDelta: 0.008,
-      };
-      setMapRegion(newRegion);
-      mapRef.current?.animateToRegion(newRegion, 400);
-
+      setCoordsOverride(newCoords);
       await reverseGeocode(newCoords.latitude, newCoords.longitude);
     } catch (err) {
       console.log("GPS lookup failed:", err);
@@ -132,7 +114,7 @@ export default function EditAddress() {
 
   const handleMapPress = async (e: any) => {
     const newCoords = e.nativeEvent.coordinate;
-    setCoords(newCoords);
+    setCoordsOverride(newCoords);
     await reverseGeocode(newCoords.latitude, newCoords.longitude);
   };
 
@@ -251,7 +233,7 @@ export default function EditAddress() {
                 return (
                   <Pressable
                     key={item.key}
-                    onPress={() => setLabel(item.key)}
+                    onPress={() => setLabelOverride(item.key)}
                     className={`flex-1 py-3 px-2 rounded-2xl border flex-row items-center justify-center gap-1.5 ${
                       isSelected
                         ? "bg-[#FFF5F3] border-primary"
@@ -286,7 +268,7 @@ export default function EditAddress() {
             </Text>
             <TextInput
               value={street}
-              onChangeText={setStreet}
+              onChangeText={setStreetOverride}
               placeholder="e.g. 12 Adeola Odeku St"
               placeholderTextColor="#A0A5BA"
               className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
@@ -301,7 +283,7 @@ export default function EditAddress() {
             </Text>
             <TextInput
               value={city}
-              onChangeText={setCity}
+              onChangeText={setCityOverride}
               placeholder="e.g. Victoria Island"
               placeholderTextColor="#A0A5BA"
               className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
@@ -316,7 +298,7 @@ export default function EditAddress() {
             </Text>
             <TextInput
               value={state}
-              onChangeText={setState}
+              onChangeText={setStateOverride}
               placeholder="e.g. Lagos"
               placeholderTextColor="#A0A5BA"
               className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"

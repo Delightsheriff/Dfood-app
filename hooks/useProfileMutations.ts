@@ -1,6 +1,5 @@
 import { dataService } from "@/services/data.service";
-import { UpdateProfileRequest } from "@/types/api";
-import { ErrorResponse } from "@/types/api";
+import { ErrorResponse, UpdateProfileRequest } from "@/types/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 

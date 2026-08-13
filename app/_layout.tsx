@@ -1,7 +1,6 @@
 // app/_layout.tsx
 import { toastConfig } from "@/components/ui/toast-config";
 import { useOnboarding } from "@/hooks/useOnboarding";
-import { useNotifications } from "@/hooks/useNotifications"; // ← Add this
 import { QueryProvider } from "@/providers/QueryProvider";
 import {
   Sen_400Regular,
@@ -63,9 +62,6 @@ function RootNavigator() {
   useEffect(() => {
     hasNavigated.current = false;
   }, [hasCompletedOnboarding]);
-
-  // Setup notification listeners
-  useNotifications();
 
   useEffect(() => {
     if (isLoading || hasNavigated.current) return;

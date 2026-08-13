@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { isAxiosError } from "axios";
 import * as Location from "expo-location";
 
 const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
@@ -8,10 +8,6 @@ const OVERPASS_API_URL = "https://overpass-api.de/api/interpreter";
 const FALLBACK_LOCATION = { latitude: 40.7128, longitude: -74.006 }; // New York, NY
 
 const SEARCH_RADIUS_METERS = 2000;
-
-const AMENITY_QUERY =
-  'node["amenity"~"^(restaurant|cafe|fast_food)$"]; ' +
-  'way["amenity"~"^(restaurant|cafe|fast_food)$"];';
 
 export type OsmCoordinates = {
   latitude: number;
@@ -73,7 +69,7 @@ async function resolveCoordinates(): Promise<OsmCoordinates> {
 }
 
 function isRetryableError(error: unknown): boolean {
-  if (!axios.isAxiosError(error)) {
+  if (!isAxiosError(error)) {
     return false;
   }
   const status = error.response?.status;
