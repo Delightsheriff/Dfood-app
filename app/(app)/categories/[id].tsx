@@ -1,110 +1,181 @@
-import CategoryBackButton from "@/components/CategoryBackButton";
 import FoodCard from "@/components/FoodCard";
-import { useFoodItemsByCategory } from "@/hooks/useDataQueries";
-import { FoodItem } from "@/types/api";
+import RestaurantCard from "@/components/RestaurantCard";
+import { IconButton } from "@/components/ui/icon-button";
+import {
+  useCategories,
+  useFoodItemsByCategory,
+  useRestaurants,
+} from "@/hooks/useDataQueries";
+import { matchesCategory } from "@/lib/adapters/categories";
+import { ArrowLeft01Icon, Dish01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { UtensilsCrossed } from "lucide-react-native";
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useMemo } from "react";
+import { ActivityIndicator, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-function FoodCardWithRestaurant({ food }: { food: FoodItem }) {
-  const router = useRouter();
-
-  const restaurant =
-    food?.restaurantId && typeof food.restaurantId === "object"
-      ? food.restaurantId
-      : null;
-
-  const restaurantName = restaurant?.name;
-  const restaurantId = restaurant?._id;
-
-  return (
-    <View className="w-[48%] mb-4">
-      <FoodCard
-        food={food}
-        restaurantId={restaurantId}
-        restaurantName={restaurantName}
-        onPress={() =>
-          router.push({
-            pathname: "/(app)/food/[id]",
-            params: { id: food._id },
-          })
-        }
-      />
-    </View>
-  );
-}
+const ACCENT = "#E0533A";
 
 export default function CategoryDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
 
-  const { data: foodItemsData, isLoading, error } = useFoodItemsByCategory(id);
+  const { data: categoriesData } = useCategories();
+  const { data: foodItemsData, isLoading: foodItemsLoading } =
+    useFoodItemsByCategory(id);
+  const { data: restaurantsData } = useRestaurants();
 
-  const foodItems = foodItemsData?.data.foodItems || [];
+  const category = categoriesData?.data.categories.find(
+    (cat) => cat._id === id,
+  );
+  const categoryName = category?.name || "Category";
+  const categoryImage = category?.image;
 
-  if (isLoading) {
-    return (
-      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
+  const foodItems = useMemo(
+    () => foodItemsData?.data.foodItems || [],
+    [foodItemsData],
+  );
+
+  const matchingRestaurants = useMemo(() => {
+    const list = restaurantsData?.data.restaurants || [];
+    return list.filter((r) => matchesCategory(r.cuisineTags, id));
+  }, [restaurantsData, id]);
+
+  const renderHeader = () => (
+    <View className="pb-3">
+      {/* 1. Header Navigation */}
+      <View
+        className="flex-row items-center justify-between px-5 pt-3 pb-3"
+        style={{ paddingTop: insets.top + 4 }}
+      >
+        <IconButton
+          icon={ArrowLeft01Icon}
+          accessibilityLabel="Go back"
+          onPress={() => router.back()}
+        />
+        <Text className="text-lg font-sen-bold text-secondary">
+          {categoryName}
+        </Text>
+        <View className="w-11" />
+      </View>
+
+      {/* 2. Hero Strip (~130px) */}
+      {categoryImage ? (
+        <View className="px-5 mb-5">
+          <View
+            className="w-full h-32 rounded-[20px] overflow-hidden relative bg-surface-muted"
+            style={{ borderCurve: "continuous" }}
+          >
+            <Image
+              source={{ uri: categoryImage }}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="cover"
+              transition={150}
+            />
+            <LinearGradient
+              colors={["rgba(0,0,0,0.1)", "rgba(0,0,0,0.6)"]}
+              style={{ position: "absolute", inset: 0 }}
+            />
+            <View className="absolute bottom-3.5 left-4">
+              <Text className="text-[22px] font-sen-extra-bold text-white">
+                {categoryName} Cuisines
+              </Text>
+              <Text className="text-xs font-sen text-white/80">
+                {foodItems.length} delicious {foodItems.length === 1 ? "dish" : "dishes"} to choose from
+              </Text>
+            </View>
+          </View>
         </View>
-      </SafeAreaView>
-    );
-  }
+      ) : null}
 
-  if (error) {
-    return (
-      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-        <View className="flex-1 items-center justify-center px-6">
-          <Text className="text-text-gray font-sen text-base text-center">
-            Failed to load category items
-          </Text>
+      {/* 3. Matching Restaurants Section (omitted when empty) */}
+      {matchingRestaurants.length > 0 ? (
+        <View className="mb-6">
+          <View className="px-5 mb-3">
+            <Text className="text-[18px] font-sen-bold text-secondary">
+              {categoryName} Places Nearby
+            </Text>
+          </View>
+          <FlashList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={matchingRestaurants}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+            renderItem={({ item }) => (
+              <RestaurantCard
+                restaurant={item}
+                variant="compact"
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/restaurants/[id]",
+                    params: { id: item._id },
+                  })
+                }
+              />
+            )}
+          />
         </View>
-      </SafeAreaView>
-    );
-  }
+      ) : null}
+
+      {/* 4. Dishes Section Header */}
+      <View className="px-5 flex-row justify-between items-center mb-2">
+        <Text className="text-[18px] font-sen-bold text-secondary">
+          All {categoryName} Dishes
+        </Text>
+        <Text className="text-xs font-sen text-text-gray">
+          {foodItems.length} {foodItems.length === 1 ? "dish" : "dishes"}
+        </Text>
+      </View>
+    </View>
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      <CategoryBackButton categoryId={id} />
-
-      <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {foodItems.length > 0 ? (
-          <View className="mt-2">
-            <View className="flex-row items-center mb-4">
-              <Text className="text-lg font-sen-bold text-secondary">
-                Available Items
+    <View className="flex-1 bg-white">
+      {foodItemsLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={ACCENT} />
+        </View>
+      ) : (
+        <FlashList
+          data={foodItems}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={{
+            paddingHorizontal: 14,
+            paddingBottom: insets.bottom + 24,
+          }}
+          renderItem={({ item }) => (
+            <View className="px-1.5 flex-1">
+              <FoodCard
+                food={item}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/food/[id]",
+                    params: { id: item._id },
+                  })
+                }
+              />
+            </View>
+          )}
+          ListEmptyComponent={
+            <View className="py-16 px-6 items-center bg-surface-muted mx-3 rounded-[20px]">
+              <HugeiconsIcon icon={Dish01Icon} size={28} color="#646982" />
+              <Text className="text-secondary font-sen-bold text-base mt-2 mb-1">
+                No Dishes Available
               </Text>
-              <View className="bg-primary ml-2 px-2.5 py-0.5 rounded-lg">
-                <Text className="text-white font-sen-bold text-xs">
-                  {foodItems.length}
-                </Text>
-              </View>
+              <Text className="text-text-gray font-sen text-xs text-center">
+                Check back soon for new dishes in this category.
+              </Text>
             </View>
-
-            <View className="flex-row flex-wrap justify-between">
-              {foodItems.map((food) => (
-                <FoodCardWithRestaurant key={food._id} food={food} />
-              ))}
-            </View>
-          </View>
-        ) : (
-          <View className="items-center justify-center py-20 bg-[#F0F5FA] rounded-2xl mt-4">
-            <View className="w-16 h-16 bg-white rounded-2xl items-center justify-center mb-4">
-              <UtensilsCrossed color="#A0A5BA" size={24} />
-            </View>
-            <Text className="text-secondary font-sen-bold text-sm mb-1">
-              No items found
-            </Text>
-            <Text className="text-text-gray font-sen text-xs">
-              This category doesn&apos;t have any items yet
-            </Text>
-          </View>
-        )}
-      </ScrollView>
-    </SafeAreaView>
+          }
+        />
+      )}
+    </View>
   );
 }

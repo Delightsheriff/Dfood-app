@@ -1,94 +1,145 @@
-import CategoryItem from "@/components/CategoryItem";
-import { useCategories } from "@/hooks/useDataQueries";
+import { IconButton } from "@/components/ui/icon-button";
+import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
+import { matchesCategory } from "@/lib/adapters/categories";
+import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
+import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { ChevronLeft, Grid3X3 } from "lucide-react-native";
+import { useMemo } from "react";
 import {
   ActivityIndicator,
-  FlatList,
-  Text,
   Pressable,
+  Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const ACCENT = "#E0533A";
 
 export default function AllCategories() {
   const router = useRouter();
-  const { data: categoriesData, isLoading } = useCategories();
+  const insets = useSafeAreaInsets();
+
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useCategories();
+  const { data: restaurantsData } = useRestaurants();
 
   const categories = categoriesData?.data.categories || [];
+  const restaurants = useMemo(
+    () => restaurantsData?.data.restaurants || [],
+    [restaurantsData],
+  );
 
-  return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4">
-        <Pressable
+  const getRestaurantCount = (categoryId: string) => {
+    return restaurants.filter((r) =>
+      matchesCategory(r.cuisineTags, categoryId),
+    ).length;
+  };
+
+  const renderHeader = () => (
+    <View className="pb-4">
+      {/* Top navigation row */}
+      <View
+        className="flex-row items-center justify-between px-5 pt-3 pb-2"
+        style={{ paddingTop: insets.top + 4 }}
+      >
+        <IconButton
+          icon={ArrowLeft01Icon}
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
-          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.06,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          All Categories
+        />
+        <Text className="text-lg font-sen-bold text-secondary">
+          Categories
         </Text>
-        {categories.length > 0 && (
-          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
-            <Text className="text-text-gray font-sen text-xs">
-              {categories.length}
-            </Text>
-          </View>
-        )}
+        <View className="w-11" />
       </View>
 
-      {isLoading ? (
+      {/* Screen Title */}
+      <View className="px-5 mt-2">
+        <Text className="text-[26px] font-sen-extra-bold text-secondary">
+          Explore Cuisines
+        </Text>
+        <Text className="mt-1 text-xs font-sen text-text-gray">
+          Discover dishes and places by your favorite craving
+        </Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <View className="flex-1 bg-white">
+      {categoriesLoading && !categoriesData ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
-        </View>
-      ) : categories.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
-            <Grid3X3 color="#A0A5BA" size={32} />
-          </View>
-          <Text className="text-secondary font-sen-bold text-base text-center mb-2">
-            No categories available
-          </Text>
-          <Text className="text-text-gray font-sen text-sm text-center">
-            Categories will appear here once added
-          </Text>
+          <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={categories}
           keyExtractor={(item) => item._id}
           numColumns={2}
-          renderItem={({ item }) => (
-            <View className="flex-1 max-w-[50%] p-2">
-              <CategoryItem
-                category={item}
-                onPress={() =>
-                  router.push({
-                    pathname: "/(app)/categories/[id]",
-                    params: { id: item._id },
-                  })
-                }
-              />
-            </View>
-          )}
+          ListHeaderComponent={renderHeader}
           contentContainerStyle={{
-            paddingHorizontal: 16,
-            paddingTop: 12,
-            paddingBottom: 24,
+            paddingHorizontal: 14,
+            paddingBottom: insets.bottom + 24,
           }}
-          showsVerticalScrollIndicator={false}
-          columnWrapperStyle={{ gap: 0 }}
+          renderItem={({ item }) => {
+            const count = getRestaurantCount(item._id);
+            return (
+              <View className="p-1.5 flex-1">
+                <Pressable
+                  onPress={() =>
+                    router.push({
+                      pathname: "/(app)/categories/[id]",
+                      params: { id: item._id },
+                    })
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel={`${item.name} category, ${count} places`}
+                  className="w-full h-44 rounded-[20px] overflow-hidden relative bg-surface-muted"
+                  style={{
+                    borderCurve: "continuous",
+                    boxShadow: "0px 2px 8px rgba(0,0,0,0.06)",
+                  }}
+                >
+                  {/* Category Image */}
+                  <Image
+                    source={{ uri: item.image }}
+                    style={{ width: "100%", height: "100%" }}
+                    contentFit="cover"
+                    transition={150}
+                  />
+
+                  {/* Gradient Scrim */}
+                  <LinearGradient
+                    colors={["rgba(0,0,0,0.1)", "rgba(0,0,0,0.75)"]}
+                    start={{ x: 0.5, y: 0.2 }}
+                    end={{ x: 0.5, y: 1 }}
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                    }}
+                  />
+
+                  {/* Overlaid Title & Count Badge */}
+                  <View className="absolute bottom-3 left-3 right-3">
+                    <Text className="text-[17px] leading-5 font-sen-extra-bold text-white mb-1">
+                      {item.name}
+                    </Text>
+                    {count > 0 && (
+                      <View className="self-start bg-white/25 px-2 py-0.5 rounded-full">
+                        <Text className="text-[10px] font-sen-bold text-white">
+                          {count} {count === 1 ? "place" : "places"}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                </Pressable>
+              </View>
+            );
+          }}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
