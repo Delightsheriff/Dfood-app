@@ -1,0 +1,34 @@
+import { useEffect, useState } from "react";
+import { AccessibilityInfo } from "react-native";
+
+/**
+ * Hook to detect and listen for system reduced-motion preferences.
+ * Ensures animations degrade gracefully on devices where reduced motion is active.
+ */
+export function useReducedMotion(): boolean {
+  const [reduceMotion, setReduceMotion] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((enabled) => {
+        if (mounted) setReduceMotion(enabled);
+      })
+      .catch(() => {});
+
+    const subscription = AccessibilityInfo.addEventListener(
+      "reduceMotionChanged",
+      (enabled) => {
+        setReduceMotion(enabled);
+      },
+    );
+
+    return () => {
+      mounted = false;
+      subscription?.remove();
+    };
+  }, []);
+
+  return reduceMotion;
+}
