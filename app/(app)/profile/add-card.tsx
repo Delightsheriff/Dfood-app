@@ -1,197 +1,234 @@
+import { ButtonText } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { useAddCard } from "@/hooks/usePaymentMethodMutations";
-import { useRouter } from "expo-router";
 import {
-  ChevronLeft,
-  CreditCard,
-  Lock,
-  RefreshCw,
-  Shield,
-} from "lucide-react-native";
-import React from "react";
+  ArrowLeft01Icon,
+  CreditCardIcon,
+  SecurityCheckIcon,
+  Shield01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { useRouter } from "expo-router";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Text,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
+  ScrollView,
+  Text,
+  TextInput,
   View,
 } from "react-native";
-import { PaystackProvider, usePaystack } from "react-native-paystack-webview";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const PAYSTACK_PUBLIC_KEY =
-  process.env.EXPO_PUBLIC_PAYSTACK_KEY || "pk_test_your_public_key";
+const ACCENT = "#E0533A";
 
-function AddCardContent() {
+export default function AddCard() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const addCardMutation = useAddCard();
-  const { popup } = usePaystack();
+
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardHolder, setCardHolder] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
 
   const handleAddCard = () => {
-    popup.checkout({
-      email: "user@example.com",
-      amount: 100,
-      onSuccess: (response) => {
-        console.log(response);
-        const reference = response.reference;
+    const rawNumber = cardNumber.replace(/\s+/g, "");
+    if (rawNumber.length < 12) {
+      Alert.alert("Invalid Card", "Please enter a valid card number.");
+      return;
+    }
+    if (!cardHolder.trim()) {
+      Alert.alert("Name Required", "Please enter the cardholder name.");
+      return;
+    }
 
-        if (!reference) {
-          Alert.alert("Error", "Transaction reference not found");
-          return;
-        }
-
-        addCardMutation.mutate(reference as string, {
-          onSuccess: (data) => {
-            Alert.alert("Success", data.message || "Card added successfully", [
-              {
-                text: "OK",
-                onPress: () => router.back(),
-              },
-            ]);
-          },
-          onError: (error: any) => {
-            const message =
-              error.response?.data?.message ||
-              "Failed to add card. Please try again.";
-            Alert.alert("Error", message);
-          },
-        });
-      },
-      onCancel: () => {
-        Alert.alert("Cancelled", "Card addition was cancelled", [
-          {
-            text: "OK",
-            onPress: () => router.back(),
-          },
+    // Pass card reference to mutation
+    addCardMutation.mutate(`card_ref_${Date.now()}_${rawNumber.slice(-4)}`, {
+      onSuccess: () => {
+        Alert.alert("Success", "Card added successfully (Demo Mode)", [
+          { text: "OK", onPress: () => router.back() },
         ]);
+      },
+      onError: (err: any) => {
+        Alert.alert("Error", err.message || "Failed to add card.");
       },
     });
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4">
-        <Pressable
-          onPress={() => router.back()}
-          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.06,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          Add Card
-        </Text>
-      </View>
-
-      <View className="flex-1 items-center justify-center px-6">
-        {/* Card Icon */}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View className="flex-1 bg-white">
+        {/* Header */}
         <View
-          className="w-20 h-20 bg-[#FFF5EE] rounded-3xl items-center justify-center mb-6"
-          style={{
-            shadowColor: "#FF7622",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.12,
-            shadowRadius: 8,
-            elevation: 3,
-          }}
+          className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
+          style={{ paddingTop: insets.top + 4 }}
         >
-          <CreditCard color="#FF7622" size={36} />
+          <IconButton
+            icon={ArrowLeft01Icon}
+            accessibilityLabel="Go back"
+            onPress={() => router.back()}
+          />
+          <Text className="text-[17px] font-sen-bold text-secondary">
+            Add Payment Card
+          </Text>
+          <View className="w-11" />
         </View>
 
-        <Text className="text-xl font-sen-bold text-secondary mb-2 text-center">
-          Add Payment Card
-        </Text>
-        <Text className="text-text-gray font-sen text-sm mb-8 text-center leading-5">
-          You&apos;ll be charged ₦100 to verify your card.{"\n"}This will be
-          refunded immediately.
-        </Text>
-
-        {/* Features Card */}
-        <View
-          className="bg-[#F6F8FA] rounded-2xl p-5 w-full mb-8"
-          style={{
-            borderWidth: 1,
-            borderColor: "#F0F0F0",
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.04,
-            shadowRadius: 6,
-            elevation: 1,
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingTop: 20,
+            paddingBottom: insets.bottom + 40,
           }}
         >
-          <View className="flex-row items-center mb-4">
-            <View className="w-8 h-8 bg-[#EBF4FF] rounded-xl items-center justify-center mr-3">
-              <Shield color="#2D8EFF" size={16} />
-            </View>
-            <Text className="text-secondary font-sen text-sm flex-1">
-              Secure payment via Paystack
-            </Text>
-          </View>
-          <View className="flex-row items-center mb-4">
-            <View className="w-8 h-8 bg-[#FFF5EE] rounded-xl items-center justify-center mr-3">
-              <Lock color="#FF7622" size={16} />
-            </View>
-            <Text className="text-secondary font-sen text-sm flex-1">
-              Card details are encrypted
-            </Text>
-          </View>
-          <View className="flex-row items-center">
-            <View className="w-8 h-8 bg-[#DCFCE7] rounded-xl items-center justify-center mr-3">
-              <RefreshCw color="#16A34A" size={16} />
-            </View>
-            <Text className="text-secondary font-sen text-sm flex-1">
-              ₦100 verification fee refunded
-            </Text>
-          </View>
-        </View>
-
-        {/* CTA Button */}
-        {addCardMutation.isPending ? (
+          {/* Card Preview Container */}
           <View
-            className="h-[56px] bg-primary rounded-2xl items-center justify-center w-full"
+            className="p-6 rounded-[24px] bg-secondary mb-6 relative overflow-hidden"
             style={{
-              shadowColor: "#FF7622",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 6,
+              borderCurve: "continuous",
+              boxShadow: "0px 8px 24px rgba(38,43,51,0.25)",
             }}
           >
-            <ActivityIndicator color="white" />
+            <View className="flex-row justify-between items-center mb-6">
+              <HugeiconsIcon icon={CreditCardIcon} size={28} color="#FFFFFF" />
+              <View className="bg-white/15 px-2.5 py-1 rounded-md">
+                <Text className="text-white text-[10px] font-sen-bold uppercase tracking-wider">
+                  Demo Mode
+                </Text>
+              </View>
+            </View>
+
+            <Text className="text-xl font-sen-bold text-white tracking-widest mb-4">
+              {cardNumber
+                ? cardNumber
+                : "••••  ••••  ••••  4242"}
+            </Text>
+
+            <View className="flex-row justify-between items-end">
+              <View>
+                <Text className="text-[9px] font-sen uppercase tracking-wider text-white/60">
+                  Card Holder
+                </Text>
+                <Text className="text-xs font-sen-bold text-white mt-0.5">
+                  {cardHolder ? cardHolder.toUpperCase() : "DELIGHT SHERIFF"}
+                </Text>
+              </View>
+              <View>
+                <Text className="text-[9px] font-sen uppercase tracking-wider text-white/60">
+                  Expires
+                </Text>
+                <Text className="text-xs font-sen-bold text-white mt-0.5">
+                  {expiry ? expiry : "12/30"}
+                </Text>
+              </View>
+            </View>
           </View>
-        ) : (
+
+          {/* Form Fields */}
+          <View className="gap-4 mb-6">
+            <View>
+              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+                Card Number
+              </Text>
+              <TextInput
+                value={cardNumber}
+                onChangeText={setCardNumber}
+                placeholder="4242 •••• •••• 4242"
+                placeholderTextColor="#A0A5BA"
+                keyboardType="numeric"
+                maxLength={19}
+                className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                style={{ borderCurve: "continuous" }}
+              />
+            </View>
+
+            <View>
+              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+                Cardholder Name
+              </Text>
+              <TextInput
+                value={cardHolder}
+                onChangeText={setCardHolder}
+                placeholder="Name on card"
+                placeholderTextColor="#A0A5BA"
+                autoCapitalize="characters"
+                className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                style={{ borderCurve: "continuous" }}
+              />
+            </View>
+
+            <View className="flex-row gap-3">
+              <View className="flex-1">
+                <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+                  Expiry Date
+                </Text>
+                <TextInput
+                  value={expiry}
+                  onChangeText={setExpiry}
+                  placeholder="MM/YY"
+                  placeholderTextColor="#A0A5BA"
+                  keyboardType="numeric"
+                  maxLength={5}
+                  className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                  style={{ borderCurve: "continuous" }}
+                />
+              </View>
+
+              <View className="flex-1">
+                <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+                  CVV
+                </Text>
+                <TextInput
+                  value={cvv}
+                  onChangeText={setCvv}
+                  placeholder="123"
+                  placeholderTextColor="#A0A5BA"
+                  keyboardType="numeric"
+                  secureTextEntry
+                  maxLength={4}
+                  className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                  style={{ borderCurve: "continuous" }}
+                />
+              </View>
+            </View>
+          </View>
+
+          {/* Security note */}
+          <View className="p-4 bg-surface-muted rounded-[18px] flex-row items-center gap-3 mb-6">
+            <HugeiconsIcon icon={Shield01Icon} size={20} color={ACCENT} />
+            <Text className="text-xs font-sen text-text-gray flex-1 leading-4">
+              Demo card tokenization. No real charges are ever made to your card.
+            </Text>
+          </View>
+
+          {/* Submit */}
           <Pressable
             onPress={handleAddCard}
-            className="h-[56px] bg-primary rounded-2xl items-center justify-center w-full flex-row"
+            disabled={addCardMutation.isPending}
+            className="w-full h-14 bg-secondary rounded-full items-center justify-center"
             style={{
-              shadowColor: "#FF7622",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 6,
+              borderCurve: "continuous",
+              boxShadow: "0px 4px 12px rgba(38,43,51,0.2)",
             }}
           >
-            <CreditCard color="white" size={18} />
-            <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
-              Add Card via Paystack
-            </Text>
+            {addCardMutation.isPending ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <ButtonText className="font-sen-bold text-base text-white">
+                Save Card
+              </ButtonText>
+            )}
           </Pressable>
-        )}
+        </ScrollView>
       </View>
-    </SafeAreaView>
-  );
-}
-
-export default function AddCard() {
-  return (
-    <PaystackProvider publicKey={PAYSTACK_PUBLIC_KEY}>
-      <AddCardContent />
-    </PaystackProvider>
+    </KeyboardAvoidingView>
   );
 }
