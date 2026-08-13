@@ -50,7 +50,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const BANNER_HEIGHT = 168;
+const BANNER_HEIGHT = 196;
 
 const ALL_CATEGORY: Category = {
   _id: "all",
@@ -263,17 +263,19 @@ export default function Home() {
                     height: "100%",
                   }}
                   contentFit="cover"
+                  contentPosition="center"
                   transition={200}
                 />
 
-                {/* Dark bottom-up scrim gradient for legibility */}
+                {/* Refined directional scrim gradient leaving right half food photography clean */}
                 <LinearGradient
                   colors={[
-                    "rgba(18,20,24,0.2)",
-                    "rgba(18,20,24,0.55)",
-                    "rgba(18,20,24,0.92)",
+                    "rgba(18,20,24,0.0)",
+                    "rgba(18,20,24,0.25)",
+                    "rgba(18,20,24,0.85)",
                   ]}
-                  locations={[0, 0.45, 1]}
+                  start={{ x: 0, y: 0.15 }}
+                  end={{ x: 0, y: 1 }}
                   style={{
                     position: "absolute",
                     top: 0,

@@ -186,7 +186,11 @@ in preview and drops the dependency entirely, but don't move a project
 mid-flight onto a preview.)
 
 It fires when NativeWind's Tailwind child process recompiles CSS, so it's
-intermittent rather than every save. Two consequences:
+frequent, and **`npx expo start --clear` triggers it deterministically** — the
+cache clear forces a Tailwind recompile, so Metro dies before it bundles even
+once. Start without `--clear`. Expect to restart the dev server several times
+across a working session; three separate runs died this way while verifying a
+single change. Consequences:
 
 - If Metro exits with this, just restart it. Don't go hunting in your diff.
 - More insidious: when the watcher is wedged, **file changes stop reaching the

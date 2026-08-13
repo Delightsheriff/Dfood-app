@@ -103,21 +103,18 @@ function RestaurantCard({
           />
         </View>
 
-        {/* Closed overlay */}
+        {/* Closed bottom status strip with actionable opening time */}
         {!isCurrentlyOpen && (
-          <View className="absolute inset-0 bg-black/30 items-center justify-center">
-            <View
-              className="bg-secondary/90 px-3 py-1 rounded-full flex-row items-center gap-1.5"
-              style={{
-                borderCurve: "continuous",
-                boxShadow: "0px 2px 8px rgba(0,0,0,0.2)",
-              }}
-            >
-              <View className="w-1.5 h-1.5 rounded-full bg-red-400" />
-              <Text className="text-white font-caption text-[10px] tracking-wider uppercase">
+          <View className="absolute bottom-0 left-0 right-0 bg-[#1A1D23]/85 px-2.5 py-1 flex-row items-center justify-between">
+            <View className="flex-row items-center gap-1.5">
+              <View className="w-1.5 h-1.5 rounded-full bg-[#FF7E67]" />
+              <Text className="text-white font-caption text-[10px] uppercase tracking-wider font-semibold">
                 Closed
               </Text>
             </View>
+            <Text className="text-white/90 font-numeric text-[10px]">
+              {restaurant.openingTime ? `Opens ${restaurant.openingTime}` : "Opens 9:00 AM"}
+            </Text>
           </View>
         )}
       </View>
