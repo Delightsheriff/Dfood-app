@@ -43,7 +43,16 @@ Strictly sequential. Each builds on the last.
 | 10 | [Typography](./10-typography.md) | Replace Sen with Bricolage Grotesque + Geist; named type scale; 316 usages |
 | 11 | [Cards & banner](./11-cards-and-banner.md) | Restaurant + food card redesign; real photography in the promo banner |
 | 12 | [Native chrome](./12-native-chrome.md) | One shared header (21 screens hand-roll their own), scroll-linked blur, three motion moments |
-| 13 | [Firebase](./13-firebase.md) | **Needs user decisions first** — see its "Open questions" |
+| 13 | [Firebase](./13-firebase.md) | Shipped in `8867409` — JS SDK, guest-first, Firestore mirroring |
+
+## Round 3 — auth shape & detail-page chrome
+
+Independent of each other; either can go first.
+
+| # | Prompt | Scope |
+| --- | --- | --- |
+| 14 | [Auth sheet](./14-auth-sheet.md) | Replace the three full-screen `(auth)` pages with one Google/Apple bottom sheet; document the Firebase env vars |
+| 15 | [Pinned headers](./15-pinned-headers.md) | `detail` header variant pinned over every pushed screen, blur on scroll, plus targeted design fixes |
 
 ## Two external resources that did not pan out
 
