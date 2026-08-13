@@ -1,3 +1,4 @@
+import { AuthSheet } from "@/components/auth/auth-sheet";
 import { IconButton } from "@/components/ui/icon-button";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
@@ -48,6 +49,7 @@ export default function Profile() {
 
   const { user, syncStatus, signOut, syncNow } = useAuthStore();
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
+  const [authSheetVisible, setAuthSheetVisible] = useState(false);
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -228,7 +230,7 @@ export default function Profile() {
             </Pressable>
           ) : (
             <Pressable
-              onPress={() => router.push("/(auth)/login" as any)}
+              onPress={() => setAuthSheetVisible(true)}
               className="px-4 py-2 rounded-full bg-secondary"
               style={{ borderCurve: "continuous" }}
             >
@@ -329,6 +331,12 @@ export default function Profile() {
           </View>
         </View>
       </Modal>
+
+      {/* Google / Apple Auth Sheet */}
+      <AuthSheet
+        visible={authSheetVisible}
+        onClose={() => setAuthSheetVisible(false)}
+      />
 
       {/* Large Header with Progressive Blur */}
       <ScreenHeader
