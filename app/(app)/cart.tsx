@@ -85,51 +85,35 @@ export default function Cart() {
     });
 
   const renderHeader = () => (
-    <View className="pb-2">
-      {/* 1. Header Navigation Row */}
-      <View
-        className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-gray-100"
-        style={{ paddingTop: insets.top + 4 }}
-      >
+    <View
+      className="pb-2"
+      style={{ paddingTop: insets.top }}
+    >
+      {/* Restaurant Header Block */}
+      <View className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between">
         <IconButton
           icon={ArrowLeft01Icon}
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <View className="items-center flex-1 mx-3">
+        <View className="items-center flex-1 mx-2">
           <Text
             numberOfLines={1}
-            className="text-[17px] font-sen-bold text-secondary"
+            className="text-[17px] font-title text-secondary"
           >
             {restaurantName || "Your Cart"}
           </Text>
-          <Text className="text-[11px] font-sen text-text-gray">
-            {items.length} {items.length === 1 ? "item" : "items"}
-          </Text>
-        </View>
-        <Text className="text-base font-sen-extra-bold text-secondary">
-          ₦{subtotal.toLocaleString()}
-        </Text>
-      </View>
-
-      {/* 2. Delivery ETA & Address Row */}
-      <View className="px-5 mt-4 mb-3">
-        <Pressable
-          onPress={() => router.push("/profile/addresses" as any)}
-          className="flex-row items-center justify-between p-3.5 bg-surface-muted rounded-[18px]"
-          style={{ borderCurve: "continuous" }}
-        >
           <View className="flex-row items-center flex-1 mr-2">
             <View className="w-9 h-9 rounded-full bg-white items-center justify-center mr-3">
               <HugeiconsIcon icon={Clock01Icon} size={18} color={ACCENT} />
             </View>
             <View className="flex-1">
-              <Text className="text-[13px] font-sen-bold text-secondary">
+              <Text className="text-[13px] font-title text-secondary">
                 Delivery in 25–35 min
               </Text>
               <Text
                 numberOfLines={1}
-                className="text-[11px] font-sen text-text-gray mt-0.5"
+                className="text-[11px] font-body text-text-gray mt-0.5"
               >
                 {defaultAddress
                   ? defaultAddress.label || defaultAddress.street
@@ -143,7 +127,7 @@ export default function Cart() {
 
       {/* Section Title */}
       <View className="px-5 mt-2 mb-1">
-        <Text className="text-[16px] font-sen-bold text-secondary">
+        <Text className="text-[16px] font-title text-secondary">
           Items from {restaurantName || "Restaurant"}
         </Text>
       </View>
@@ -167,13 +151,13 @@ export default function Cart() {
           >
             <View className="flex-row items-center gap-3">
               <HugeiconsIcon icon={Coupon01Icon} size={18} color={ACCENT} />
-              <Text className="text-[14px] font-sen-medium text-secondary">
+              <Text className="text-[14px] font-label text-secondary">
                 {appliedPromo ? `Promo: ${appliedPromo}` : "Add a promo code"}
               </Text>
             </View>
             <View className="flex-row items-center gap-1">
               {appliedPromo && (
-                <Text className="text-xs font-sen-bold text-green-600">
+                <Text className="text-xs font-numeric text-green-600">
                   Applied
                 </Text>
               )}
@@ -194,7 +178,7 @@ export default function Cart() {
               <HugeiconsIcon icon={Note01Icon} size={18} color="#646982" />
               <Text
                 numberOfLines={1}
-                className="text-[14px] font-sen-medium text-secondary flex-1"
+                className="text-[14px] font-body text-secondary flex-1"
               >
                 {deliveryInstructions
                   ? `Notes: ${deliveryInstructions}`
@@ -210,28 +194,28 @@ export default function Cart() {
           className="bg-surface-muted rounded-[20px] p-5 mb-4"
           style={{ borderCurve: "continuous" }}
         >
-          <Text className="text-[15px] font-sen-bold text-secondary mb-3.5">
+          <Text className="text-[15px] font-title text-secondary mb-3.5">
             Order Summary
           </Text>
 
           <View className="flex-row justify-between items-center mb-2.5">
-            <Text className="text-[13px] font-sen text-text-gray">Subtotal</Text>
-            <Text className="text-[13px] font-sen-bold text-secondary">
+            <Text className="text-[13px] font-body text-text-gray">Subtotal</Text>
+            <Text className="text-[13px] font-numeric text-secondary">
               ₦{subtotal.toLocaleString()}
             </Text>
           </View>
 
           <View className="flex-row justify-between items-center mb-2.5">
-            <Text className="text-[13px] font-sen text-text-gray">Delivery Fee</Text>
-            <Text className="text-[13px] font-sen-bold text-secondary">
+            <Text className="text-[13px] font-body text-text-gray">Delivery Fee</Text>
+            <Text className="text-[13px] font-numeric text-secondary">
               {deliveryFee === 0 ? "Free" : `₦${deliveryFee.toLocaleString()}`}
             </Text>
           </View>
 
           {appliedPromo && (
             <View className="flex-row justify-between items-center mb-2.5">
-              <Text className="text-[13px] font-sen text-green-600">Discount</Text>
-              <Text className="text-[13px] font-sen-bold text-green-600">
+              <Text className="text-[13px] font-body text-green-600">Discount</Text>
+              <Text className="text-[13px] font-numeric text-green-600">
                 -₦{discount.toLocaleString()}
               </Text>
             </View>
@@ -240,8 +224,8 @@ export default function Cart() {
           <View className="h-[1px] bg-gray-200 my-2" />
 
           <View className="flex-row justify-between items-center pt-1">
-            <Text className="text-[16px] font-sen-bold text-secondary">Total</Text>
-            <Text className="text-[20px] font-sen-extra-bold text-secondary">
+            <Text className="text-[16px] font-title text-secondary">Total</Text>
+            <Text className="text-[20px] font-numeric text-secondary">
               ₦{total.toLocaleString()}
             </Text>
           </View>
@@ -264,7 +248,7 @@ export default function Cart() {
               accessibilityLabel="Go back"
               onPress={() => router.back()}
             />
-            <Text className="text-lg font-sen-bold text-secondary ml-4">
+            <Text className="text-lg font-title text-secondary ml-4">
               Your Cart
             </Text>
           </View>
@@ -273,10 +257,10 @@ export default function Cart() {
             <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
               <HugeiconsIcon icon={ShoppingBag01Icon} size={36} color="#646982" />
             </View>
-            <Text className="text-xl font-sen-bold text-secondary mb-1">
+            <Text className="text-xl font-title text-secondary mb-1">
               Your cart is empty
             </Text>
-            <Text className="text-xs font-sen text-text-gray text-center max-w-[260px] mb-6">
+            <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
               Explore restaurants and add delicious dishes to start your order.
             </Text>
             <Pressable
@@ -284,7 +268,7 @@ export default function Cart() {
               className="px-8 py-3.5 rounded-full bg-secondary"
               style={{ borderCurve: "continuous" }}
             >
-              <Text className="text-white font-sen-bold text-sm">
+              <Text className="text-white font-label text-sm">
                 Browse Restaurants
               </Text>
             </Pressable>
@@ -320,11 +304,11 @@ export default function Cart() {
                   <View className="flex-1 ml-3.5 justify-center">
                     <Text
                       numberOfLines={1}
-                      className="text-[15px] font-sen-bold text-secondary mb-1"
+                      className="text-[15px] font-title text-secondary mb-1"
                     >
                       {item.foodItem.name}
                     </Text>
-                    <Text className="text-[14px] font-sen-extra-bold text-secondary">
+                    <Text className="text-[14px] font-numeric text-secondary">
                       ₦{(item.foodItem.price * item.quantity).toLocaleString()}
                     </Text>
                   </View>
@@ -358,7 +342,7 @@ export default function Cart() {
                       )}
                     </Pressable>
 
-                    <Text className="min-w-[28px] text-center font-sen-bold text-[13px] text-secondary">
+                    <Text className="min-w-[28px] text-center font-numeric text-[13px] text-secondary">
                       {item.quantity}
                     </Text>
 
@@ -394,10 +378,10 @@ export default function Cart() {
                 className="h-14 w-full flex-row items-center justify-between px-6 bg-secondary rounded-full"
                 style={checkoutStyle}
               >
-                <ButtonText className="font-sen-bold text-[15px]">
+                <ButtonText className="font-label text-[15px]">
                   Proceed to Checkout
                 </ButtonText>
-                <ButtonText className="font-sen-extra-bold text-[16px]">
+                <ButtonText className="font-numeric text-[16px]">
                   ₦{total.toLocaleString()}
                 </ButtonText>
               </Animated.View>
@@ -415,10 +399,10 @@ export default function Cart() {
       >
         <View className="flex-1 bg-black/50 justify-center px-6">
           <View className="bg-white rounded-[24px] p-6">
-            <Text className="text-lg font-sen-bold text-secondary mb-2">
+            <Text className="text-lg font-title text-secondary mb-2">
               Delivery Instructions
             </Text>
-            <Text className="text-xs font-sen text-text-gray mb-4">
+            <Text className="text-xs font-body text-text-gray mb-4">
               Add notes for the rider or restaurant (e.g. gate code, leave at door).
             </Text>
             <TextInput
@@ -426,14 +410,14 @@ export default function Cart() {
               placeholderTextColor="#A0A5BA"
               value={deliveryInstructions}
               onChangeText={setDeliveryInstructions}
-              className="bg-surface-muted rounded-2xl p-4 font-sen text-sm text-secondary min-h-[90px] text-top mb-5"
+              className="bg-surface-muted rounded-2xl p-4 font-body text-sm text-secondary min-h-[90px] text-top mb-5"
               multiline
             />
             <Pressable
               onPress={() => setNotesModalVisible(false)}
               className="w-full h-12 bg-secondary rounded-full items-center justify-center"
             >
-              <Text className="text-white font-sen-bold text-sm">Save Notes</Text>
+              <Text className="text-white font-label text-sm">Save Notes</Text>
             </Pressable>
           </View>
         </View>
@@ -448,10 +432,10 @@ export default function Cart() {
       >
         <View className="flex-1 bg-black/50 justify-center px-6">
           <View className="bg-white rounded-[24px] p-6">
-            <Text className="text-lg font-sen-bold text-secondary mb-2">
+            <Text className="text-lg font-title text-secondary mb-2">
               Add Promo Code
             </Text>
-            <Text className="text-xs font-sen text-text-gray mb-4">
+            <Text className="text-xs font-body text-text-gray mb-4">
               Enter code WELCOME for 15% off your order.
             </Text>
             <TextInput
@@ -460,7 +444,7 @@ export default function Cart() {
               value={promoCode}
               onChangeText={setPromoCode}
               autoCapitalize="characters"
-              className="bg-surface-muted rounded-2xl p-4 font-sen text-sm text-secondary uppercase font-sen-bold mb-5"
+              className="bg-surface-muted rounded-2xl p-4 font-body text-sm text-secondary uppercase font-title mb-5"
             />
             <View className="flex-row gap-3">
               <Pressable
@@ -471,7 +455,7 @@ export default function Cart() {
                 }}
                 className="flex-1 h-12 bg-surface-muted rounded-full items-center justify-center"
               >
-                <Text className="text-secondary font-sen-bold text-sm">Cancel</Text>
+                <Text className="text-secondary font-label text-sm">Cancel</Text>
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -482,7 +466,7 @@ export default function Cart() {
                 }}
                 className="flex-1 h-12 bg-primary rounded-full items-center justify-center"
               >
-                <Text className="text-white font-sen-bold text-sm">Apply Code</Text>
+                <Text className="text-white font-label text-sm">Apply Code</Text>
               </Pressable>
             </View>
           </View>

@@ -187,7 +187,7 @@ export default function Checkout() {
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <Text className="text-[17px] font-sen-bold text-secondary">
+        <Text className="text-[17px] font-title text-secondary">
           Checkout
         </Text>
         <View className="w-11" />
@@ -203,7 +203,7 @@ export default function Checkout() {
       >
         {/* 1. Delivery Address Card */}
         <View className="mb-4">
-          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+          <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
             Delivery Address
           </Text>
           <Pressable
@@ -222,14 +222,14 @@ export default function Checkout() {
                 <HugeiconsIcon icon={Location01Icon} size={20} color={ACCENT} />
               </View>
               <View className="flex-1">
-                <Text className="text-[15px] font-sen-bold text-secondary">
+                <Text className="text-[15px] font-title text-secondary">
                   {selectedAddress
                     ? selectedAddress.label || "Delivery Location"
                     : "No Address Saved"}
                 </Text>
                 <Text
                   numberOfLines={1}
-                  className="text-xs font-sen text-text-gray mt-0.5"
+                  className="text-xs font-body text-text-gray mt-0.5"
                 >
                   {selectedAddress
                     ? `${selectedAddress.street}, ${selectedAddress.city}`
@@ -237,7 +237,7 @@ export default function Checkout() {
                 </Text>
               </View>
             </View>
-            <Text className="text-xs font-sen-bold text-primary">
+            <Text className="text-xs font-label text-primary">
               {selectedAddress ? "Change" : "Add"}
             </Text>
           </Pressable>
@@ -245,7 +245,7 @@ export default function Checkout() {
 
         {/* 2. Delivery Time Estimate */}
         <View className="mb-4">
-          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+          <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
             Delivery Time
           </Text>
           <View
@@ -256,10 +256,10 @@ export default function Checkout() {
               <HugeiconsIcon icon={Clock01Icon} size={20} color="#262B33" />
             </View>
             <View className="flex-1">
-              <Text className="text-[15px] font-sen-bold text-secondary">
+              <Text className="text-[15px] font-title text-secondary">
                 Standard Delivery
               </Text>
-              <Text className="text-xs font-sen text-text-gray mt-0.5">
+              <Text className="text-xs font-body text-text-gray mt-0.5">
                 Estimated 25–35 mins
               </Text>
             </View>
@@ -268,7 +268,7 @@ export default function Checkout() {
 
         {/* 3. Payment Method Card */}
         <View className="mb-4">
-          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+          <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
             Payment Method
           </Text>
           <Pressable
@@ -290,35 +290,35 @@ export default function Checkout() {
               </View>
               <View className="flex-1">
                 <View className="flex-row items-center gap-2">
-                  <Text className="text-[15px] font-sen-bold text-secondary">
+                  <Text className="text-[15px] font-title text-secondary">
                     {selectedPaymentMethod?.type === "card"
                       ? `Card •••• ${selectedPaymentMethod.cardLast4 || "4242"}`
                       : "Cash on Delivery"}
                   </Text>
                   <View className="bg-white px-2 py-0.5 rounded-md">
-                    <Text className="text-[10px] font-sen-bold text-text-gray">
+                    <Text className="text-[10px] font-numeric text-text-gray">
                       Demo
                     </Text>
                   </View>
                 </View>
-                <Text className="text-xs font-sen text-text-gray mt-0.5">
+                <Text className="text-xs font-body text-text-gray mt-0.5">
                   {selectedPaymentMethod?.type === "card"
                     ? "Pay with saved demo card"
                     : "Pay with cash upon delivery"}
                 </Text>
               </View>
             </View>
-            <Text className="text-xs font-sen-bold text-primary">Change</Text>
+            <Text className="text-xs font-label text-primary">Change</Text>
           </Pressable>
         </View>
 
         {/* 4. Customer Notes Input */}
-        <View className="mb-4">
-          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+        <View className="mb-5">
+          <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
             Rider Notes (Optional)
           </Text>
           <View
-            className="p-3.5 bg-surface-muted rounded-[20px] flex-row items-center"
+            className="p-3.5 bg-surface-muted rounded-[18px] flex-row items-center"
             style={{ borderCurve: "continuous" }}
           >
             <HugeiconsIcon icon={Note01Icon} size={18} color="#646982" />
@@ -327,28 +327,21 @@ export default function Checkout() {
               placeholderTextColor="#A0A5BA"
               value={customerNotes}
               onChangeText={setCustomerNotes}
-              className="flex-1 ml-2.5 font-sen text-[13px] text-secondary"
+              className="flex-1 ml-2.5 font-body text-[13px] text-secondary"
             />
           </View>
         </View>
 
         {/* 5. Order Summary Card */}
-        <View
-          className="p-5 bg-surface-muted rounded-[20px] mb-6"
-          style={{ borderCurve: "continuous" }}
-        >
-          {/* Collapsible item preview */}
+        <View className="mb-6">
           <Pressable
             onPress={() => setItemsExpanded(!itemsExpanded)}
-            className="flex-row items-center justify-between pb-3 border-b border-gray-200"
+            className="flex-row items-center justify-between mb-2.5"
           >
-            <View className="flex-row items-center gap-2">
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={16} color="#262B33" />
-              <Text className="text-[14px] font-sen-bold text-secondary">
-                {items.length} {items.length === 1 ? "Item" : "Items"} from{" "}
-                {restaurant?.name || "Restaurant"}
-              </Text>
-            </View>
+            <Text className="text-[14px] font-title text-secondary">
+              {items.length} {items.length === 1 ? "Item" : "Items"} from{" "}
+              {restaurant?.name || "Restaurant"}
+            </Text>
             <HugeiconsIcon
               icon={itemsExpanded ? ArrowUp01Icon : ArrowDown01Icon}
               size={16}
@@ -357,7 +350,10 @@ export default function Checkout() {
           </Pressable>
 
           {itemsExpanded && (
-            <View className="py-3 border-b border-gray-200 gap-2">
+            <View
+              className="py-3 bg-surface-muted rounded-[20px] px-4 gap-2 mb-3"
+              style={{ borderCurve: "continuous" }}
+            >
               {items.map((item) => (
                 <View
                   key={item.foodItem._id}
@@ -365,11 +361,11 @@ export default function Checkout() {
                 >
                   <Text
                     numberOfLines={1}
-                    className="text-xs font-sen text-secondary flex-1 mr-2"
+                    className="text-xs font-body text-secondary flex-1 mr-2"
                   >
                     {item.quantity}x {item.foodItem.name}
                   </Text>
-                  <Text className="text-xs font-sen-bold text-secondary">
+                  <Text className="text-xs font-numeric text-secondary">
                     ₦{(item.foodItem.price * item.quantity).toLocaleString()}
                   </Text>
                 </View>
@@ -378,27 +374,30 @@ export default function Checkout() {
           )}
 
           {/* Breakdown */}
-          <View className="pt-3 gap-2">
-            <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-sen text-text-gray">Subtotal</Text>
-              <Text className="text-xs font-sen-bold text-secondary">
+          <View
+            className="p-4 bg-surface-muted rounded-[20px]"
+            style={{ borderCurve: "continuous" }}
+          >
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-xs font-body text-text-gray">Subtotal</Text>
+              <Text className="text-xs font-numeric text-secondary">
                 ₦{subtotal.toLocaleString()}
               </Text>
             </View>
-            <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-sen text-text-gray">
+            <View className="flex-row justify-between items-center mb-2">
+              <Text className="text-xs font-body text-text-gray">
                 Delivery Fee
               </Text>
-              <Text className="text-xs font-sen-bold text-secondary">
+              <Text className="text-xs font-numeric text-secondary">
                 {deliveryFee === 0 ? "Free" : `₦${deliveryFee.toLocaleString()}`}
               </Text>
             </View>
-            <View className="h-[1px] bg-gray-200 my-1" />
+            <View className="h-[1px] bg-gray-200 my-2" />
             <View className="flex-row justify-between items-center">
-              <Text className="text-base font-sen-bold text-secondary">
-                Total
+              <Text className="text-base font-title text-secondary">
+                Total Amount
               </Text>
-              <Text className="text-xl font-sen-extra-bold text-secondary">
+              <Text className="text-xl font-numeric text-secondary">
                 ₦{total.toLocaleString()}
               </Text>
             </View>
@@ -424,7 +423,7 @@ export default function Checkout() {
             {createOrderMutation.isPending ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <ButtonText className="font-sen-bold text-base">
+              <ButtonText className="font-label text-base">
                 Place Order • ₦{total.toLocaleString()}
               </ButtonText>
             )}
@@ -449,7 +448,7 @@ export default function Checkout() {
             style={{ paddingBottom: insets.bottom + 16 }}
           >
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-sen-bold text-secondary">
+              <Text className="text-lg font-title text-secondary">
                 Select Delivery Address
               </Text>
               <Pressable
@@ -458,7 +457,7 @@ export default function Checkout() {
                   router.push("/profile/add-address" as any);
                 }}
               >
-                <Text className="text-xs font-sen-bold text-primary">
+                <Text className="text-xs font-label text-primary">
                   + Add New
                 </Text>
               </Pressable>
@@ -480,10 +479,10 @@ export default function Checkout() {
                         : "bg-surface-muted border-transparent"
                     }`}
                   >
-                    <Text className="text-sm font-sen-bold text-secondary">
+                    <Text className="text-sm font-title text-secondary">
                       {addr.label}
                     </Text>
-                    <Text className="text-xs font-sen text-text-gray mt-0.5">
+                    <Text className="text-xs font-body text-text-gray mt-0.5">
                       {addr.street}, {addr.city}
                     </Text>
                   </Pressable>
@@ -510,7 +509,7 @@ export default function Checkout() {
             className="bg-white rounded-t-[28px] p-6 max-h-[60%]"
             style={{ paddingBottom: insets.bottom + 16 }}
           >
-            <Text className="text-lg font-sen-bold text-secondary mb-4">
+            <Text className="text-lg font-title text-secondary mb-4">
               Select Payment Method
             </Text>
 
@@ -537,12 +536,12 @@ export default function Checkout() {
                         color={ACCENT}
                       />
                       <View>
-                        <Text className="text-sm font-sen-bold text-secondary">
+                        <Text className="text-sm font-title text-secondary">
                           {pm.type === "card"
                             ? `Card (•••• ${pm.cardLast4 || "4242"})`
                             : "Cash on Delivery"}
                         </Text>
-                        <Text className="text-[11px] font-sen text-text-gray">
+                        <Text className="text-[11px] font-body text-text-gray">
                           Demo test mode
                         </Text>
                       </View>

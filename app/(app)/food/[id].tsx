@@ -49,10 +49,10 @@ const HERO_HEIGHT = SCREEN_HEIGHT * 0.42;
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-1">
-      <Text className="text-[11px] text-text-gray font-sen uppercase tracking-wider">
+      <Text className="text-[11px] text-text-gray font-caption uppercase tracking-wider">
         {label}
       </Text>
-      <Text className="mt-1 text-lg font-sen-bold text-secondary">{value}</Text>
+      <Text className="mt-1 text-lg font-numeric text-secondary">{value}</Text>
     </View>
   );
 }
@@ -300,24 +300,18 @@ export default function FoodDetails() {
           {/* Category badge, editorial-style (Epicurious's genre pill) */}
           {food.categories?.[0] && (
             <View className="self-start bg-surface-muted rounded-full px-3 py-1">
-              <Text className="text-[11px] font-sen-bold text-secondary uppercase tracking-wide">
+              <Text className="text-[11px] font-caption text-secondary uppercase tracking-wide">
                 {food.categories[0]}
               </Text>
             </View>
           )}
 
           {/* Name */}
-          <Text className="mt-3 text-[26px] leading-8 font-sen-extra-bold text-secondary">
+          <Text className="mt-3 text-[26px] leading-8 font-display text-secondary">
             {food.name}
           </Text>
 
-          {/* Byline row: which restaurant, and the rating — the one place
-              the accent color does its job. restaurant.osmId only exists on
-              real OSM-backed restaurants — items reached via category
-              browse attach to a synthetic placeholder restaurant named
-              after the category itself (e.g. "Pizza"), which would read as
-              nonsense here, so the byline is omitted rather than shown
-              blank (left-aligns the rating instead of stranding it right). */}
+          {/* Byline row: which restaurant, and the rating */}
           <View
             className={cn(
               "flex-row items-center mt-2.5",
@@ -325,16 +319,16 @@ export default function FoodDetails() {
             )}
           >
             {restaurant?.osmId && (
-              <Text className="text-xs font-sen uppercase tracking-wide text-text-gray">
+              <Text className="text-xs font-label uppercase tracking-wide text-text-gray">
                 By {restaurant.name}
               </Text>
             )}
             <View className="flex-row items-center gap-1.5">
               <HugeiconsIcon icon={StarIcon} size={14} color={ACCENT} fill={ACCENT} />
-              <Text className="text-sm font-sen-bold text-secondary">
+              <Text className="text-sm font-numeric text-secondary">
                 {food.rating}
               </Text>
-              <Text className="text-sm font-sen text-text-gray">
+              <Text className="text-sm font-numeric text-text-gray">
                 ({food.totalReviews})
               </Text>
             </View>
@@ -351,14 +345,14 @@ export default function FoodDetails() {
           </View>
 
           {/* Description */}
-          <Text className="mt-6 text-[15px] leading-6 font-sen text-text-gray">
+          <Text className="mt-6 text-[15px] leading-6 font-body text-text-gray">
             {food.description}
           </Text>
 
           {/* Ingredients — real TheMealDB thumbnails, not text-only chips */}
           {ingredients && ingredients.length > 0 && (
             <View className="mt-8">
-              <Text className="mb-3 text-lg font-sen-extra-bold text-secondary">
+              <Text className="mb-3 text-lg font-title text-secondary">
                 Ingredients
               </Text>
               <FlashList
@@ -379,13 +373,13 @@ export default function FoodDetails() {
                     <View className="px-2.5 py-2">
                       <Text
                         numberOfLines={1}
-                        className="text-xs font-sen-bold text-secondary"
+                        className="text-xs font-label text-secondary"
                       >
                         {item.name}
                       </Text>
                       <Text
                         numberOfLines={1}
-                        className="mt-0.5 text-[11px] font-sen text-text-gray"
+                        className="mt-0.5 text-[11px] font-body text-text-gray"
                       >
                         {item.measure}
                       </Text>
@@ -421,7 +415,7 @@ export default function FoodDetails() {
               disabled={quantity <= 1}
               className="bg-transparent shadow-none"
             />
-            <Text className="min-w-[40px] text-center text-base font-sen-extra-bold text-secondary">
+            <Text className="min-w-[40px] text-center text-base font-numeric text-secondary">
               {quantity}
             </Text>
             <IconButton
@@ -443,10 +437,10 @@ export default function FoodDetails() {
               )}
               style={addToCartStyle}
             >
-              <ButtonText className="font-sen-bold text-[15px]">
+              <ButtonText className="font-label text-[15px]">
                 Add to Cart
               </ButtonText>
-              <ButtonText className="font-sen-extra-bold text-[15px]">
+              <ButtonText className="font-numeric text-[15px]">
                 ₦{totalPrice.toLocaleString()}
               </ButtonText>
             </Animated.View>

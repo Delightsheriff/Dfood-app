@@ -68,7 +68,7 @@ export default function RestaurantDetails() {
   if (!restaurant) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-text-gray font-sen">Restaurant not found</Text>
+        <Text className="text-text-gray font-body">Restaurant not found</Text>
       </View>
     );
   }
@@ -159,7 +159,7 @@ export default function RestaurantDetails() {
       {/* 2. Restaurant Identity Block — Flat Edge, No Scoop Card */}
       <View className="px-5 pt-5 pb-3">
         {/* Name */}
-        <Text className="text-[26px] leading-8 font-sen-extra-bold text-secondary">
+        <Text className="text-[26px] leading-8 font-display text-secondary">
           {restaurant.name}
         </Text>
 
@@ -167,23 +167,23 @@ export default function RestaurantDetails() {
         <View className="flex-row items-center gap-2 mt-2">
           <View className="flex-row items-center gap-1">
             <HugeiconsIcon icon={StarIcon} size={14} color={ACCENT} fill={ACCENT} />
-            <Text className="text-sm font-sen-bold text-secondary">
+            <Text className="text-sm font-numeric text-secondary">
               {restaurant.rating?.toFixed(1) || "4.5"}
             </Text>
             {restaurant.totalReviews ? (
-              <Text className="text-xs font-sen text-text-gray">
+              <Text className="text-xs font-numeric text-text-gray">
                 ({restaurant.totalReviews})
               </Text>
             ) : null}
           </View>
           <Text className="text-xs text-text-gray">•</Text>
-          <Text className="text-xs font-sen-medium text-text-gray">
+          <Text className="text-xs font-label text-text-gray">
             {primaryCuisine}
           </Text>
           {restaurant.priceLevel && (
             <>
               <Text className="text-xs text-text-gray">•</Text>
-              <Text className="text-xs font-sen-bold text-text-gray">
+              <Text className="text-xs font-label text-text-gray">
                 {restaurant.priceLevel}
               </Text>
             </>
@@ -192,7 +192,7 @@ export default function RestaurantDetails() {
 
         {/* Description or address */}
         {restaurant.address && (
-          <Text className="mt-2 text-xs font-sen text-text-gray" numberOfLines={1}>
+          <Text className="mt-2 text-xs font-body text-text-gray" numberOfLines={1}>
             {restaurant.address}
           </Text>
         )}
@@ -210,7 +210,7 @@ export default function RestaurantDetails() {
               }`}
             >
               <Text
-                className={`text-xs font-sen-bold ${
+                className={`text-xs font-label ${
                   activeOrderType === "delivery" ? "text-white" : "text-text-gray"
                 }`}
               >
@@ -223,7 +223,7 @@ export default function RestaurantDetails() {
               }`}
             >
               <Text
-                className={`text-xs font-sen-bold ${
+                className={`text-xs font-label ${
                   activeOrderType === "pickup" ? "text-white" : "text-text-gray"
                 }`}
               >
@@ -235,10 +235,10 @@ export default function RestaurantDetails() {
           {/* Stat details */}
           <View className="flex-row justify-between items-center px-2">
             <View className="items-center">
-              <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+              <Text className="text-[10px] font-caption uppercase tracking-wider text-text-gray">
                 Time
               </Text>
-              <Text className="text-[13px] font-sen-bold text-secondary mt-0.5">
+              <Text className="text-[13px] font-numeric text-secondary mt-0.5">
                 25-35 min
               </Text>
             </View>
@@ -246,10 +246,10 @@ export default function RestaurantDetails() {
             <View className="w-[1px] h-6 bg-gray-200" />
 
             <View className="items-center">
-              <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+              <Text className="text-[10px] font-caption uppercase tracking-wider text-text-gray">
                 Fee
               </Text>
-              <Text className="text-[13px] font-sen-bold text-secondary mt-0.5">
+              <Text className="text-[13px] font-numeric text-secondary mt-0.5">
                 {restaurant.deliveryFee === 0
                   ? "Free"
                   : `₦${restaurant.deliveryFee}`}
@@ -259,11 +259,11 @@ export default function RestaurantDetails() {
             <View className="w-[1px] h-6 bg-gray-200" />
 
             <View className="items-center">
-              <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+              <Text className="text-[10px] font-caption uppercase tracking-wider text-text-gray">
                 Status
               </Text>
               <Text
-                className={`text-[13px] font-sen-bold mt-0.5 ${
+                className={`text-[13px] font-label mt-0.5 ${
                   restaurant.status === "Closed"
                     ? "text-red-600"
                     : "text-green-600"
@@ -277,10 +277,10 @@ export default function RestaurantDetails() {
 
         {/* 4. Menu Section Title */}
         <View className="mt-7 mb-3 flex-row justify-between items-center">
-          <Text className="text-[20px] font-sen-bold text-secondary">
+          <Text className="text-[20px] font-title text-secondary">
             Featured Menu
           </Text>
-          <Text className="text-xs font-sen text-text-gray">
+          <Text className="text-xs font-numeric text-text-gray">
             {foodItems.length} {foodItems.length === 1 ? "item" : "items"}
           </Text>
         </View>
@@ -322,10 +322,10 @@ export default function RestaurantDetails() {
           ListEmptyComponent={
             <View className="py-12 px-6 items-center bg-surface-muted mx-3 rounded-[20px]">
               <HugeiconsIcon icon={Store01Icon} size={28} color="#646982" />
-              <Text className="text-secondary font-sen-bold text-base mt-2 mb-1">
+              <Text className="text-secondary font-title text-base mt-2 mb-1">
                 No Menu Items
               </Text>
-              <Text className="text-text-gray font-sen text-xs text-center">
+              <Text className="text-text-gray font-body text-xs text-center">
                 This restaurant hasn&apos;t listed menu items yet.
               </Text>
             </View>

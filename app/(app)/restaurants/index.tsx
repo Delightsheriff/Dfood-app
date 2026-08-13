@@ -79,7 +79,7 @@ export default function AllRestaurants() {
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <Text className="text-lg font-sen-bold text-secondary">
+        <Text className="text-lg font-title text-secondary">
           Restaurants
         </Text>
         <View className="w-11" />
@@ -87,10 +87,10 @@ export default function AllRestaurants() {
 
       {/* Screen title & result count */}
       <View className="px-5 mt-2 mb-4">
-        <Text className="text-[26px] font-sen-extra-bold text-secondary">
+        <Text className="text-[26px] font-display text-secondary">
           All Restaurants
         </Text>
-        <Text className="mt-1 text-xs font-sen text-text-gray">
+        <Text className="mt-1 text-xs font-numeric text-text-gray">
           {filteredRestaurants.length}{" "}
           {filteredRestaurants.length === 1 ? "restaurant" : "restaurants"} nearby
         </Text>
@@ -116,8 +116,8 @@ export default function AllRestaurants() {
               <Text
                 className={`text-xs ${
                   isSelected
-                    ? "font-sen-bold text-white"
-                    : "font-sen-medium text-secondary"
+                    ? "font-label text-white"
+                    : "font-label text-secondary"
                 }`}
               >
                 {item.label}
@@ -159,10 +159,10 @@ export default function AllRestaurants() {
               <View className="w-14 h-14 rounded-full bg-white items-center justify-center mb-3">
                 <HugeiconsIcon icon={Store01Icon} size={28} color="#646982" />
               </View>
-              <Text className="text-secondary font-sen-bold text-base mb-1">
+              <Text className="text-secondary font-title text-base mb-1">
                 No Restaurants Found
               </Text>
-              <Text className="text-text-gray font-sen text-xs text-center">
+              <Text className="text-text-gray font-body text-xs text-center">
                 Try switching your filter to see more results.
               </Text>
             </View>

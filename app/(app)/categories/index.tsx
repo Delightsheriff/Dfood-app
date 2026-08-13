@@ -49,7 +49,7 @@ export default function AllCategories() {
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <Text className="text-lg font-sen-bold text-secondary">
+        <Text className="text-lg font-title text-secondary">
           Categories
         </Text>
         <View className="w-11" />
@@ -57,10 +57,10 @@ export default function AllCategories() {
 
       {/* Screen Title */}
       <View className="px-5 mt-2">
-        <Text className="text-[26px] font-sen-extra-bold text-secondary">
+        <Text className="text-[26px] font-display text-secondary">
           Explore Cuisines
         </Text>
-        <Text className="mt-1 text-xs font-sen text-text-gray">
+        <Text className="mt-1 text-xs font-body text-text-gray">
           Discover dishes and places by your favorite craving
         </Text>
       </View>
@@ -123,12 +123,12 @@ export default function AllCategories() {
 
                   {/* Overlaid Title & Count Badge */}
                   <View className="absolute bottom-3 left-3 right-3">
-                    <Text className="text-[17px] leading-5 font-sen-extra-bold text-white mb-1">
+                    <Text className="text-[17px] leading-5 font-title text-white mb-1">
                       {item.name}
                     </Text>
                     {count > 0 && (
                       <View className="self-start bg-white/25 px-2 py-0.5 rounded-full">
-                        <Text className="text-[10px] font-sen-bold text-white">
+                        <Text className="text-[10px] font-numeric text-white">
                           {count} {count === 1 ? "place" : "places"}
                         </Text>
                       </View>

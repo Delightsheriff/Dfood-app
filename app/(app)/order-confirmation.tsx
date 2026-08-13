@@ -39,14 +39,14 @@ export default function OrderConfirmation() {
   if (!order) {
     return (
       <View className="flex-1 bg-white items-center justify-center px-6">
-        <Text className="text-text-gray font-sen text-base text-center">
+        <Text className="text-text-gray font-body text-base text-center">
           Order not found
         </Text>
         <Pressable
           onPress={() => router.replace("/(app)/(tabs)" as any)}
           className="mt-4 px-6 py-3 bg-secondary rounded-full"
         >
-          <Text className="text-white font-sen-bold text-sm">Back to Home</Text>
+          <Text className="text-white font-label text-sm">Back to Home</Text>
         </Pressable>
       </View>
     );
@@ -74,10 +74,10 @@ export default function OrderConfirmation() {
               color={ACCENT}
             />
           </View>
-          <Text className="text-2xl font-sen-extra-bold text-secondary text-center">
+          <Text className="text-2xl font-display text-secondary text-center">
             Order Placed!
           </Text>
-          <Text className="mt-1 text-xs font-sen text-text-gray text-center">
+          <Text className="mt-1 text-xs font-numeric text-text-gray text-center">
             Order #{order.orderNumber || order._id.slice(-6).toUpperCase()}
           </Text>
         </Animated.View>
@@ -92,10 +92,10 @@ export default function OrderConfirmation() {
             <HugeiconsIcon icon={Clock01Icon} size={20} color="#262B33" />
           </View>
           <View className="flex-1">
-            <Text className="text-[14px] font-sen-bold text-secondary">
+            <Text className="text-[14px] font-title text-secondary">
               Estimated Arrival: 25–35 min
             </Text>
-            <Text className="text-xs font-sen text-text-gray mt-0.5">
+            <Text className="text-xs font-body text-text-gray mt-0.5">
               Preparing your food at {order.restaurantId.name}
             </Text>
           </View>
@@ -111,10 +111,10 @@ export default function OrderConfirmation() {
             <HugeiconsIcon icon={Location01Icon} size={20} color={ACCENT} />
           </View>
           <View className="flex-1">
-            <Text className="text-[14px] font-sen-bold text-secondary">
+            <Text className="text-[14px] font-title text-secondary">
               Delivering to
             </Text>
-            <Text className="text-xs font-sen text-text-gray mt-0.5">
+            <Text className="text-xs font-body text-text-gray mt-0.5">
               {order.deliveryAddress.street}, {order.deliveryAddress.city}
             </Text>
           </View>
@@ -126,7 +126,7 @@ export default function OrderConfirmation() {
           className="p-5 bg-surface-muted rounded-[20px] mb-6"
           style={{ borderCurve: "continuous" }}
         >
-          <Text className="text-[15px] font-sen-bold text-secondary mb-3">
+          <Text className="text-[15px] font-title text-secondary mb-3">
             Order Items
           </Text>
 
@@ -138,11 +138,11 @@ export default function OrderConfirmation() {
               >
                 <Text
                   numberOfLines={1}
-                  className="text-xs font-sen text-secondary flex-1 mr-2"
+                  className="text-xs font-body text-secondary flex-1 mr-2"
                 >
                   {item.quantity}x {item.name}
                 </Text>
-                <Text className="text-xs font-sen-bold text-secondary">
+                <Text className="text-xs font-numeric text-secondary">
                   ₦{(item.price * item.quantity).toLocaleString()}
                 </Text>
               </View>
@@ -153,22 +153,22 @@ export default function OrderConfirmation() {
 
           <View className="gap-2">
             <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-sen text-text-gray">Subtotal</Text>
-              <Text className="text-xs font-sen-bold text-secondary">
+              <Text className="text-xs font-body text-text-gray">Subtotal</Text>
+              <Text className="text-xs font-numeric text-secondary">
                 ₦{order.subtotal.toLocaleString()}
               </Text>
             </View>
             <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-sen text-text-gray">Delivery Fee</Text>
-              <Text className="text-xs font-sen-bold text-secondary">
+              <Text className="text-xs font-body text-text-gray">Delivery Fee</Text>
+              <Text className="text-xs font-numeric text-secondary">
                 {order.deliveryFee === 0
                   ? "Free"
                   : `₦${order.deliveryFee.toLocaleString()}`}
               </Text>
             </View>
             <View className="flex-row justify-between items-center pt-1">
-              <Text className="text-sm font-sen-bold text-secondary">Total</Text>
-              <Text className="text-base font-sen-extra-bold text-secondary">
+              <Text className="text-sm font-title text-secondary">Total</Text>
+              <Text className="text-base font-numeric text-secondary">
                 ₦{order.total.toLocaleString()}
               </Text>
             </View>
@@ -193,7 +193,7 @@ export default function OrderConfirmation() {
           }
           className="w-full h-14 bg-secondary rounded-full items-center justify-center"
         >
-          <ButtonText className="font-sen-bold text-sm text-white">
+          <ButtonText className="font-label text-sm text-white">
             Track Order
           </ButtonText>
         </Pressable>
@@ -202,7 +202,7 @@ export default function OrderConfirmation() {
           onPress={() => router.replace("/(app)/(tabs)" as any)}
           className="w-full h-12 bg-surface-muted rounded-full items-center justify-center"
         >
-          <Text className="font-sen-bold text-xs text-secondary uppercase tracking-wider">
+          <Text className="font-label text-xs text-secondary uppercase tracking-wider">
             Back to Home
           </Text>
         </Pressable>

@@ -57,7 +57,7 @@ export default function CategoryDetails() {
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <Text className="text-lg font-sen-bold text-secondary">
+        <Text className="text-lg font-title text-secondary">
           {categoryName}
         </Text>
         <View className="w-11" />
@@ -81,10 +81,10 @@ export default function CategoryDetails() {
               style={{ position: "absolute", inset: 0 }}
             />
             <View className="absolute bottom-3.5 left-4">
-              <Text className="text-[22px] font-sen-extra-bold text-white">
+              <Text className="text-[22px] font-display text-white">
                 {categoryName} Cuisines
               </Text>
-              <Text className="text-xs font-sen text-white/80">
+              <Text className="text-xs font-body text-white/80">
                 {foodItems.length} delicious {foodItems.length === 1 ? "dish" : "dishes"} to choose from
               </Text>
             </View>
@@ -96,7 +96,7 @@ export default function CategoryDetails() {
       {matchingRestaurants.length > 0 ? (
         <View className="mb-6">
           <View className="px-5 mb-3">
-            <Text className="text-[18px] font-sen-bold text-secondary">
+            <Text className="text-[18px] font-title text-secondary">
               {categoryName} Places Nearby
             </Text>
           </View>
@@ -124,10 +124,10 @@ export default function CategoryDetails() {
 
       {/* 4. Dishes Section Header */}
       <View className="px-5 flex-row justify-between items-center mb-2">
-        <Text className="text-[18px] font-sen-bold text-secondary">
+        <Text className="text-[18px] font-title text-secondary">
           All {categoryName} Dishes
         </Text>
-        <Text className="text-xs font-sen text-text-gray">
+        <Text className="text-xs font-numeric text-text-gray">
           {foodItems.length} {foodItems.length === 1 ? "dish" : "dishes"}
         </Text>
       </View>
@@ -166,10 +166,10 @@ export default function CategoryDetails() {
           ListEmptyComponent={
             <View className="py-16 px-6 items-center bg-surface-muted mx-3 rounded-[20px]">
               <HugeiconsIcon icon={Dish01Icon} size={28} color="#646982" />
-              <Text className="text-secondary font-sen-bold text-base mt-2 mb-1">
+              <Text className="text-secondary font-title text-base mt-2 mb-1">
                 No Dishes Available
               </Text>
-              <Text className="text-text-gray font-sen text-xs text-center">
+              <Text className="text-text-gray font-body text-xs text-center">
                 Check back soon for new dishes in this category.
               </Text>
             </View>
