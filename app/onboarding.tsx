@@ -44,6 +44,8 @@ const slides = [
   },
 ];
 
+const VIEWABILITY_CONFIG = { viewAreaCoveragePercentThreshold: 50 };
+
 export default function Onboarding() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -60,11 +62,9 @@ export default function Onboarding() {
 
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
-      scrollX.value = event.contentOffset.x;
+      scrollX.set(event.contentOffset.x);
     },
   });
-
-  const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const handleComplete = async () => {
     try {
@@ -98,21 +98,25 @@ export default function Onboarding() {
     opacity: interpolate(nextBtnPressed.get(), [0, 1], [1, 0.9]),
   }));
 
-  const nextTap = Gesture.Tap()
-    .runOnJS(true)
-    .onBegin(() => {
-      nextBtnPressed.set(1);
-    })
-    .onFinalize(() => {
-      nextBtnPressed.set(0);
-    })
-    .onEnd((_event, success) => {
-      if (success) {
-        handleNext();
-      }
-    });
-
   const isLast = currentIndex === slides.length - 1;
+
+  const nextTap = React.useMemo(
+    () =>
+      Gesture.Tap()
+        .runOnJS(true)
+        .onBegin(() => {
+          nextBtnPressed.set(1);
+        })
+        .onFinalize(() => {
+          nextBtnPressed.set(0);
+        })
+        .onEnd((_event, success) => {
+          if (success) {
+            handleNext();
+          }
+        }),
+    [currentIndex, isLast],
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -149,7 +153,7 @@ export default function Onboarding() {
           onScroll={scrollHandler}
           scrollEventThrottle={16}
           onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewConfig}
+          viewabilityConfig={VIEWABILITY_CONFIG}
         />
       </View>
 
