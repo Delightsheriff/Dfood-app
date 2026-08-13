@@ -1,98 +1,182 @@
 import RestaurantCard from "@/components/RestaurantCard";
+import { IconButton } from "@/components/ui/icon-button";
 import { useRestaurants } from "@/hooks/useDataQueries";
+import {
+  ArrowLeft01Icon,
+  Store01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { ChevronLeft, Store } from "lucide-react-native";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
+  Pressable,
   RefreshControl,
   Text,
-  Pressable,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const ACCENT = "#E0533A";
+
+type FilterType = "all" | "open" | "free_delivery" | "top_rated" | "budget";
 
 export default function AllRestaurants() {
   const router = useRouter();
-  const { data: restaurantsData, isLoading, refetch } = useRestaurants();
+  const insets = useSafeAreaInsets();
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
 
-  const restaurants = restaurantsData?.data.restaurants || [];
+  const {
+    data: restaurantsData,
+    isLoading,
+    isRefetching,
+    refetch,
+  } = useRestaurants();
 
-  return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4">
-        <Pressable
+  const rawRestaurants = useMemo(
+    () => restaurantsData?.data.restaurants || [],
+    [restaurantsData],
+  );
+
+  const filteredRestaurants = useMemo(() => {
+    switch (selectedFilter) {
+      case "open":
+        return rawRestaurants.filter(
+          (r) => r.isOpen !== false && r.status !== "Closed",
+        );
+      case "free_delivery":
+        return rawRestaurants.filter((r) => r.deliveryFee === 0);
+      case "top_rated":
+        return rawRestaurants.filter((r) => r.rating >= 4.5);
+      case "budget":
+        return rawRestaurants.filter(
+          (r) => !r.priceLevel || r.priceLevel === "$",
+        );
+      case "all":
+      default:
+        return rawRestaurants;
+    }
+  }, [rawRestaurants, selectedFilter]);
+
+  const filterOptions: { id: FilterType; label: string }[] = [
+    { id: "all", label: "All" },
+    { id: "open", label: "Open now" },
+    { id: "free_delivery", label: "Free delivery" },
+    { id: "top_rated", label: "Top rated" },
+    { id: "budget", label: "Budget $" },
+  ];
+
+  const renderHeader = () => (
+    <View className="pb-3">
+      {/* Top navigation row */}
+      <View
+        className="flex-row items-center justify-between px-5 pt-3 pb-2"
+        style={{ paddingTop: insets.top + 4 }}
+      >
+        <IconButton
+          icon={ArrowLeft01Icon}
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
-          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.06,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          All Restaurants
+        />
+        <Text className="text-lg font-sen-bold text-secondary">
+          Restaurants
         </Text>
-        {restaurants.length > 0 && (
-          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
-            <Text className="text-text-gray font-sen text-xs">
-              {restaurants.length}
-            </Text>
-          </View>
-        )}
+        <View className="w-11" />
       </View>
 
-      {isLoading ? (
+      {/* Screen title & result count */}
+      <View className="px-5 mt-2 mb-4">
+        <Text className="text-[26px] font-sen-extra-bold text-secondary">
+          All Restaurants
+        </Text>
+        <Text className="mt-1 text-xs font-sen text-text-gray">
+          {filteredRestaurants.length}{" "}
+          {filteredRestaurants.length === 1 ? "restaurant" : "restaurants"} nearby
+        </Text>
+      </View>
+
+      {/* Filter chips horizontal rail */}
+      <FlashList
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        data={filterOptions}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={{ paddingHorizontal: 20 }}
+        renderItem={({ item }) => {
+          const isSelected = selectedFilter === item.id;
+          return (
+            <Pressable
+              onPress={() => setSelectedFilter(item.id)}
+              className={`mr-2 px-3.5 py-2 rounded-full ${
+                isSelected ? "bg-secondary" : "bg-surface-muted"
+              }`}
+              style={{ borderCurve: "continuous" }}
+            >
+              <Text
+                className={`text-xs ${
+                  isSelected
+                    ? "font-sen-bold text-white"
+                    : "font-sen-medium text-secondary"
+                }`}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          );
+        }}
+      />
+    </View>
+  );
+
+  return (
+    <View className="flex-1 bg-white">
+      {isLoading && !restaurantsData ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
-        </View>
-      ) : restaurants.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
-            <Store color="#A0A5BA" size={32} />
-          </View>
-          <Text className="text-secondary font-sen-bold text-base text-center mb-2">
-            No restaurants available
-          </Text>
-          <Text className="text-text-gray font-sen text-sm text-center">
-            Check back later for new restaurants
-          </Text>
+          <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : (
-        <FlatList
-          data={restaurants}
+        <FlashList
+          data={filteredRestaurants}
           keyExtractor={(item) => item._id}
+          ListHeaderComponent={renderHeader}
           renderItem={({ item }) => (
-            <RestaurantCard
-              restaurant={item}
-              onPress={() =>
-                router.push({
-                  pathname: "/(app)/restaurants/[id]",
-                  params: { id: item._id },
-                })
-              }
-            />
+            <View className="px-5">
+              <RestaurantCard
+                restaurant={item}
+                variant="full"
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/restaurants/[id]",
+                    params: { id: item._id },
+                  })
+                }
+              />
+            </View>
           )}
-          contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingTop: 8,
-            paddingBottom: 24,
-          }}
-          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View className="py-16 px-6 items-center bg-surface-muted mx-5 rounded-[20px]">
+              <View className="w-14 h-14 rounded-full bg-white items-center justify-center mb-3">
+                <HugeiconsIcon icon={Store01Icon} size={28} color="#646982" />
+              </View>
+              <Text className="text-secondary font-sen-bold text-base mb-1">
+                No Restaurants Found
+              </Text>
+              <Text className="text-text-gray font-sen text-xs text-center">
+                Try switching your filter to see more results.
+              </Text>
+            </View>
+          }
           refreshControl={
             <RefreshControl
-              refreshing={false}
+              refreshing={isRefetching}
               onRefresh={() => refetch()}
-              tintColor="#FF7622"
+              tintColor={ACCENT}
             />
           }
+          contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
         />
       )}
-    </SafeAreaView>
+    </View>
   );
 }
