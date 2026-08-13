@@ -10,7 +10,6 @@ export interface SearchFilters {
   freeDelivery: boolean;
   topRated: boolean;
   under30Min: boolean;
-  priceLevel: string | null;
 }
 
 const DEFAULT_FILTERS: SearchFilters = {
@@ -19,7 +18,6 @@ const DEFAULT_FILTERS: SearchFilters = {
   freeDelivery: false,
   topRated: false,
   under30Min: false,
-  priceLevel: null,
 };
 
 interface SearchState {
@@ -83,7 +81,6 @@ export const useSearchStore = create<SearchState>()(
         if (f.freeDelivery) count++;
         if (f.topRated) count++;
         if (f.under30Min) count++;
-        if (f.priceLevel) count++;
         return count;
       },
     }),

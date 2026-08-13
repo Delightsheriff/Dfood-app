@@ -88,9 +88,6 @@ export default function SearchPage() {
     if (filters.topRated) {
       list = list.filter((r) => r.rating >= 4.5);
     }
-    if (filters.priceLevel) {
-      list = list.filter((r) => r.priceLevel === filters.priceLevel);
-    }
 
     if (filters.sortBy === "rating") {
       list.sort((a, b) => b.rating - a.rating);
@@ -376,7 +373,10 @@ export default function SearchPage() {
               horizontal
               showsHorizontalScrollIndicator={false}
               className="mt-2.5"
-              contentContainerStyle={{ gap: 8 }}
+              contentContainerStyle={{
+                paddingRight: 28,
+                gap: 8,
+              }}
             >
               {/* Filter Sheet trigger */}
               <Pressable
@@ -407,7 +407,7 @@ export default function SearchPage() {
               {/* Quick Filter: Open now */}
               <Pressable
                 onPress={() => setFilter("openNow", !filters.openNow)}
-                className={`px-3.5 py-1.5 rounded-full border ${
+                className={`flex-row items-center gap-1 px-3.5 py-1.5 rounded-full border ${
                   filters.openNow
                     ? "bg-secondary border-secondary"
                     : "bg-white border-gray-200"
@@ -423,12 +423,15 @@ export default function SearchPage() {
                 >
                   Open now
                 </Text>
+                {filters.openNow && (
+                  <HugeiconsIcon icon={Cancel01Icon} size={11} color="#FFFFFF" />
+                )}
               </Pressable>
 
               {/* Quick Filter: Free delivery */}
               <Pressable
                 onPress={() => setFilter("freeDelivery", !filters.freeDelivery)}
-                className={`px-3.5 py-1.5 rounded-full border ${
+                className={`flex-row items-center gap-1 px-3.5 py-1.5 rounded-full border ${
                   filters.freeDelivery
                     ? "bg-secondary border-secondary"
                     : "bg-white border-gray-200"
@@ -444,12 +447,15 @@ export default function SearchPage() {
                 >
                   Free delivery
                 </Text>
+                {filters.freeDelivery && (
+                  <HugeiconsIcon icon={Cancel01Icon} size={11} color="#FFFFFF" />
+                )}
               </Pressable>
 
               {/* Quick Filter: Top rated */}
               <Pressable
                 onPress={() => setFilter("topRated", !filters.topRated)}
-                className={`px-3.5 py-1.5 rounded-full border ${
+                className={`flex-row items-center gap-1 px-3.5 py-1.5 rounded-full border ${
                   filters.topRated
                     ? "bg-secondary border-secondary"
                     : "bg-white border-gray-200"
@@ -465,12 +471,15 @@ export default function SearchPage() {
                 >
                   Top rated (4.5+)
                 </Text>
+                {filters.topRated && (
+                  <HugeiconsIcon icon={Cancel01Icon} size={11} color="#FFFFFF" />
+                )}
               </Pressable>
             </ScrollView>
           </View>
         </ScreenHeader>
 
-        {/* Filter Modal Sheet */}
+        {/* Filter Sheet Modal */}
         <SearchFilterSheet
           visible={filterSheetVisible}
           onClose={() => setFilterSheetVisible(false)}

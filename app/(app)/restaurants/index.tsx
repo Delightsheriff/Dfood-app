@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
 
-type FilterType = "all" | "open" | "free_delivery" | "top_rated" | "budget";
+type FilterType = "all" | "open" | "free_delivery" | "top_rated";
 
 export default function AllRestaurants() {
   const router = useRouter();
@@ -50,10 +50,6 @@ export default function AllRestaurants() {
         return rawRestaurants.filter((r) => r.deliveryFee === 0);
       case "top_rated":
         return rawRestaurants.filter((r) => r.rating >= 4.5);
-      case "budget":
-        return rawRestaurants.filter(
-          (r) => !r.priceLevel || r.priceLevel === "$",
-        );
       case "all":
       default:
         return rawRestaurants;
@@ -65,7 +61,6 @@ export default function AllRestaurants() {
     { id: "open", label: "Open now" },
     { id: "free_delivery", label: "Free delivery" },
     { id: "top_rated", label: "Top rated" },
-    { id: "budget", label: "Budget $" },
   ];
 
   const renderHeader = () => (

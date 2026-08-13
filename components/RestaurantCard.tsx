@@ -40,11 +40,6 @@ function RestaurantCard({
   const isCompact = variant === "compact";
   const deliveryTime = deliveryTimeForRestaurant(restaurant._id || restaurant.name);
 
-  const priceStr = restaurant.priceLevel || "$$";
-  const spentCount = Math.min(4, Math.max(1, priceStr.length));
-  const spentSigns = "$".repeat(spentCount);
-  const unspentSigns = "$".repeat(4 - spentCount);
-
   return (
     <Pressable
       onPress={onPress}
@@ -135,7 +130,7 @@ function RestaurantCard({
           {cuisineText}
         </Text>
 
-        {/* Meta row: Delivery time (prominent) • Delivery fee • Price level ($$·$$) */}
+        {/* Meta row: Delivery time • Delivery fee */}
         <View className="mt-2.5 flex-row items-center gap-1.5">
           <Text className="text-[12px] font-numeric text-secondary">
             {deliveryTime}
@@ -144,15 +139,6 @@ function RestaurantCard({
           <Text className="text-[12px] font-label text-text-gray">
             {deliveryFeeText}
           </Text>
-          {!isCompact && (
-            <>
-              <Text className="text-[12px] font-body text-text-gray/50">•</Text>
-              <Text className="text-[12px] font-numeric">
-                <Text className="text-secondary">{spentSigns}</Text>
-                <Text className="text-secondary/25">{unspentSigns}</Text>
-              </Text>
-            </>
-          )}
         </View>
       </View>
     </Pressable>

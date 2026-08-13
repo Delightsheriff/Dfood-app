@@ -1,4 +1,9 @@
 import { ButtonText } from "@/components/ui/button";
+import {
+  ProgressiveBlurFooter,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useOrder } from "@/hooks/useDataQueries";
 import {
   CheckmarkCircle02Icon,
@@ -11,7 +16,6 @@ import React from "react";
 import {
   ActivityIndicator,
   Pressable,
-  ScrollView,
   Text,
   View,
 } from "react-native";
@@ -24,6 +28,7 @@ export default function OrderConfirmation() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
   const { data: orderData, isLoading } = useOrder(orderId);
 
   const order = orderData?.data.order;
@@ -54,12 +59,21 @@ export default function OrderConfirmation() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
+      <ScreenHeader
+        variant="detail"
+        title="Order Placed"
+        scrollY={scrollY}
+        alwaysShowTitle
+      />
+
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingTop: insets.top + 24,
-          paddingBottom: insets.bottom + 100,
+          paddingTop: insets.top + 56,
+          paddingBottom: insets.bottom + 140,
         }}
       >
         {/* Success Header */}
@@ -174,38 +188,44 @@ export default function OrderConfirmation() {
             </View>
           </View>
         </Animated.View>
-      </ScrollView>
+      </Animated.ScrollView>
 
-      {/* Sticky Bottom Actions */}
+      {/* Sticky Bottom Actions with ProgressiveBlurFooter */}
       <View
-        className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-3 border-t border-gray-100 gap-2.5"
+        className="absolute bottom-0 left-0 right-0 z-30"
         style={{
           paddingBottom: insets.bottom + 12,
-          boxShadow: "0px -4px 16px rgba(0,0,0,0.06)",
         }}
       >
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: "/(app)/profile/order-details" as any,
-              params: { orderId: order._id },
-            })
-          }
-          className="w-full h-14 bg-secondary rounded-full items-center justify-center"
-        >
-          <ButtonText className="font-label text-sm text-white">
-            Track Order
-          </ButtonText>
-        </Pressable>
+        <ProgressiveBlurFooter
+          barHeight={130}
+          zIndex={1}
+          style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
+        />
+        <View className="px-5 pt-3 gap-2.5" style={{ zIndex: 2 }}>
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: "/(app)/profile/order-details" as any,
+                params: { orderId: order._id },
+              })
+            }
+            className="w-full h-14 bg-secondary rounded-full items-center justify-center"
+          >
+            <ButtonText className="font-label text-sm text-white">
+              Track Order
+            </ButtonText>
+          </Pressable>
 
-        <Pressable
-          onPress={() => router.replace("/(app)/(tabs)" as any)}
-          className="w-full h-12 bg-surface-muted rounded-full items-center justify-center"
-        >
-          <Text className="font-label text-xs text-secondary uppercase tracking-wider">
-            Back to Home
-          </Text>
-        </Pressable>
+          <Pressable
+            onPress={() => router.replace("/(app)/(tabs)" as any)}
+            className="w-full h-12 bg-surface-muted rounded-full items-center justify-center"
+          >
+            <Text className="font-label text-xs text-secondary uppercase tracking-wider">
+              Back to Home
+            </Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );

@@ -90,7 +90,6 @@ export function restaurantFromOsmElement(element: OsmElement): Restaurant {
     images: [categoryThumbFor(element)],
     rating,
     totalReviews,
-    priceLevel: "$".repeat(((hash >>> 4) % 4) + 1),
     cuisineTags: cuisineTagsOf(element),
     createdAt: SYNTHETIC_DATE,
     updatedAt: SYNTHETIC_DATE,

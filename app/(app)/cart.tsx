@@ -286,7 +286,7 @@ export default function Cart() {
             scrollEventThrottle={16}
             ListHeaderComponent={renderHeader}
             ListFooterComponent={renderFooter}
-            contentContainerStyle={{ paddingTop: 64, paddingBottom: insets.bottom + 100 }}
+            contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View className="px-5 mb-3">
                 <View

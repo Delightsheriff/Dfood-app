@@ -31,7 +31,6 @@ export type Restaurant = {
   images: string[];
   rating: number;
   totalReviews: number;
-  priceLevel?: string; // Fabricated tier: "$" | "$$" | "$$$" | "$$$$"
   cuisineTags?: string[]; // OSM `cuisine` tag values (semicolon-delimited)
   osmId?: string; // Raw OSM numeric element id (ids are only unique per type)
   createdAt: string;

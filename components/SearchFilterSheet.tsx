@@ -29,10 +29,8 @@ export default function SearchFilterSheet({
     { id: "relevance", label: "Relevance" },
     { id: "rating", label: "Rating: High to Low" },
     { id: "delivery_time", label: "Fastest Delivery" },
-    { id: "price", label: "Cost: Low to High" },
+    { id: "price", label: "Delivery fee: Low to High" },
   ];
-
-  const priceTiers = ["$", "$$", "$$$", "$$$$"];
 
   return (
     <Modal
@@ -178,42 +176,6 @@ export default function SearchFilterSheet({
                     </Text>
                   </Pressable>
                 ))}
-              </View>
-            </View>
-
-            {/* Price Level */}
-            <View className="mb-8">
-              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-3">
-                Price Level
-              </Text>
-              <View className="flex-row gap-2.5">
-                {priceTiers.map((tier) => {
-                  const isSelected = filters.priceLevel === tier;
-                  return (
-                    <Pressable
-                      key={tier}
-                      onPress={() =>
-                        setFilter("priceLevel", isSelected ? null : tier)
-                      }
-                      className={`flex-1 py-3 items-center justify-center rounded-2xl border ${
-                        isSelected
-                          ? "bg-primary border-primary"
-                          : "bg-surface-muted border-transparent"
-                      }`}
-                      style={{ borderCurve: "continuous" }}
-                    >
-                      <Text
-                        className={`text-sm ${
-                          isSelected
-                            ? "font-label text-white"
-                            : "font-label text-secondary"
-                        }`}
-                      >
-                        {tier}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
               </View>
             </View>
           </ScrollView>

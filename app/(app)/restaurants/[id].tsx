@@ -154,14 +154,6 @@ export default function RestaurantDetails() {
           <Text className="text-xs font-label text-text-gray">
             {primaryCuisine}
           </Text>
-          {restaurant.priceLevel && (
-            <>
-              <Text className="text-xs text-text-gray">•</Text>
-              <Text className="text-xs font-label text-text-gray">
-                {restaurant.priceLevel}
-              </Text>
-            </>
-          )}
         </View>
 
         {/* Description or address */}

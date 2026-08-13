@@ -1,3 +1,4 @@
+import { useProgressiveBlurScroll } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useOrder } from "@/hooks/useDataQueries";
 import { useCancelOrder } from "@/hooks/useOrderMutations";
@@ -15,11 +16,11 @@ import React from "react";
 import {
   ActivityIndicator,
   Alert,
-  ScrollView,
-  Text,
   Pressable,
+  Text,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
@@ -27,6 +28,7 @@ const ACCENT = "#E0533A";
 export default function OrderDetails() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
   const { data: orderData, isLoading } = useOrder(orderId);
   const cancelOrderMutation = useCancelOrder();
 
@@ -95,15 +97,20 @@ export default function OrderDetails() {
   return (
     <View className="flex-1 bg-white">
       <ScreenHeader
+        variant="detail"
         title={`Order #${order.orderNumber || order._id.slice(-6).toUpperCase()}`}
         subtitle={order.restaurantId.name}
+        scrollY={scrollY}
+        alwaysShowTitle
       />
 
-      <ScrollView
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingTop: 16,
+          paddingTop: insets.top + 56,
           paddingBottom: insets.bottom + 40,
         }}
       >
@@ -295,7 +302,7 @@ export default function OrderDetails() {
             )}
           </Pressable>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 }

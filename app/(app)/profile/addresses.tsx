@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { useProgressiveBlurScroll } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useDeleteAddress,
@@ -21,10 +22,10 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  ScrollView,
   Text,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
@@ -32,6 +33,7 @@ const ACCENT = "#E0533A";
 export default function Addresses() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
   const { data: addressesData, isLoading } = useAddresses();
   const deleteAddressMutation = useDeleteAddress();
   const setDefaultMutation = useSetDefaultAddress();
@@ -80,7 +82,10 @@ export default function Addresses() {
   return (
     <View className="flex-1 bg-white">
       <ScreenHeader
+        variant="detail"
         title="Delivery Addresses"
+        scrollY={scrollY}
+        alwaysShowTitle
         rightElement={
           <IconButton
             icon={PlusSignIcon}
@@ -99,15 +104,15 @@ export default function Addresses() {
           <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
             <HugeiconsIcon icon={Location01Icon} size={36} color="#646982" />
           </View>
-          <Text className="text-xl font-title text-secondary mb-1">
+          <Text className="text-xl font-display text-secondary mb-1">
             No Addresses Saved
           </Text>
-          <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
-            Add your home, office, or favorite delivery locations.
+          <Text className="text-xs font-body text-text-gray text-center max-w-[240px] mb-6">
+            Add your home or office address for quicker checkout next time.
           </Text>
           <Pressable
             onPress={() => router.push("/profile/add-address" as any)}
-            className="px-8 py-3.5 rounded-full bg-secondary"
+            className="px-6 py-3.5 bg-secondary rounded-full"
             style={{ borderCurve: "continuous" }}
           >
             <Text className="text-white font-label text-sm">
@@ -116,12 +121,14 @@ export default function Addresses() {
           </Pressable>
         </View>
       ) : (
-        <ScrollView
+        <Animated.ScrollView
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 16,
-            paddingBottom: insets.bottom + 40,
+            paddingTop: insets.top + 56,
+            paddingBottom: insets.bottom + 24,
           }}
         >
           {addresses.map((address) => {
@@ -191,7 +198,7 @@ export default function Addresses() {
               </View>
             );
           })}
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </View>
   );

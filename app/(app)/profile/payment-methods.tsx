@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { useProgressiveBlurScroll } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { usePaymentMethods } from "@/hooks/useDataQueries";
 import {
@@ -19,10 +20,10 @@ import {
   ActivityIndicator,
   Alert,
   Pressable,
-  ScrollView,
   Text,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
@@ -30,6 +31,7 @@ const ACCENT = "#E0533A";
 export default function PaymentMethods() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
   const { data: paymentMethodsData, isLoading } = usePaymentMethods();
   const deletePaymentMethodMutation = useDeletePaymentMethod();
   const setDefaultMutation = useSetDefaultPaymentMethod();
@@ -66,7 +68,10 @@ export default function PaymentMethods() {
   return (
     <View className="flex-1 bg-white">
       <ScreenHeader
+        variant="detail"
         title="Payment Methods"
+        scrollY={scrollY}
+        alwaysShowTitle
         rightElement={
           <IconButton
             icon={PlusSignIcon}
@@ -81,11 +86,13 @@ export default function PaymentMethods() {
           <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : (
-        <ScrollView
+        <Animated.ScrollView
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 16,
+            paddingTop: insets.top + 56,
             paddingBottom: insets.bottom + 40,
           }}
         >
@@ -152,7 +159,7 @@ export default function PaymentMethods() {
               </View>
             );
           })}
-        </ScrollView>
+        </Animated.ScrollView>
       )}
     </View>
   );

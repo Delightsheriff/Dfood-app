@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/progressive-blur";
 import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
+import { Switch } from "@expo/ui";
 import {
   ArrowRight01Icon,
   CloudSavingDone01Icon,
@@ -50,6 +51,7 @@ export default function Profile() {
   const { user, syncStatus, signOut, syncNow } = useAuthStore();
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
   const [authSheetVisible, setAuthSheetVisible] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out?", [
@@ -106,8 +108,14 @@ export default function Profile() {
       items: [
         {
           icon: Notification02Icon,
-          label: "Notifications",
-          onPress: () => {},
+          label: "Order & Deal Alerts",
+          rightElement: (
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={setNotificationsEnabled}
+            />
+          ),
+          onPress: () => setNotificationsEnabled((prev) => !prev),
         },
         {
           icon: InformationCircleIcon,
@@ -274,11 +282,15 @@ export default function Profile() {
                         {item.label}
                       </Text>
                     </View>
-                    <HugeiconsIcon
-                      icon={ArrowRight01Icon}
-                      size={16}
-                      color="#646982"
-                    />
+                    {(item as any).rightElement ? (
+                      (item as any).rightElement
+                    ) : (
+                      <HugeiconsIcon
+                        icon={ArrowRight01Icon}
+                        size={16}
+                        color="#646982"
+                      />
+                    )}
                   </Pressable>
                 );
               })}

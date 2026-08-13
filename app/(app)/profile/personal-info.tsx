@@ -1,4 +1,5 @@
 import { ButtonText } from "@/components/ui/button";
+import { useProgressiveBlurScroll } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useProfileStore } from "@/store/profileStore";
 import {
@@ -16,11 +17,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   Text,
   TextInput,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
@@ -28,6 +29,7 @@ const ACCENT = "#E0533A";
 export default function PersonalInfo() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
 
   const storedName = useProfileStore((state) => state.name);
   const storedAvatarUri = useProfileStore((state) => state.avatarUri);
@@ -87,13 +89,20 @@ export default function PersonalInfo() {
       style={{ flex: 1 }}
     >
       <View className="flex-1 bg-white">
-        <ScreenHeader title="Personal Information" />
+        <ScreenHeader
+          variant="detail"
+          title="Personal Information"
+          scrollY={scrollY}
+          alwaysShowTitle
+        />
 
-        <ScrollView
+        <Animated.ScrollView
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{
             paddingHorizontal: 20,
-            paddingTop: 24,
+            paddingTop: insets.top + 56,
             paddingBottom: insets.bottom + 40,
           }}
         >
@@ -189,7 +198,7 @@ export default function PersonalInfo() {
               Save Profile
             </ButtonText>
           </Pressable>
-        </ScrollView>
+        </Animated.ScrollView>
       </View>
     </KeyboardAvoidingView>
   );
