@@ -32,14 +32,21 @@ Defined in `tailwind.config.js`. Use the token names, not raw hex, in screens.
 | --- | --- | --- |
 | `primary` | `#E0533A` | Deep coral-red. Rating stars, active favorite, selected states. **Not** the default button color. |
 | `secondary` | `#262B33` | Ink. Headings, body text, and primary CTA fills. |
-| `surface-muted` | `#F4F1ED` | Warm light gray. Cards, steppers, chips, dividers. |
+| `surface-muted` | `#F2F4F7` | Neutral cool-warm gray. Cards, steppers, chips, dividers. |
 | `text-gray` | `#646982` | Secondary text, labels, meta rows. |
 
-Font: **Sen** only — `font-sen`, `font-sen-medium`, `font-sen-bold`,
-`font-sen-extra-bold`. No other family.
+### Typography System
 
-Type scale: prefer weight and color for hierarchy over many sizes. Titles
-~26px extra-bold, body ~15px, meta ~12-13px, labels ~11px uppercase tracked.
+Two-family pairing: **Bricolage Grotesque** (display/headings) + **Geist** (body, UI, metadata, numerics).
+
+| Semantic Role | Font Family & Weight | Tailwind Class | Usage |
+| --- | --- | --- | --- |
+| `display` | Bricolage Grotesque ExtraBold (800) | `font-display` | Screen hero titles, restaurant/dish title in detail view, onboarding slide titles. Tight letter spacing. |
+| `title` | Bricolage Grotesque Bold (700) | `font-title` | Section headers ("Popular Cuisines", "Open Restaurants"), card main names, modal headings. |
+| `body` | Geist Regular (400) | `font-body` | Paragraphs, descriptions, empty state body text, form placeholder/body text. |
+| `label` | Geist Medium (500) | `font-label` | Filter chips, button texts, metadata subtitles, form labels. |
+| `caption` | Geist Medium (500) | `font-caption` | All-caps small tags (e.g. "DELIVERY TO", "SPECIAL OFFER", "CLOSED", "SORT BY"). |
+| `numeric` | Geist SemiBold (600) | `font-numeric` | Prices (`₦...`), ratings (`★ 4.8`), delivery times (`20-30 min`), review counts. |
 
 ## 3. Established patterns
 
