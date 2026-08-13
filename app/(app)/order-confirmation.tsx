@@ -331,7 +331,7 @@ export default function OrderConfirmation() {
         }}
       >
         <Button
-          onPress={() => router.push("/profile/orders" as any)}
+          onPress={() => router.push("/orders" as any)}
           className="h-[56px] bg-primary mb-3"
         >
           <Text className="text-white font-sen-bold text-[14px] uppercase tracking-wider">

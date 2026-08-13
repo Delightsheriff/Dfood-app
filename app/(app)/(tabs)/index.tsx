@@ -82,7 +82,7 @@ export default function Home() {
         {/* Header */}
         <View className="flex-row justify-between items-center px-6 pt-4 pb-2">
           <Pressable
-            onPress={() => router.push("/(app)/profile")}
+            onPress={() => router.push("/profile" as any)}
             className="w-12 h-12 bg-[#F0F5FA] rounded-2xl items-center justify-center"
             style={{
               shadowColor: "#000",

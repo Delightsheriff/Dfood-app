@@ -75,7 +75,7 @@ export default function Profile() {
         color: "#FF7622",
         bgColor: "#FFF5EE",
         onPress: () => {
-          router.push("/profile/orders" as any);
+          router.push("/orders" as any);
         },
       },
       {
