@@ -1,106 +1,96 @@
 import FoodCard from "@/components/FoodCard";
+import { IconButton } from "@/components/ui/icon-button";
 import { useFavorites } from "@/hooks/useDataQueries";
+import { ArrowLeft01Icon, HeartIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { ChevronLeft, Heart } from "lucide-react-native";
+import React from "react";
 import {
   ActivityIndicator,
   RefreshControl,
-  ScrollView,
   Text,
-  Pressable,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const ACCENT = "#E0533A";
 
 export default function Favourites() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: favoritesData, isLoading, refetch } = useFavorites();
 
   const favorites = favoritesData?.data.favorites || [];
 
-  return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4">
-        <Pressable
-          onPress={() => router.back()}
-          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.06,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          Favourites
-        </Text>
-        {favorites.length > 0 && (
-          <View
-            className="bg-[#FFF0F0] px-3 py-1.5 rounded-lg"
-            style={{ borderWidth: 1, borderColor: "#FECACA" }}
-          >
-            <Text className="text-red-500 font-sen-bold text-xs">
-              {favorites.length}
-            </Text>
-          </View>
-        )}
-      </View>
+  const renderHeader = () => (
+    <View
+      className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-gray-100 mb-4"
+      style={{ paddingTop: insets.top + 4 }}
+    >
+      <IconButton
+        icon={ArrowLeft01Icon}
+        accessibilityLabel="Go back"
+        onPress={() => router.back()}
+      />
+      <Text className="text-[17px] font-sen-bold text-secondary">
+        Saved Favourites
+      </Text>
+      <View className="w-11" />
+    </View>
+  );
 
-      {isLoading ? (
+  return (
+    <View className="flex-1 bg-white">
+      {isLoading && !favoritesData ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
-        </View>
-      ) : favorites.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="w-20 h-20 bg-[#FFF0F0] rounded-3xl items-center justify-center mb-5">
-            <Heart color="#FF4B4B" size={32} />
-          </View>
-          <Text className="text-base font-sen-bold text-secondary mb-2">
-            No Favourites Yet
-          </Text>
-          <Text className="text-text-gray font-sen text-sm text-center">
-            Start adding your favorite dishes to see them here
-          </Text>
+          <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
+        <FlashList
+          data={favorites}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          ListHeaderComponent={renderHeader}
           contentContainerStyle={{
-            paddingHorizontal: 24,
-            paddingTop: 16,
-            paddingBottom: 24,
+            paddingHorizontal: 14,
+            paddingBottom: insets.bottom + 24,
           }}
+          renderItem={({ item }) => (
+            <View className="px-1.5 flex-1">
+              <FoodCard
+                food={item.foodItem}
+                restaurantId={item.foodItem.restaurant?._id}
+                restaurantName={item.foodItem.restaurant?.name}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/food/[id]",
+                    params: { id: item.foodItem._id },
+                  })
+                }
+              />
+            </View>
+          )}
+          ListEmptyComponent={
+            <View className="py-20 px-6 items-center bg-surface-muted mx-3 rounded-[24px]">
+              <HugeiconsIcon icon={HeartIcon} size={36} color="#646982" />
+              <Text className="text-secondary font-sen-bold text-base mt-3 mb-1">
+                No Favourites Saved
+              </Text>
+              <Text className="text-text-gray font-sen text-xs text-center max-w-[240px]">
+                Tap the heart icon on any dish or restaurant to save it here for later.
+              </Text>
+            </View>
+          }
           refreshControl={
             <RefreshControl
               refreshing={false}
               onRefresh={() => refetch()}
-              tintColor="#FF7622"
+              tintColor={ACCENT}
             />
           }
-        >
-          <View className="flex-row flex-wrap justify-between">
-            {favorites.map((favorite) => (
-              <View key={favorite._id} className="w-[48%] mb-4">
-                <FoodCard
-                  food={favorite.foodItem}
-                  restaurantId={favorite.foodItem.restaurant?._id}
-                  restaurantName={favorite.foodItem.restaurant?.name}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/(app)/food/[id]",
-                      params: { id: favorite.foodItem._id },
-                    })
-                  }
-                />
-              </View>
-            ))}
-          </View>
-        </ScrollView>
+        />
       )}
-    </SafeAreaView>
+    </View>
   );
 }

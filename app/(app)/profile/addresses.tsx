@@ -1,32 +1,38 @@
+import { IconButton } from "@/components/ui/icon-button";
 import {
   useDeleteAddress,
   useSetDefaultAddress,
 } from "@/hooks/useAddressMutations";
 import { useAddresses } from "@/hooks/useDataQueries";
 import { Address } from "@/types/api";
-import { useRouter } from "expo-router";
 import {
-  Briefcase,
-  ChevronLeft,
-  Edit2,
-  Home,
-  MapPin,
-  Plus,
-  Trash2,
-} from "lucide-react-native";
+  ArrowLeft01Icon,
+  Briefcase01Icon,
+  CheckmarkCircle02Icon,
+  Delete02Icon,
+  Edit02Icon,
+  Home01Icon,
+  Location01Icon,
+  PlusSignIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { useRouter } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
   Alert,
+  Pressable,
   ScrollView,
   Text,
-  Pressable,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const ACCENT = "#E0533A";
 
 export default function Addresses() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: addressesData, isLoading } = useAddresses();
   const deleteAddressMutation = useDeleteAddress();
   const setDefaultMutation = useSetDefaultAddress();
@@ -34,17 +40,10 @@ export default function Addresses() {
   const addresses = addressesData?.data.addresses || [];
 
   const getLabelIcon = (label: string) => {
-    const normalizedLabel = label.toLowerCase();
-    if (normalizedLabel === "home") return Home;
-    if (normalizedLabel === "work") return Briefcase;
-    return MapPin;
-  };
-
-  const getLabelColor = (label: string) => {
-    const normalizedLabel = label.toLowerCase();
-    if (normalizedLabel === "home") return { color: "#2D8EFF", bg: "#EBF4FF" };
-    if (normalizedLabel === "work") return { color: "#FF7622", bg: "#FFF5EE" };
-    return { color: "#7E8CA0", bg: "#F0F5FA" };
+    const l = label.toLowerCase();
+    if (l === "home") return Home01Icon;
+    if (l === "work" || l === "office") return Briefcase01Icon;
+    return Location01Icon;
   };
 
   const handleDelete = (address: Address) => {
@@ -62,9 +61,10 @@ export default function Addresses() {
                 Alert.alert("Success", "Address deleted successfully");
               },
               onError: (error: any) => {
-                const message =
-                  error.response?.data?.message || "Failed to delete address";
-                Alert.alert("Error", message);
+                Alert.alert(
+                  "Error",
+                  error.response?.data?.message || "Failed to delete address",
+                );
               },
             });
           },
@@ -75,170 +75,134 @@ export default function Addresses() {
 
   const handleSetDefault = (address: Address) => {
     if (address.isDefault) return;
-
-    setDefaultMutation.mutate(address._id, {
-      onSuccess: () => {
-        Alert.alert("Success", "Default address updated");
-      },
-      onError: (error: any) => {
-        const message =
-          error.response?.data?.message || "Failed to set default address";
-        Alert.alert("Error", message);
-      },
-    });
-  };
-
-  const AddressItem = ({ address }: { address: Address }) => {
-    const Icon = getLabelIcon(address.label);
-    const { color, bg } = getLabelColor(address.label);
-
-    return (
-      <Pressable
-        onPress={() => handleSetDefault(address)}
-        onLongPress={() => handleSetDefault(address)}
-        className={`rounded-2xl p-4 mb-3 flex-row items-center ${
-          address.isDefault ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
-        }`}
-        style={{
-          borderWidth: address.isDefault ? 1.5 : 1,
-          borderColor: address.isDefault ? "#FF7622" : "#F0F0F0",
-          shadowColor: address.isDefault ? "#FF7622" : "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: address.isDefault ? 0.1 : 0.04,
-          shadowRadius: 6,
-          elevation: address.isDefault ? 3 : 1,
-        }}
-        activeOpacity={0.7}
-      >
-        <View
-          className="w-10 h-10 rounded-xl items-center justify-center mr-3.5"
-          style={{ backgroundColor: bg }}
-        >
-          <Icon color={color} size={18} />
-        </View>
-        <View className="flex-1 mr-2">
-          <View className="flex-row items-center mb-1">
-            <Text className="text-sm font-sen-bold text-secondary uppercase mr-2">
-              {address.label}
-            </Text>
-            {address.isDefault && (
-              <View className="bg-primary px-2 py-0.5 rounded-lg">
-                <Text className="text-white text-[10px] font-sen-bold">
-                  DEFAULT
-                </Text>
-              </View>
-            )}
-          </View>
-          <Text className="text-xs font-sen text-text-gray leading-5">
-            {address.street}, {address.city}, {address.state}
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-1.5">
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/profile/edit-address" as any,
-                params: { id: address._id },
-              })
-            }
-            className="w-9 h-9 bg-white rounded-xl items-center justify-center"
-          >
-            <Edit2 color="#FF7622" size={16} />
-          </Pressable>
-          <Pressable
-            onPress={() => handleDelete(address)}
-            disabled={deleteAddressMutation.isPending}
-            className="w-9 h-9 bg-white rounded-xl items-center justify-center"
-          >
-            {deleteAddressMutation.isPending ? (
-              <ActivityIndicator size="small" color="#FF4B4B" />
-            ) : (
-              <Trash2 color="#FF4B4B" size={16} />
-            )}
-          </Pressable>
-        </View>
-      </Pressable>
-    );
+    setDefaultMutation.mutate(address._id);
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
+    <View className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-6 py-4">
-        <Pressable
+      <View
+        className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
+        style={{ paddingTop: insets.top + 4 }}
+      >
+        <IconButton
+          icon={ArrowLeft01Icon}
+          accessibilityLabel="Go back"
           onPress={() => router.back()}
-          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.06,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
-          My Addresses
+        />
+        <Text className="text-[17px] font-sen-bold text-secondary">
+          Delivery Addresses
         </Text>
-        {addresses.length > 0 && (
-          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
-            <Text className="text-text-gray font-sen text-xs">
-              {addresses.length}
-            </Text>
-          </View>
-        )}
+        <IconButton
+          icon={PlusSignIcon}
+          accessibilityLabel="Add new address"
+          onPress={() => router.push("/profile/add-address" as any)}
+        />
       </View>
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
+          <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : addresses.length === 0 ? (
         <View className="flex-1 items-center justify-center px-6">
-          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
-            <MapPin color="#A0A5BA" size={32} />
+          <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
+            <HugeiconsIcon icon={Location01Icon} size={36} color="#646982" />
           </View>
-          <Text className="text-base font-sen-bold text-secondary mb-2">
-            No Addresses Yet
+          <Text className="text-xl font-sen-bold text-secondary mb-1">
+            No Addresses Saved
           </Text>
-          <Text className="text-text-gray font-sen text-sm text-center">
-            Add your delivery addresses to get started
+          <Text className="text-xs font-sen text-text-gray text-center max-w-[260px] mb-6">
+            Add your home, office, or favorite delivery locations.
           </Text>
+          <Pressable
+            onPress={() => router.push("/profile/add-address" as any)}
+            className="px-8 py-3.5 rounded-full bg-secondary"
+            style={{ borderCurve: "continuous" }}
+          >
+            <Text className="text-white font-sen-bold text-sm">
+              Add New Address
+            </Text>
+          </Pressable>
         </View>
       ) : (
         <ScrollView
           showsVerticalScrollIndicator={false}
-          className="flex-1"
-          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 16 }}
-        >
-          <Text className="text-text-gray font-sen text-xs mb-4">
-            Tap to set as default • Long press for options
-          </Text>
-          {addresses.map((address) => (
-            <AddressItem key={address._id} address={address} />
-          ))}
-        </ScrollView>
-      )}
-
-      <View className="px-6 pb-6">
-        <Pressable
-          onPress={() => router.push("/profile/add-address" as any)}
-          className="w-full bg-primary h-[56px] rounded-2xl items-center justify-center flex-row"
-          style={{
-            shadowColor: "#FF7622",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 6,
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingTop: 16,
+            paddingBottom: insets.bottom + 40,
           }}
         >
-          <Plus color="white" size={20} />
-          <Text className="text-white font-sen-bold text-sm uppercase tracking-wider ml-2">
-            ADD NEW ADDRESS
-          </Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+          {addresses.map((address) => {
+            const Icon = getLabelIcon(address.label);
+            return (
+              <View
+                key={address._id}
+                className={`p-4 rounded-[20px] mb-3.5 border ${
+                  address.isDefault
+                    ? "bg-[#FFF5F3] border-primary"
+                    : "bg-surface-muted border-transparent"
+                }`}
+                style={{ borderCurve: "continuous" }}
+              >
+                <View className="flex-row items-center justify-between">
+                  <Pressable
+                    onPress={() => handleSetDefault(address)}
+                    className="flex-row items-center flex-1 mr-2"
+                  >
+                    <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+                      <HugeiconsIcon icon={Icon} size={20} color={ACCENT} />
+                    </View>
+                    <View className="flex-1">
+                      <View className="flex-row items-center gap-2 mb-0.5">
+                        <Text className="text-[15px] font-sen-bold text-secondary">
+                          {address.label}
+                        </Text>
+                        {address.isDefault && (
+                          <View className="bg-primary px-2 py-0.5 rounded-md">
+                            <Text className="text-white text-[9px] font-sen-bold">
+                              DEFAULT
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text className="text-xs font-sen text-text-gray leading-4">
+                        {address.street}, {address.city}, {address.state}
+                      </Text>
+                    </View>
+                  </Pressable>
+
+                  {/* Actions */}
+                  <View className="flex-row items-center gap-1">
+                    <Pressable
+                      onPress={() =>
+                        router.push({
+                          pathname: "/profile/edit-address" as any,
+                          params: { id: address._id },
+                        })
+                      }
+                      className="w-8 h-8 rounded-full bg-white items-center justify-center"
+                    >
+                      <HugeiconsIcon icon={Edit02Icon} size={15} color="#262B33" />
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleDelete(address)}
+                      className="w-8 h-8 rounded-full bg-white items-center justify-center"
+                    >
+                      <HugeiconsIcon
+                        icon={Delete02Icon}
+                        size={15}
+                        color="#EF4444"
+                      />
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            );
+          })}
+        </ScrollView>
+      )}
+    </View>
   );
 }

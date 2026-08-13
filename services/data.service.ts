@@ -1,3 +1,4 @@
+import { useProfileStore } from "@/store/profileStore";
 import {
   CATEGORY_TO_MEALDB,
   CURATED_CATEGORIES,
@@ -234,15 +235,17 @@ export const dataService = {
     return { success: true, data: { foods, restaurants } };
   },
 
-  // TODO(phase4): decide profile behavior without a backend. Phase 2
-  // returns a minimal local placeholder profile so screens render
-  // without network access.
   async getProfile(): Promise<ProfileResponse> {
-    return { success: true, data: { profile: PLACEHOLDER_PROFILE } };
+    const profile = useProfileStore.getState().getProfile();
+    return { success: true, data: { profile } };
   },
 
-  async updateProfile(_data: UpdateProfileRequest): Promise<ProfileResponse> {
-    return { success: true, data: { profile: PLACEHOLDER_PROFILE } };
+  async updateProfile(data: UpdateProfileRequest): Promise<ProfileResponse> {
+    if (data.name) {
+      useProfileStore.getState().setName(data.name);
+    }
+    const profile = useProfileStore.getState().getProfile();
+    return { success: true, data: { profile } };
   },
 
   async updateProfileImage(_imageFile: FormData): Promise<ProfileResponse> {

@@ -1,204 +1,218 @@
 import { useOrders } from "@/hooks/useDataQueries";
 import { Order } from "@/types/api";
+import {
+  ArrowRight01Icon,
+  ShoppingBag01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
-import { ChevronLeft, ChevronRight, Package } from "lucide-react-native";
 import React from "react";
 import {
   ActivityIndicator,
-  RefreshControl,
-  ScrollView,
-  Text,
   Pressable,
+  RefreshControl,
+  Text,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const ACCENT = "#E0533A";
 
 export default function Orders() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: ordersData, isLoading, refetch } = useOrders();
 
   const orders = ordersData?.data.orders || [];
 
-  const getStatusColor = (status: Order["status"]) => {
+  const getStatusBadge = (status: Order["status"]) => {
     switch (status) {
       case "pending":
-        return { bg: "#FEF9C3", text: "#854D0E", border: "#FDE68A" };
-      case "confirmed":
       case "preparing":
-        return { bg: "#DBEAFE", text: "#1E40AF", border: "#BFDBFE" };
+      case "confirmed":
+        return {
+          bg: "#FFF5F3",
+          text: "#E0533A",
+          label: status.toUpperCase(),
+        };
       case "out_for_delivery":
-        return { bg: "#F3E8FF", text: "#6B21A8", border: "#E9D5FF" };
+        return {
+          bg: "#EEF4FF",
+          text: "#2D8EFF",
+          label: "ON THE WAY",
+        };
       case "delivered":
-        return { bg: "#DCFCE7", text: "#166534", border: "#BBF7D0" };
+        return {
+          bg: "#ECFDF5",
+          text: "#059669",
+          label: "DELIVERED",
+        };
       case "cancelled":
-        return { bg: "#FEE2E2", text: "#991B1B", border: "#FECACA" };
+        return {
+          bg: "#F3F4F6",
+          text: "#6B7280",
+          label: "CANCELLED",
+        };
       default:
-        return { bg: "#F3F4F6", text: "#374151", border: "#E5E7EB" };
+        return {
+          bg: "#F3F4F6",
+          text: "#374151",
+          label: String(status).toUpperCase(),
+        };
     }
   };
 
-  const getStatusText = (status: Order["status"]) => {
-    return status.replace(/_/g, " ").toUpperCase();
-  };
-
-  const OrderCard = ({ order }: { order: Order }) => {
-    const statusColors = getStatusColor(order.status);
-
-    return (
-      <Pressable
-        onPress={() =>
-          router.push({
-            pathname: "/profile/order-details" as any,
-            params: { orderId: order._id },
-          })
-        }
-        className="bg-white rounded-2xl p-4 mb-4"
-        style={{
-          borderWidth: 1,
-          borderColor: "#F0F0F0",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.06,
-          shadowRadius: 6,
-          elevation: 2,
-        }}
-        activeOpacity={0.7}
-      >
-        {/* Header */}
-        <View className="flex-row justify-between items-start mb-3">
-          <View className="flex-1 mr-3">
-            <Text className="font-sen-bold text-secondary text-base mb-1">
-              {order.restaurantId.name}
-            </Text>
-            <Text className="font-sen text-text-gray text-xs">
-              {order.orderNumber}
-            </Text>
-          </View>
-          <View
-            className="px-3 py-1.5 rounded-lg"
-            style={{
-              backgroundColor: statusColors.bg,
-              borderWidth: 1,
-              borderColor: statusColors.border,
-            }}
-          >
-            <Text
-              className="font-sen-bold text-[10px]"
-              style={{ color: statusColors.text }}
-            >
-              {getStatusText(order.status)}
-            </Text>
-          </View>
-        </View>
-
-        {/* Items Summary */}
-        <View className="flex-row items-center mb-3">
-          <View className="w-6 h-6 bg-[#F0F5FA] rounded-lg items-center justify-center mr-2">
-            <Package color="#A0A5BA" size={12} />
-          </View>
-          <Text className="font-sen text-text-gray text-sm">
-            {order.items.length} {order.items.length === 1 ? "item" : "items"}
-          </Text>
-          <View className="w-1 h-1 bg-[#A0A5BA] rounded-full mx-2" />
-          <Text className="font-sen-bold text-primary text-sm">
-            ₦{order.total.toLocaleString()}
-          </Text>
-        </View>
-
-        {/* Date */}
-        <View className="flex-row justify-between items-center pt-3 border-t border-[#F0F5FA]">
-          <Text className="font-sen text-text-gray text-xs">
-            {new Date(order.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </Text>
-          <ChevronRight color="#A0A5BA" size={16} />
-        </View>
-      </Pressable>
-    );
-  };
-
-  return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header */}
-      <View className="flex-row items-center px-6 py-4">
-        <Pressable
-          onPress={() => router.back()}
-          className="w-11 h-11 bg-[#F0F5FA] rounded-2xl items-center justify-center mr-3"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.06,
-            shadowRadius: 4,
-            elevation: 2,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-        <Text className="text-lg font-sen-bold text-secondary flex-1">
+  const renderHeader = () => (
+    <View
+      className="px-5 pt-3 pb-4 flex-row items-center justify-between"
+      style={{ paddingTop: insets.top + 8 }}
+    >
+      <View>
+        <Text className="text-[26px] font-sen-extra-bold text-secondary">
           My Orders
         </Text>
-        {orders.length > 0 && (
-          <View className="bg-[#F0F5FA] px-3 py-1.5 rounded-lg">
-            <Text className="text-text-gray font-sen text-xs">
-              {orders.length}
-            </Text>
-          </View>
-        )}
+        <Text className="text-xs font-sen text-text-gray mt-0.5">
+          {orders.length} {orders.length === 1 ? "order" : "orders"} placed
+        </Text>
       </View>
+      {orders.length > 0 && (
+        <View className="bg-surface-muted px-3 py-1 rounded-full">
+          <Text className="text-xs font-sen-bold text-secondary">
+            {orders.length} Total
+          </Text>
+        </View>
+      )}
+    </View>
+  );
 
-      {isLoading ? (
+  return (
+    <View className="flex-1 bg-white">
+      {isLoading && !ordersData ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
+          <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : orders.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
-            <Package color="#A0A5BA" size={32} />
-          </View>
-          <Text className="text-base font-sen-bold text-secondary mb-2">
-            No Orders Yet
-          </Text>
-          <Text className="text-text-gray font-sen text-sm text-center mb-6">
-            Your order history will appear here
-          </Text>
-          <Pressable
-            onPress={() => router.push("/(app)")}
-            className="bg-primary px-8 py-3.5 rounded-2xl"
-            style={{
-              shadowColor: "#FF7622",
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.3,
-              shadowRadius: 8,
-              elevation: 6,
-            }}
-          >
-            <Text className="text-white font-sen-bold text-sm uppercase tracking-wider">
-              START ORDERING
+        <View className="flex-1">
+          {renderHeader()}
+          <View className="flex-1 items-center justify-center px-6 -mt-10">
+            <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
+              <HugeiconsIcon
+                icon={ShoppingBag01Icon}
+                size={36}
+                color="#646982"
+              />
+            </View>
+            <Text className="text-xl font-sen-bold text-secondary mb-1">
+              No Orders Yet
             </Text>
-          </Pressable>
+            <Text className="text-xs font-sen text-text-gray text-center max-w-[260px] mb-6">
+              When you place an order, it will appear here with live tracking.
+            </Text>
+            <Pressable
+              onPress={() => router.push("/(app)/(tabs)" as any)}
+              className="px-8 py-3.5 rounded-full bg-secondary"
+              style={{ borderCurve: "continuous" }}
+            >
+              <Text className="text-white font-sen-bold text-sm">
+                Start Ordering
+              </Text>
+            </Pressable>
+          </View>
         </View>
       ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ padding: 24 }}
+        <FlashList
+          data={orders}
+          keyExtractor={(item) => item._id}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingBottom: insets.bottom + 24,
+          }}
+          renderItem={({ item }) => {
+            const badge = getStatusBadge(item.status);
+            return (
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/profile/order-details" as any,
+                    params: { orderId: item._id },
+                  })
+                }
+                className="p-4 bg-white border border-gray-100 rounded-[20px] mb-3.5"
+                style={{
+                  borderCurve: "continuous",
+                  boxShadow: "0px 2px 8px rgba(0,0,0,0.03)",
+                }}
+              >
+                {/* Header row */}
+                <View className="flex-row items-center justify-between mb-2.5">
+                  <Text
+                    numberOfLines={1}
+                    className="text-[16px] font-sen-bold text-secondary flex-1 mr-2"
+                  >
+                    {item.restaurantId.name}
+                  </Text>
+                  <View
+                    className="px-2.5 py-1 rounded-full"
+                    style={{ backgroundColor: badge.bg }}
+                  >
+                    <Text
+                      className="text-[10px] font-sen-bold"
+                      style={{ color: badge.text }}
+                    >
+                      {badge.label}
+                    </Text>
+                  </View>
+                </View>
+
+                {/* Items preview */}
+                <Text
+                  numberOfLines={1}
+                  className="text-xs font-sen text-text-gray mb-3"
+                >
+                  {item.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}
+                </Text>
+
+                {/* Footer details */}
+                <View className="flex-row items-center justify-between pt-3 border-t border-gray-100">
+                  <View>
+                    <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+                      Total
+                    </Text>
+                    <Text className="text-[15px] font-sen-extra-bold text-secondary mt-0.5">
+                      ₦{item.total.toLocaleString()}
+                    </Text>
+                  </View>
+
+                  <View className="flex-row items-center gap-1">
+                    <Text className="text-xs font-sen text-text-gray">
+                      {new Date(item.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </Text>
+                    <HugeiconsIcon
+                      icon={ArrowRight01Icon}
+                      size={14}
+                      color="#646982"
+                    />
+                  </View>
+                </View>
+              </Pressable>
+            );
+          }}
           refreshControl={
             <RefreshControl
               refreshing={false}
               onRefresh={() => refetch()}
-              tintColor="#FF7622"
+              tintColor={ACCENT}
             />
           }
-        >
-          {orders.map((order) => (
-            <OrderCard key={order._id} order={order} />
-          ))}
-        </ScrollView>
+        />
       )}
-    </SafeAreaView>
+    </View>
   );
 }

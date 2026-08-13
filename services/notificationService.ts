@@ -1,7 +1,6 @@
 import Constants from "expo-constants";
 import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
-import { Router } from "expo-router";
 import { Platform } from "react-native";
 
 Notifications.setNotificationHandler({
@@ -67,7 +66,7 @@ export class NotificationService {
     }
   }
 
-  setupListeners(router: Router) {
+  setupListeners(router: any) {
     const foregroundSubscription =
       Notifications.addNotificationReceivedListener((notification) => {
         console.log("📬 Notification received (foreground):", notification);
@@ -77,7 +76,7 @@ export class NotificationService {
       Notifications.addNotificationResponseReceivedListener((response) => {
         console.log("👆 Notification tapped:", response);
         const data = response.notification.request.content.data;
-        if (data.type === "order_update" && data.orderNumber) {
+        if (data?.type === "order_update" && data?.orderNumber) {
           router.push({
             pathname: "/(app)/profile/order-details",
             params: { orderId: data.orderNumber },
@@ -91,11 +90,11 @@ export class NotificationService {
     };
   }
 
-  async handleInitialNotification(router: Router) {
+  async handleInitialNotification(router: any) {
     const response = await Notifications.getLastNotificationResponse();
     if (response) {
       const data = response.notification.request.content.data;
-      if (data.type === "order_update" && data.orderNumber) {
+      if (data?.type === "order_update" && data?.orderNumber) {
         setTimeout(() => {
           router.push({
             pathname: "/(app)/profile/order-details",
