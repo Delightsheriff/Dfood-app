@@ -33,9 +33,9 @@ module.exports = {
           DEFAULT: "#262B33",
           foreground: "#FFFFFF",
         },
-        // Warm-tinted light gray for soft surfaces (stepper, cards) that
-        // sit on white without going cool-gray.
-        "surface-muted": "#F4F1ED",
+        // Crisp, modern warm-gray for soft surfaces (stepper, cards, pills)
+        // providing strong contrast against white without yellow/cream cast.
+        "surface-muted": "#F2F4F7",
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
@@ -60,10 +60,24 @@ module.exports = {
         "text-gray-dark": "#32343E",
       },
       fontFamily: {
-        sen: ["Sen"],
-        "sen-bold": ["Sen-Bold"],
-        "sen-medium": ["Sen-Medium"],
-        "sen-extra-bold": ["Sen-ExtraBold"],
+        // High-level semantic roles
+        display: ["Bricolage-ExtraBold"],
+        title: ["Bricolage-Bold"],
+        body: ["Geist"],
+        label: ["Geist-Medium"],
+        caption: ["Geist-Medium"],
+        numeric: ["Geist-SemiBold"],
+
+        // Direct family access
+        bricolage: ["Bricolage-Bold"],
+        "bricolage-semibold": ["Bricolage-SemiBold"],
+        "bricolage-bold": ["Bricolage-Bold"],
+        "bricolage-extrabold": ["Bricolage-ExtraBold"],
+
+        geist: ["Geist"],
+        "geist-medium": ["Geist-Medium"],
+        "geist-semibold": ["Geist-SemiBold"],
+        "geist-bold": ["Geist-Bold"],
       },
       borderRadius: {
         lg: "var(--radius)",

@@ -69,16 +69,16 @@ export default function Orders() {
       style={{ paddingTop: insets.top + 8 }}
     >
       <View>
-        <Text className="text-[26px] font-sen-extra-bold text-secondary">
+        <Text className="text-[26px] font-display text-secondary">
           My Orders
         </Text>
-        <Text className="text-xs font-sen text-text-gray mt-0.5">
+        <Text className="text-xs font-body text-text-gray mt-0.5">
           {orders.length} {orders.length === 1 ? "order" : "orders"} placed
         </Text>
       </View>
       {orders.length > 0 && (
         <View className="bg-surface-muted px-3 py-1 rounded-full">
-          <Text className="text-xs font-sen-bold text-secondary">
+          <Text className="text-xs font-numeric text-secondary">
             {orders.length} Total
           </Text>
         </View>
@@ -103,10 +103,10 @@ export default function Orders() {
                 color="#646982"
               />
             </View>
-            <Text className="text-xl font-sen-bold text-secondary mb-1">
+            <Text className="text-xl font-title text-secondary mb-1">
               No Orders Yet
             </Text>
-            <Text className="text-xs font-sen text-text-gray text-center max-w-[260px] mb-6">
+            <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
               When you place an order, it will appear here with live tracking.
             </Text>
             <Pressable
@@ -114,7 +114,7 @@ export default function Orders() {
               className="px-8 py-3.5 rounded-full bg-secondary"
               style={{ borderCurve: "continuous" }}
             >
-              <Text className="text-white font-sen-bold text-sm">
+              <Text className="text-white font-label text-sm">
                 Start Ordering
               </Text>
             </Pressable>
@@ -149,7 +149,7 @@ export default function Orders() {
                 <View className="flex-row items-center justify-between mb-2.5">
                   <Text
                     numberOfLines={1}
-                    className="text-[16px] font-sen-bold text-secondary flex-1 mr-2"
+                    className="text-[16px] font-title text-secondary flex-1 mr-2"
                   >
                     {item.restaurantId.name}
                   </Text>
@@ -158,7 +158,7 @@ export default function Orders() {
                     style={{ backgroundColor: badge.bg }}
                   >
                     <Text
-                      className="text-[10px] font-sen-bold"
+                      className="text-[10px] font-caption uppercase tracking-wider"
                       style={{ color: badge.text }}
                     >
                       {badge.label}
@@ -169,7 +169,7 @@ export default function Orders() {
                 {/* Items preview */}
                 <Text
                   numberOfLines={1}
-                  className="text-xs font-sen text-text-gray mb-3"
+                  className="text-xs font-body text-text-gray mb-3"
                 >
                   {item.items.map((i) => `${i.quantity}x ${i.name}`).join(", ")}
                 </Text>
@@ -177,16 +177,16 @@ export default function Orders() {
                 {/* Footer details */}
                 <View className="flex-row items-center justify-between pt-3 border-t border-gray-100">
                   <View>
-                    <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+                    <Text className="text-[10px] font-caption uppercase tracking-wider text-text-gray">
                       Total
                     </Text>
-                    <Text className="text-[15px] font-sen-extra-bold text-secondary mt-0.5">
+                    <Text className="text-[15px] font-numeric text-secondary mt-0.5">
                       ₦{item.total.toLocaleString()}
                     </Text>
                   </View>
 
                   <View className="flex-row items-center gap-1">
-                    <Text className="text-xs font-sen text-text-gray">
+                    <Text className="text-xs font-numeric text-text-gray">
                       {new Date(item.createdAt).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",

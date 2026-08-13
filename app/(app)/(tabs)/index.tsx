@@ -199,7 +199,7 @@ export default function Home() {
           </View>
           <View className="flex-1">
             <View className="flex-row items-center gap-1">
-              <Text className="text-[11px] font-sen-bold text-primary uppercase tracking-wider">
+              <Text className="text-[11px] font-caption text-primary uppercase tracking-wider">
                 Deliver To
               </Text>
               <HugeiconsIcon
@@ -210,7 +210,7 @@ export default function Home() {
             </View>
             <Text
               numberOfLines={1}
-              className="text-[14px] font-sen-bold text-secondary"
+              className="text-[14px] font-title text-secondary"
             >
               {defaultAddress
                 ? defaultAddress.label || defaultAddress.street
@@ -248,7 +248,7 @@ export default function Home() {
             </Pressable>
             {cartItemCount > 0 && (
               <View className="absolute -top-1 -right-1 bg-primary min-w-[18px] h-[18px] rounded-full items-center justify-center border-2 border-white px-1">
-                <Text className="text-white text-[10px] font-sen-bold">
+                <Text className="text-white text-[10px] font-numeric">
                   {cartItemCount}
                 </Text>
               </View>
@@ -259,7 +259,7 @@ export default function Home() {
 
       {/* Greeting */}
       <View className="px-5 mt-3 mb-3">
-        <Text className="text-2xl font-sen-extra-bold text-secondary">
+        <Text className="text-2xl font-display text-secondary">
           {greeting}
         </Text>
       </View>
@@ -307,16 +307,16 @@ export default function Home() {
                       size={12}
                       color="#FFFFFF"
                     />
-                    <Text className="text-[10px] font-sen-bold text-white tracking-wider">
+                    <Text className="text-[10px] font-caption text-white tracking-wider">
                       {item.tag}
                     </Text>
                   </View>
-                  <Text className="text-[18px] leading-6 font-sen-extra-bold text-white max-w-[220px]">
+                  <Text className="text-[18px] leading-6 font-display text-white max-w-[220px]">
                     {item.title}
                   </Text>
                 </View>
 
-                <Text className="text-[12px] font-sen text-white/80">
+                <Text className="text-[12px] font-body text-white/80">
                   {item.subtitle}
                 </Text>
               </LinearGradient>
@@ -342,14 +342,14 @@ export default function Home() {
       {/* 4. Category Rail */}
       <View className="mb-5">
         <View className="flex-row justify-between items-center px-5 mb-3">
-          <Text className="text-[18px] font-sen-bold text-secondary">
+          <Text className="text-[18px] font-title text-secondary">
             Categories
           </Text>
           <Pressable
             onPress={() => router.push("/(app)/categories")}
             className="flex-row items-center gap-1"
           >
-            <Text className="text-xs font-sen-bold text-primary">See all</Text>
+            <Text className="text-xs font-label text-primary">See all</Text>
             <HugeiconsIcon
               icon={ArrowRight01Icon}
               size={12}
@@ -368,15 +368,13 @@ export default function Home() {
             const isSelected = selectedCategoryId === item._id;
             return (
               <Pressable
-                onPress={() => {
-                  setSelectedCategoryId(item._id);
-                }}
-                className="items-center mr-3 w-[68px]"
+                onPress={() => setSelectedCategoryId(item._id)}
+                className="items-center mr-4"
               >
                 <View
-                  className={`w-14 h-14 rounded-full items-center justify-center overflow-hidden ${
+                  className={`w-16 h-16 rounded-[20px] items-center justify-center ${
                     isSelected
-                      ? "border-2 border-primary bg-white"
+                      ? "bg-[#FFF5F3] border-2 border-primary"
                       : "bg-surface-muted border border-transparent"
                   }`}
                   style={{
@@ -397,8 +395,8 @@ export default function Home() {
                   numberOfLines={1}
                   className={`mt-1.5 text-[11px] text-center ${
                     isSelected
-                      ? "font-sen-bold text-primary"
-                      : "font-sen text-secondary"
+                      ? "font-label text-primary"
+                      : "font-body text-secondary"
                   }`}
                 >
                   {item.name}
@@ -430,8 +428,8 @@ export default function Home() {
                 <Text
                   className={`text-xs ${
                     isSelected
-                      ? "font-sen-bold text-white"
-                      : "font-sen-medium text-secondary"
+                      ? "font-label text-white"
+                      : "font-label text-secondary"
                   }`}
                 >
                   {item.label}
@@ -446,14 +444,14 @@ export default function Home() {
       {fastestRestaurants.length > 0 && selectedCategoryId === "all" && (
         <View className="mb-6">
           <View className="flex-row justify-between items-center px-5 mb-3">
-            <Text className="text-[18px] font-sen-bold text-secondary">
+            <Text className="text-[18px] font-title text-secondary">
               Fastest Near You
             </Text>
             <Pressable
               onPress={() => router.push("/(app)/restaurants")}
               className="flex-row items-center gap-1"
             >
-              <Text className="text-xs font-sen-bold text-primary">See all</Text>
+              <Text className="text-xs font-label text-primary">See all</Text>
               <HugeiconsIcon
                 icon={ArrowRight01Icon}
                 size={12}
@@ -486,12 +484,12 @@ export default function Home() {
 
       {/* 7. "All Restaurants" header */}
       <View className="flex-row justify-between items-center px-5 mb-3">
-        <Text className="text-[18px] font-sen-bold text-secondary">
+        <Text className="text-[18px] font-title text-secondary">
           {selectedCategoryId === "all"
             ? "All Restaurants"
             : `${categories.find((c) => c._id === selectedCategoryId)?.name || "Category"} Places`}
         </Text>
-        <Text className="text-xs font-sen text-text-gray">
+        <Text className="text-xs font-numeric text-text-gray">
           {filteredRestaurants.length} {filteredRestaurants.length === 1 ? "place" : "places"}
         </Text>
       </View>
@@ -519,24 +517,19 @@ export default function Home() {
           </View>
         )}
         ListEmptyComponent={
-          /* Categories are a static local list, so categoriesData is truthy
-             immediately and the screen-level loading guard stops applying
-             while the Overpass request (~10s) is still in flight. Without
-             this branch the empty state renders during that window and
-             blames the user's filters for a pending fetch. */
           restaurantsLoading ? (
             <View className="py-12 items-center">
               <ActivityIndicator size="small" color={ACCENT} />
-              <Text className="text-text-gray font-sen text-xs mt-3">
+              <Text className="text-text-gray font-body text-xs mt-3">
                 Finding restaurants near you…
               </Text>
             </View>
           ) : (
             <View className="py-12 px-6 items-center bg-surface-muted mx-5 rounded-[20px]">
-              <Text className="text-secondary font-sen-bold text-base mb-1">
+              <Text className="text-secondary font-title text-base mb-1">
                 No Restaurants Found
               </Text>
-              <Text className="text-text-gray font-sen text-xs text-center">
+              <Text className="text-text-gray font-body text-xs text-center">
                 {restaurantsError
                   ? "Couldn't load restaurants. Pull down to try again."
                   : "Try selecting another category or filter."}

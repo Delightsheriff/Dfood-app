@@ -110,13 +110,13 @@ export default function Profile() {
             <View className="ml-4 flex-1">
               <Text
                 numberOfLines={1}
-                className="text-2xl font-sen-extra-bold text-secondary"
+                className="text-2xl font-display text-secondary"
               >
                 {name || "Foodie"}
               </Text>
               <Text
                 numberOfLines={1}
-                className="text-xs font-sen text-text-gray mt-0.5"
+                className="text-xs font-body text-text-gray mt-0.5"
               >
                 {bio || "Dfood Explorer"}
               </Text>
@@ -134,7 +134,7 @@ export default function Profile() {
         {/* Menu Groups */}
         {menuSections.map((section, idx) => (
           <View key={idx} className="mb-6">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray px-1 mb-2.5">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray px-1 mb-2.5">
               {section.title}
             </Text>
 
@@ -162,7 +162,7 @@ export default function Profile() {
                           color="#262B33"
                         />
                       </View>
-                      <Text className="text-[15px] font-sen-medium text-secondary">
+                      <Text className="text-[15px] font-label text-secondary">
                         {item.label}
                       </Text>
                     </View>
@@ -180,7 +180,7 @@ export default function Profile() {
 
         {/* App Version Footer */}
         <View className="items-center py-4">
-          <Text className="text-xs font-sen text-text-gray">
+          <Text className="text-xs font-body text-text-gray">
             Dfood Application v1.0.0
           </Text>
         </View>
@@ -195,21 +195,21 @@ export default function Profile() {
       >
         <View className="flex-1 bg-black/50 justify-center px-6">
           <View className="bg-white rounded-[24px] p-6">
-            <Text className="text-xl font-sen-bold text-secondary mb-2">
+            <Text className="text-xl font-title text-secondary mb-2">
               About Dfood
             </Text>
-            <Text className="text-xs font-sen text-text-gray mb-4 leading-5">
+            <Text className="text-xs font-body text-text-gray mb-4 leading-5">
               Dfood is an on-demand food delivery discovery experience built with React Native and Expo.
             </Text>
 
             <View className="p-4 bg-surface-muted rounded-2xl mb-5 gap-3">
-              <Text className="text-xs font-sen-bold text-secondary">
+              <Text className="text-xs font-title text-secondary">
                 Data & Media Attributions:
               </Text>
-              <Text className="text-xs font-sen text-text-gray leading-5">
+              <Text className="text-xs font-body text-text-gray leading-5">
                 • Map & Restaurant coordinates: © OpenStreetMap contributors
               </Text>
-              <Text className="text-xs font-sen text-text-gray leading-5">
+              <Text className="text-xs font-body text-text-gray leading-5">
                 • Recipe data & Dish imagery: TheMealDB free recipe database
               </Text>
             </View>
@@ -218,7 +218,7 @@ export default function Profile() {
               onPress={() => setAboutModalVisible(false)}
               className="w-full h-12 bg-secondary rounded-full items-center justify-center"
             >
-              <Text className="text-white font-sen-bold text-sm">Close</Text>
+              <Text className="text-white font-label text-sm">Close</Text>
             </Pressable>
           </View>
         </View>

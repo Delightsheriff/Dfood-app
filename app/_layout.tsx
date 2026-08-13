@@ -3,12 +3,17 @@ import { toastConfig } from "@/components/ui/toast-config";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { QueryProvider } from "@/providers/QueryProvider";
 import {
-  Sen_400Regular,
-  Sen_500Medium,
-  Sen_700Bold,
-  Sen_800ExtraBold,
+  BricolageGrotesque_600SemiBold,
+  BricolageGrotesque_700Bold,
+  BricolageGrotesque_800ExtraBold,
+} from "@expo-google-fonts/bricolage-grotesque";
+import {
+  Geist_400Regular,
+  Geist_500Medium,
+  Geist_600SemiBold,
+  Geist_700Bold,
   useFonts,
-} from "@expo-google-fonts/sen";
+} from "@expo-google-fonts/geist";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -24,10 +29,13 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Sen: Sen_400Regular,
-    "Sen-Bold": Sen_700Bold,
-    "Sen-Medium": Sen_500Medium,
-    "Sen-ExtraBold": Sen_800ExtraBold,
+    "Bricolage-SemiBold": BricolageGrotesque_600SemiBold,
+    "Bricolage-Bold": BricolageGrotesque_700Bold,
+    "Bricolage-ExtraBold": BricolageGrotesque_800ExtraBold,
+    Geist: Geist_400Regular,
+    "Geist-Medium": Geist_500Medium,
+    "Geist-SemiBold": Geist_600SemiBold,
+    "Geist-Bold": Geist_700Bold,
   });
 
   useEffect(() => {

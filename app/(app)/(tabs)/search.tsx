@@ -175,7 +175,7 @@ export default function SearchPage() {
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearchSubmit}
-              className="flex-1 ml-3 font-sen text-[15px] text-secondary"
+              className="flex-1 ml-3 font-body text-[15px] text-secondary"
               returnKeyType="search"
               autoCorrect={false}
             />
@@ -214,8 +214,8 @@ export default function SearchPage() {
               <Text
                 className={`text-xs ${
                   activeFilterCount > 0
-                    ? "font-sen-bold text-primary"
-                    : "font-sen-medium text-secondary"
+                    ? "font-label text-primary"
+                    : "font-label text-secondary"
                 }`}
               >
                 Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
@@ -235,8 +235,8 @@ export default function SearchPage() {
               <Text
                 className={`text-xs ${
                   filters.openNow
-                    ? "font-sen-bold text-white"
-                    : "font-sen-medium text-secondary"
+                    ? "font-label text-white"
+                    : "font-label text-secondary"
                 }`}
               >
                 Open now
@@ -256,8 +256,8 @@ export default function SearchPage() {
               <Text
                 className={`text-xs ${
                   filters.freeDelivery
-                    ? "font-sen-bold text-white"
-                    : "font-sen-medium text-secondary"
+                    ? "font-label text-white"
+                    : "font-label text-secondary"
                 }`}
               >
                 Free delivery
@@ -277,8 +277,8 @@ export default function SearchPage() {
               <Text
                 className={`text-xs ${
                   filters.topRated
-                    ? "font-sen-bold text-white"
-                    : "font-sen-medium text-secondary"
+                    ? "font-label text-white"
+                    : "font-label text-secondary"
                 }`}
               >
                 Top rated (4.5+)
@@ -298,11 +298,11 @@ export default function SearchPage() {
             {recentSearches.length > 0 && (
               <View className="mb-7">
                 <View className="flex-row items-center justify-between mb-3">
-                  <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray">
+                  <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray">
                     Recent Searches
                   </Text>
                   <Pressable onPress={clearRecentSearches}>
-                    <Text className="text-xs font-sen-bold text-primary">
+                    <Text className="text-xs font-caption text-primary uppercase tracking-wider">
                       Clear all
                     </Text>
                   </Pressable>
@@ -324,7 +324,7 @@ export default function SearchPage() {
                         onPress={() => handleSelectQuery(item)}
                         className="mx-1.5"
                       >
-                        <Text className="text-xs font-sen text-secondary">
+                        <Text className="text-xs font-body text-secondary">
                           {item}
                         </Text>
                       </Pressable>
@@ -346,7 +346,7 @@ export default function SearchPage() {
 
             {/* Popular Cuisines Cloud */}
             <View className="mb-8">
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-3">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-3">
                 Popular Cuisines
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -357,7 +357,7 @@ export default function SearchPage() {
                     className="px-4 py-2.5 rounded-2xl bg-surface-muted border border-transparent"
                     style={{ borderCurve: "continuous" }}
                   >
-                    <Text className="text-xs font-sen-bold text-secondary">
+                    <Text className="text-xs font-label text-secondary">
                       {cat.name}
                     </Text>
                   </Pressable>
@@ -369,7 +369,7 @@ export default function SearchPage() {
           /* Loading State */
           <View className="flex-1 items-center justify-center py-20">
             <ActivityIndicator size="large" color={ACCENT} />
-            <Text className="text-text-gray font-sen text-xs mt-3">
+            <Text className="text-text-gray font-body text-xs mt-3">
               Searching for &quot;{debouncedQuery}&quot;...
             </Text>
           </View>
@@ -379,10 +379,10 @@ export default function SearchPage() {
             <View className="w-16 h-16 rounded-full bg-surface-muted items-center justify-center mb-3">
               <HugeiconsIcon icon={Search01Icon} size={28} color="#646982" />
             </View>
-            <Text className="text-base font-sen-bold text-secondary mb-1">
+            <Text className="text-base font-title text-secondary mb-1">
               No Matches for &quot;{debouncedQuery}&quot;
             </Text>
-            <Text className="text-xs font-sen text-text-gray text-center max-w-[260px]">
+            <Text className="text-xs font-body text-text-gray text-center max-w-[260px]">
               Try searching for a different dish name, cuisine, or restaurant.
             </Text>
           </View>
@@ -401,10 +401,10 @@ export default function SearchPage() {
               if (item.type === "header") {
                 return (
                   <View className="flex-row items-center justify-between mt-4 mb-3">
-                    <Text className="text-[17px] font-sen-bold text-secondary">
+                    <Text className="text-[17px] font-title text-secondary">
                       {item.title}
                     </Text>
-                    <Text className="text-xs font-sen text-text-gray">
+                    <Text className="text-xs font-numeric text-text-gray">
                       {item.count} {item.count === 1 ? "result" : "results"}
                     </Text>
                   </View>
