@@ -1,7 +1,6 @@
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
 import { matchesCategory } from "@/lib/adapters/categories";
-import { ArrowLeft01Icon } from "@hugeicons/core-free-icons";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
@@ -39,24 +38,8 @@ export default function AllCategories() {
 
   const renderHeader = () => (
     <View className="pb-4">
-      {/* Top navigation row */}
-      <View
-        className="flex-row items-center justify-between px-5 pt-3 pb-2"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <Text className="text-lg font-title text-secondary">
-          Categories
-        </Text>
-        <View className="w-11" />
-      </View>
-
       {/* Screen Title */}
-      <View className="px-5 mt-2">
+      <View className="px-5 mt-3">
         <Text className="text-[26px] font-display text-secondary">
           Explore Cuisines
         </Text>
@@ -69,7 +52,8 @@ export default function AllCategories() {
 
   return (
     <View className="flex-1 bg-white">
-      {categoriesLoading && !categoriesData ? (
+      <ScreenHeader title="Categories" />
+      {categoriesLoading && categories.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />
         </View>

@@ -1,5 +1,5 @@
 import { ButtonText } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useAddresses,
   useDefaultAddress,
@@ -12,7 +12,6 @@ import { useCartStore } from "@/store/cartStore";
 import { Address, PaymentMethod } from "@/types/api";
 import {
   ArrowDown01Icon,
-  ArrowLeft01Icon,
   ArrowUp01Icon,
   Clock01Icon,
   CreditCardIcon,
@@ -88,22 +87,25 @@ export default function Checkout() {
     null;
 
   const subtotal = getTotalPrice;
-  const deliveryFee = restaurant?.deliveryFee ?? 0;
+  const deliveryFee = restaurant ? restaurant.deliveryFee : 0;
   const total = subtotal + deliveryFee;
 
   const placeOrderPressed = useSharedValue(0);
   const placeOrderStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: interpolate(placeOrderPressed.get(), [0, 1], [1, 0.97]) },
-    ],
+    transform: [{ scale: interpolate(placeOrderPressed.get(), [0, 1], [1, 0.97]) }],
     opacity: interpolate(placeOrderPressed.get(), [0, 1], [1, 0.9]),
   }));
 
   const handlePlaceOrder = () => {
+    if (!restaurantId || items.length === 0) {
+      Alert.alert("Error", "Your cart is empty.");
+      return;
+    }
+
     if (!selectedAddress) {
       Alert.alert(
         "Address Required",
-        "Please select or add a delivery address to continue.",
+        "Please select or add a delivery address.",
         [
           {
             text: "Add Address",
@@ -118,14 +120,15 @@ export default function Checkout() {
     if (!selectedPaymentMethod) {
       Alert.alert(
         "Payment Required",
-        "Please select a payment method to continue.",
+        "Please select or add a payment method.",
+        [
+          {
+            text: "Add Payment",
+            onPress: () => router.push("/profile/add-card" as any),
+          },
+          { text: "Cancel", style: "cancel" },
+        ],
       );
-      return;
-    }
-
-    if (items.length === 0) {
-      Alert.alert("Empty Cart", "Your cart is empty.");
-      router.back();
       return;
     }
 
@@ -176,21 +179,7 @@ export default function Checkout() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
-      <View
-        className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <Text className="text-[17px] font-title text-secondary">
-          Checkout
-        </Text>
-        <View className="w-11" />
-      </View>
+      <ScreenHeader title="Checkout" />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

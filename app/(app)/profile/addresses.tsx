@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useDeleteAddress,
   useSetDefaultAddress,
@@ -6,7 +7,6 @@ import {
 import { useAddresses } from "@/hooks/useDataQueries";
 import { Address } from "@/types/api";
 import {
-  ArrowLeft01Icon,
   Briefcase01Icon,
   Delete02Icon,
   Edit02Icon,
@@ -79,25 +79,16 @@ export default function Addresses() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
-      <View
-        className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <Text className="text-[17px] font-title text-secondary">
-          Delivery Addresses
-        </Text>
-        <IconButton
-          icon={PlusSignIcon}
-          accessibilityLabel="Add new address"
-          onPress={() => router.push("/profile/add-address" as any)}
-        />
-      </View>
+      <ScreenHeader
+        title="Delivery Addresses"
+        rightElement={
+          <IconButton
+            icon={PlusSignIcon}
+            accessibilityLabel="Add new address"
+            onPress={() => router.push("/profile/add-address" as any)}
+          />
+        }
+      />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

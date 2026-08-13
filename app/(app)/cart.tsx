@@ -1,10 +1,10 @@
 import { ButtonText } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useDefaultAddress, useRestaurant } from "@/hooks/useDataQueries";
 import { useCartStore } from "@/store/cartStore";
 import {
   Add01Icon,
-  ArrowLeft01Icon,
   ArrowRight01Icon,
   Clock01Icon,
   Coupon01Icon,
@@ -86,31 +86,6 @@ export default function Cart() {
 
   const renderHeader = () => (
     <View className="pb-2">
-      {/* 1. Header Navigation Row */}
-      <View
-        className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-gray-100"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <View className="items-center flex-1 mx-3">
-          <Text
-            numberOfLines={1}
-            className="text-[17px] font-title text-secondary"
-          >
-            {restaurantName || "Your Cart"}
-          </Text>
-          <Text className="text-[11px] font-body text-text-gray">
-            {items.length} {items.length === 1 ? "item" : "items"}
-          </Text>
-        </View>
-        <Text className="text-base font-numeric text-secondary">
-          ₦{subtotal.toLocaleString()}
-        </Text>
-      </View>
 
       {/* 2. Delivery ETA & Address Row */}
       <View className="px-5 mt-4 mb-3">
@@ -255,19 +230,7 @@ export default function Cart() {
       {items.length === 0 ? (
         /* Empty Cart State */
         <View className="flex-1">
-          <View
-            className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center"
-            style={{ paddingTop: insets.top + 4 }}
-          >
-            <IconButton
-              icon={ArrowLeft01Icon}
-              accessibilityLabel="Go back"
-              onPress={() => router.back()}
-            />
-            <Text className="text-lg font-title text-secondary ml-4">
-              Your Cart
-            </Text>
-          </View>
+          <ScreenHeader title="Your Cart" />
 
           <View className="flex-1 items-center justify-center px-6">
             <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
@@ -293,6 +256,15 @@ export default function Cart() {
       ) : (
         /* Populated Cart */
         <View className="flex-1">
+          <ScreenHeader
+            title={restaurantName || "Your Cart"}
+            subtitle={`${items.length} ${items.length === 1 ? "item" : "items"}`}
+            rightElement={
+              <Text className="text-base font-numeric text-secondary">
+                ₦{subtotal.toLocaleString()}
+              </Text>
+            }
+          />
           <FlashList
             data={items}
             keyExtractor={(item) => item.foodItem._id}

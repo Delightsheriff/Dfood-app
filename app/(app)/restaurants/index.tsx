@@ -1,8 +1,7 @@
 import RestaurantCard from "@/components/RestaurantCard";
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useRestaurants } from "@/hooks/useDataQueries";
 import {
-  ArrowLeft01Icon,
   Store01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
@@ -69,24 +68,8 @@ export default function AllRestaurants() {
 
   const renderHeader = () => (
     <View className="pb-3">
-      {/* Top navigation row */}
-      <View
-        className="flex-row items-center justify-between px-5 pt-3 pb-2"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <Text className="text-lg font-title text-secondary">
-          Restaurants
-        </Text>
-        <View className="w-11" />
-      </View>
-
       {/* Screen title & result count */}
-      <View className="px-5 mt-2 mb-4">
+      <View className="px-5 mt-3 mb-4">
         <Text className="text-[26px] font-display text-secondary">
           All Restaurants
         </Text>
@@ -131,6 +114,7 @@ export default function AllRestaurants() {
 
   return (
     <View className="flex-1 bg-white">
+      <ScreenHeader title="Restaurants" />
       {isLoading && !restaurantsData ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />

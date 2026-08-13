@@ -1,7 +1,7 @@
 import FoodCard from "@/components/FoodCard";
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useFavorites } from "@/hooks/useDataQueries";
-import { ArrowLeft01Icon, HeartIcon } from "@hugeicons/core-free-icons";
+import { HeartIcon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { useRouter } from "expo-router";
@@ -23,25 +23,9 @@ export default function Favourites() {
 
   const favorites = favoritesData?.data.favorites || [];
 
-  const renderHeader = () => (
-    <View
-      className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-gray-100 mb-4"
-      style={{ paddingTop: insets.top + 4 }}
-    >
-      <IconButton
-        icon={ArrowLeft01Icon}
-        accessibilityLabel="Go back"
-        onPress={() => router.back()}
-      />
-      <Text className="text-[17px] font-title text-secondary">
-        Saved Favourites
-      </Text>
-      <View className="w-11" />
-    </View>
-  );
-
   return (
     <View className="flex-1 bg-white">
+      <ScreenHeader title="Saved Favourites" />
       {isLoading && !favoritesData ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />
@@ -51,9 +35,9 @@ export default function Favourites() {
           data={favorites}
           keyExtractor={(item) => item._id}
           numColumns={2}
-          ListHeaderComponent={renderHeader}
           contentContainerStyle={{
             paddingHorizontal: 14,
+            paddingTop: 12,
             paddingBottom: insets.bottom + 24,
           }}
           renderItem={({ item }) => (

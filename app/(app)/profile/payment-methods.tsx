@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { usePaymentMethods } from "@/hooks/useDataQueries";
 import {
   useDeletePaymentMethod,
@@ -6,7 +7,6 @@ import {
 } from "@/hooks/usePaymentMethodMutations";
 import { PaymentMethod } from "@/types/api";
 import {
-  ArrowLeft01Icon,
   CreditCardIcon,
   Delete02Icon,
   Money01Icon,
@@ -65,25 +65,16 @@ export default function PaymentMethods() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
-      <View
-        className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <Text className="text-[17px] font-title text-secondary">
-          Payment Methods
-        </Text>
-        <IconButton
-          icon={PlusSignIcon}
-          accessibilityLabel="Add new card"
-          onPress={() => router.push("/profile/add-card" as any)}
-        />
-      </View>
+      <ScreenHeader
+        title="Payment Methods"
+        rightElement={
+          <IconButton
+            icon={PlusSignIcon}
+            accessibilityLabel="Add new card"
+            onPress={() => router.push("/profile/add-card" as any)}
+          />
+        }
+      />
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">

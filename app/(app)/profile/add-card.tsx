@@ -1,8 +1,7 @@
 import { ButtonText } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useAddCard } from "@/hooks/usePaymentMethodMutations";
 import {
-  ArrowLeft01Icon,
   CreditCardIcon,
   Shield01Icon,
 } from "@hugeicons/core-free-icons";
@@ -64,21 +63,7 @@ export default function AddCard() {
       style={{ flex: 1 }}
     >
       <View className="flex-1 bg-white">
-        {/* Header */}
-        <View
-          className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
-          style={{ paddingTop: insets.top + 4 }}
-        >
-          <IconButton
-            icon={ArrowLeft01Icon}
-            accessibilityLabel="Go back"
-            onPress={() => router.back()}
-          />
-          <Text className="text-[17px] font-title text-secondary">
-            Add Payment Card
-          </Text>
-          <View className="w-11" />
-        </View>
+        <ScreenHeader title="Add Payment Card" />
 
         <ScrollView
           showsVerticalScrollIndicator={false}

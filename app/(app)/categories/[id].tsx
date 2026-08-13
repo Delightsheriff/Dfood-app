@@ -1,13 +1,13 @@
 import FoodCard from "@/components/FoodCard";
 import RestaurantCard from "@/components/RestaurantCard";
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useCategories,
   useFoodItemsByCategory,
   useRestaurants,
 } from "@/hooks/useDataQueries";
 import { matchesCategory } from "@/lib/adapters/categories";
-import { ArrowLeft01Icon, Dish01Icon } from "@hugeicons/core-free-icons";
+import { Dish01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
@@ -46,22 +46,7 @@ export default function CategoryDetails() {
   }, [restaurantsData, id]);
 
   const renderHeader = () => (
-    <View className="pb-3">
-      {/* 1. Header Navigation */}
-      <View
-        className="flex-row items-center justify-between px-5 pt-3 pb-3"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <Text className="text-lg font-title text-secondary">
-          {categoryName}
-        </Text>
-        <View className="w-11" />
-      </View>
+    <View className="pb-3 pt-2">
 
       {/* 2. Hero Strip (~130px) */}
       {categoryImage ? (
@@ -136,6 +121,7 @@ export default function CategoryDetails() {
 
   return (
     <View className="flex-1 bg-white">
+      <ScreenHeader title={categoryName} />
       {foodItemsLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />

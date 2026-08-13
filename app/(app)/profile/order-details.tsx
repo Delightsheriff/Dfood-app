@@ -1,9 +1,9 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useOrder } from "@/hooks/useDataQueries";
 import { useCancelOrder } from "@/hooks/useOrderMutations";
 import { Order } from "@/types/api";
 import {
-  ArrowLeft01Icon,
   CheckmarkCircle02Icon,
   CreditCardIcon,
   Location01Icon,
@@ -96,29 +96,10 @@ export default function OrderDetails() {
 
   return (
     <View className="flex-1 bg-white">
-      {/* Header */}
-      <View
-        className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <IconButton
-          icon={ArrowLeft01Icon}
-          accessibilityLabel="Go back"
-          onPress={() => router.back()}
-        />
-        <View className="items-center flex-1 mx-3">
-          <Text
-            numberOfLines={1}
-            className="text-[17px] font-numeric text-secondary"
-          >
-            Order #{order.orderNumber || order._id.slice(-6).toUpperCase()}
-          </Text>
-          <Text className="text-[11px] font-body text-text-gray">
-            {order.restaurantId.name}
-          </Text>
-        </View>
-        <View className="w-11" />
-      </View>
+      <ScreenHeader
+        title={`Order #${order.orderNumber || order._id.slice(-6).toUpperCase()}`}
+        subtitle={order.restaurantId.name}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

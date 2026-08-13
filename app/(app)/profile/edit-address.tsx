@@ -1,9 +1,8 @@
 import { ButtonText } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useUpdateAddress } from "@/hooks/useAddressMutations";
 import { useAddresses } from "@/hooks/useDataQueries";
 import {
-  ArrowLeft01Icon,
   Briefcase01Icon,
   Gps01Icon,
   Home01Icon,
@@ -80,7 +79,7 @@ export default function EditAddress() {
         if (item.region) setStateOverride(item.region);
       }
     } catch {
-      // Graceful fallback
+      // Graceful fallback to manual entry
     }
   };
 
@@ -91,7 +90,7 @@ export default function EditAddress() {
       if (status !== "granted") {
         Alert.alert(
           "Permission Required",
-          "Location permission is needed to find your current spot.",
+          "Location permission is needed to find your current spot. You can also enter the address manually.",
         );
         setLocationLoading(false);
         return;
@@ -104,6 +103,15 @@ export default function EditAddress() {
       };
 
       setCoordsOverride(newCoords);
+      mapRef.current?.animateToRegion(
+        {
+          ...newCoords,
+          latitudeDelta: 0.008,
+          longitudeDelta: 0.008,
+        },
+        400,
+      );
+
       await reverseGeocode(newCoords.latitude, newCoords.longitude);
     } catch (err) {
       console.log("GPS lookup failed:", err);
@@ -119,7 +127,6 @@ export default function EditAddress() {
   };
 
   const handleSave = () => {
-    if (!address) return;
     if (!street.trim()) {
       Alert.alert("Street Required", "Please enter the street address.");
       return;
@@ -131,7 +138,7 @@ export default function EditAddress() {
 
     updateAddressMutation.mutate(
       {
-        id: address._id,
+        id,
         data: {
           label,
           street: street.trim(),
@@ -142,7 +149,7 @@ export default function EditAddress() {
       },
       {
         onSuccess: () => {
-          Alert.alert("Updated", "Address updated successfully.");
+          Alert.alert("Saved", "Address updated successfully.");
           router.back();
         },
         onError: (err: any) => {
@@ -166,21 +173,7 @@ export default function EditAddress() {
       style={{ flex: 1 }}
     >
       <View className="flex-1 bg-white">
-        {/* Header */}
-        <View
-          className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between bg-white z-10"
-          style={{ paddingTop: insets.top + 4 }}
-        >
-          <IconButton
-            icon={ArrowLeft01Icon}
-            accessibilityLabel="Go back"
-            onPress={() => router.back()}
-          />
-          <Text className="text-[17px] font-title text-secondary">
-            Edit Address
-          </Text>
-          <View className="w-11" />
-        </View>
+        <ScreenHeader title="Edit Address" />
 
         {/* Map Header Area */}
         <View className="h-56 w-full relative bg-surface-muted">
