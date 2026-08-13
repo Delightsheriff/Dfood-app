@@ -1,7 +1,16 @@
-import { AlertTriangle, Check, ShoppingCart, X } from "lucide-react-native";
-import React, { useEffect, useRef } from "react";
-import { Animated, Text, View } from "react-native";
+import {
+  Alert02Icon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  ShoppingBag01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import React from "react";
+import { Text, View } from "react-native";
+import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
 import { BaseToastProps } from "react-native-toast-message";
+
+const ACCENT = "#E0533A";
 
 function ToastBase({
   icon,
@@ -16,37 +25,11 @@ function ToastBase({
   text2?: string;
   accentColor: string;
 }) {
-  const slideAnim = useRef(new Animated.Value(0)).current;
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.spring(slideAnim, {
-        toValue: 1,
-        damping: 15,
-        stiffness: 150,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 200,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, [slideAnim, fadeAnim]);
-
   return (
     <Animated.View
+      entering={FadeInUp.duration(200)}
+      exiting={FadeOutUp.duration(150)}
       style={{
-        opacity: fadeAnim,
-        transform: [
-          {
-            translateY: slideAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [-20, 0],
-            }),
-          },
-        ],
         width: "90%",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 4 },
@@ -56,42 +39,25 @@ function ToastBase({
       }}
     >
       <View
+        className="flex-row items-center bg-white rounded-[18px] p-3.5 border-l-4"
         style={{
-          flexDirection: "row",
-          alignItems: "center",
-          backgroundColor: "#FFFFFF",
-          borderRadius: 16,
-          paddingVertical: 14,
-          paddingHorizontal: 16,
-          borderLeftWidth: 4,
           borderLeftColor: accentColor,
+          borderCurve: "continuous",
         }}
       >
-        {/* Icon */}
+        {/* Icon container */}
         <View
-          style={{
-            width: 38,
-            height: 38,
-            borderRadius: 12,
-            backgroundColor: iconBgColor,
-            alignItems: "center",
-            justifyContent: "center",
-            marginRight: 12,
-          }}
+          className="w-9 h-9 rounded-xl items-center justify-center mr-3"
+          style={{ backgroundColor: iconBgColor }}
         >
           {icon}
         </View>
 
         {/* Text */}
-        <View style={{ flex: 1 }}>
+        <View className="flex-1">
           {text1 ? (
             <Text
-              style={{
-                fontFamily: "Sen-Bold",
-                fontSize: 14,
-                color: "#32343E",
-                marginBottom: text2 ? 2 : 0,
-              }}
+              className="font-sen-bold text-sm text-secondary"
               numberOfLines={1}
             >
               {text1}
@@ -99,11 +65,7 @@ function ToastBase({
           ) : null}
           {text2 ? (
             <Text
-              style={{
-                fontFamily: "Sen",
-                fontSize: 12,
-                color: "#646982",
-              }}
+              className="font-sen text-xs text-text-gray mt-0.5"
               numberOfLines={1}
             >
               {text2}
@@ -118,9 +80,15 @@ function ToastBase({
 export const toastConfig = {
   success: ({ text1, text2 }: BaseToastProps) => (
     <ToastBase
-      icon={<Check color="#FFFFFF" size={18} strokeWidth={3} />}
-      iconBgColor="#FF7622"
-      accentColor="#FF7622"
+      icon={
+        <HugeiconsIcon
+          icon={CheckmarkCircle02Icon}
+          size={18}
+          color="#FFFFFF"
+        />
+      }
+      iconBgColor={ACCENT}
+      accentColor={ACCENT}
       text1={text1}
       text2={text2}
     />
@@ -128,9 +96,15 @@ export const toastConfig = {
 
   cart: ({ text1, text2 }: BaseToastProps) => (
     <ToastBase
-      icon={<ShoppingCart color="#FFFFFF" size={18} />}
-      iconBgColor="#FF7622"
-      accentColor="#FF7622"
+      icon={
+        <HugeiconsIcon
+          icon={ShoppingBag01Icon}
+          size={18}
+          color="#FFFFFF"
+        />
+      }
+      iconBgColor={ACCENT}
+      accentColor={ACCENT}
       text1={text1}
       text2={text2}
     />
@@ -138,7 +112,9 @@ export const toastConfig = {
 
   error: ({ text1, text2 }: BaseToastProps) => (
     <ToastBase
-      icon={<X color="#FFFFFF" size={18} strokeWidth={3} />}
+      icon={
+        <HugeiconsIcon icon={Cancel01Icon} size={18} color="#FFFFFF" />
+      }
       iconBgColor="#EF4444"
       accentColor="#EF4444"
       text1={text1}
@@ -148,7 +124,7 @@ export const toastConfig = {
 
   warning: ({ text1, text2 }: BaseToastProps) => (
     <ToastBase
-      icon={<AlertTriangle color="#FFFFFF" size={18} />}
+      icon={<HugeiconsIcon icon={Alert02Icon} size={18} color="#FFFFFF" />}
       iconBgColor="#F59E0B"
       accentColor="#F59E0B"
       text1={text1}

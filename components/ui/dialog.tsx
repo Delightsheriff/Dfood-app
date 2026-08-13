@@ -1,8 +1,8 @@
-import { Icon } from '@/components/ui/icon';
 import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-view';
 import { cn } from '@/lib/utils';
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
+import { HugeiconsIcon } from '@hugeicons/react-native';
 import * as DialogPrimitive from '@rn-primitives/dialog';
-import { X } from 'lucide-react-native';
 import * as React from 'react';
 import { Platform, Text, View, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -77,9 +77,10 @@ function DialogContent({
               })
             )}
             hitSlop={12}>
-            <Icon
-              as={X}
-              className={cn('text-accent-foreground web:pointer-events-none size-4 shrink-0')}
+            <HugeiconsIcon
+              icon={Cancel01Icon}
+              size={16}
+              color="#262B33"
             />
             <Text className="sr-only">Close</Text>
           </DialogPrimitive.Close>
