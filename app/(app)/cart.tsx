@@ -85,24 +85,40 @@ export default function Cart() {
     });
 
   const renderHeader = () => (
-    <View
-      className="pb-2"
-      style={{ paddingTop: insets.top }}
-    >
-      {/* Restaurant Header Block */}
-      <View className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between">
+    <View className="pb-2">
+      {/* 1. Header Navigation Row */}
+      <View
+        className="flex-row items-center justify-between px-5 pt-3 pb-3 border-b border-gray-100"
+        style={{ paddingTop: insets.top + 4 }}
+      >
         <IconButton
           icon={ArrowLeft01Icon}
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <View className="items-center flex-1 mx-2">
+        <View className="items-center flex-1 mx-3">
           <Text
             numberOfLines={1}
             className="text-[17px] font-title text-secondary"
           >
             {restaurantName || "Your Cart"}
           </Text>
+          <Text className="text-[11px] font-body text-text-gray">
+            {items.length} {items.length === 1 ? "item" : "items"}
+          </Text>
+        </View>
+        <Text className="text-base font-numeric text-secondary">
+          ₦{subtotal.toLocaleString()}
+        </Text>
+      </View>
+
+      {/* 2. Delivery ETA & Address Row */}
+      <View className="px-5 mt-4 mb-3">
+        <Pressable
+          onPress={() => router.push("/profile/addresses" as any)}
+          className="flex-row items-center justify-between p-3.5 bg-surface-muted rounded-[18px]"
+          style={{ borderCurve: "continuous" }}
+        >
           <View className="flex-row items-center flex-1 mr-2">
             <View className="w-9 h-9 rounded-full bg-white items-center justify-center mr-3">
               <HugeiconsIcon icon={Clock01Icon} size={18} color={ACCENT} />

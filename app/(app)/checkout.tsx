@@ -19,7 +19,6 @@ import {
   Location01Icon,
   Money01Icon,
   Note01Icon,
-  ShoppingBag01Icon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { useRouter } from "expo-router";
