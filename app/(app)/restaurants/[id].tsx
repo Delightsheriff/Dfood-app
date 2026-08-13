@@ -1,5 +1,6 @@
 import FoodCard from "@/components/FoodCard";
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useFoodItemsByRestaurant,
   useRestaurant,
@@ -112,32 +113,27 @@ export default function RestaurantDetails() {
           }}
         />
 
-        {/* Floating action buttons */}
-        <View
-          className="absolute flex-row items-center justify-between px-4"
-          style={{ top: insets.top + 8, left: 0, right: 0 }}
-        >
-          <IconButton
-            icon={ArrowLeft01Icon}
-            accessibilityLabel="Go back"
-            onPress={() => router.back()}
-          />
-          <View className="flex-row gap-2">
-            <IconButton
-              icon={HeartIcon}
-              accessibilityLabel="Favorite restaurant"
-              filled={isFavorite}
-              fillColor={ACCENT}
-              color={isFavorite ? ACCENT : INK}
-              onPress={() => setIsFavorite((prev) => !prev)}
-            />
-            <IconButton
-              icon={Share01Icon}
-              accessibilityLabel="Share restaurant"
-              onPress={handleShare}
-            />
-          </View>
-        </View>
+        {/* Floating action buttons via ScreenHeader variant="floating" */}
+        <ScreenHeader
+          variant="floating"
+          rightElement={
+            <View className="flex-row gap-2">
+              <IconButton
+                icon={HeartIcon}
+                accessibilityLabel="Favorite restaurant"
+                filled={isFavorite}
+                fillColor={ACCENT}
+                color={isFavorite ? ACCENT : INK}
+                onPress={() => setIsFavorite((prev) => !prev)}
+              />
+              <IconButton
+                icon={Share01Icon}
+                accessibilityLabel="Share restaurant"
+                onPress={handleShare}
+              />
+            </View>
+          }
+        />
 
         {/* Pagination dots */}
         {restaurant.images.length > 1 && (

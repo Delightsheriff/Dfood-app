@@ -1,5 +1,6 @@
 import { ButtonText } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
 import { useCheckFavorite, useFoodItem } from "@/hooks/useDataQueries";
 import {
   useAddFavorite,
@@ -235,37 +236,30 @@ export default function FoodDetails() {
           }}
         />
 
-        {/* Floating icon buttons, safe-area aware */}
-        <View
-          className="absolute flex-row items-center justify-between px-4"
-          style={{ top: insets.top + 8, left: 0, right: 0 }}
-        >
-          <IconButton
-            icon={ArrowLeft01Icon}
-            accessibilityLabel="Go back"
-            onPress={() => router.back()}
-          />
-          <View className="flex-row gap-2">
-            <IconButton
-              icon={HeartIcon}
-              accessibilityLabel={
-                isFavorite ? "Remove from favorites" : "Add to favorites"
-              }
-              filled={isFavorite}
-              fillColor={ACCENT}
-              color={isFavorite ? ACCENT : INK}
-              disabled={
-                addFavoriteMutation.isPending || removeFavoriteMutation.isPending
-              }
-              onPress={handleToggleFavorite}
-            />
-            <IconButton
-              icon={Share01Icon}
-              accessibilityLabel="Share"
-              onPress={handleShare}
-            />
-          </View>
-        </View>
+        {/* Floating icon buttons via ScreenHeader variant="floating" */}
+        <ScreenHeader
+          variant="floating"
+          rightElement={
+            <View className="flex-row gap-2">
+              <IconButton
+                icon={HeartIcon}
+                accessibilityLabel={
+                  isFavorite ? "Remove from favorites" : "Add to favorites"
+                }
+                filled={isFavorite}
+                fillColor={ACCENT}
+                color={isFavorite ? ACCENT : "#262B33"}
+                disabled={addFavoriteMutation.isPending || removeFavoriteMutation.isPending}
+                onPress={handleToggleFavorite}
+              />
+              <IconButton
+                icon={Share01Icon}
+                accessibilityLabel="Share food item"
+                onPress={handleShare}
+              />
+            </View>
+          }
+        />
 
         {/* Pagination dots */}
         {food.images.length > 1 && (
