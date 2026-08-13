@@ -1,44 +1,52 @@
-import { Button } from "@/components/ui/button";
-import { Text } from "@/components/ui/text";
+import OnboardingItem from "@/components/OnboardingItem";
+import OnboardingPaginator from "@/components/OnboardingPaginator";
+import { ButtonText } from "@/components/ui/button";
 import { useOnboarding } from "@/hooks/useOnboarding";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import * as Location from "expo-location";
 import { useRouter } from "expo-router";
-import { ArrowRight } from "lucide-react-native";
-import { useCallback, useRef, useState } from "react";
-import { FlatList, View } from "react-native";
+import React, { useCallback, useRef, useState } from "react";
+import { FlatList, Pressable, Text, View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  interpolate,
   useAnimatedScrollHandler,
+  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
-import OnboardingItem from "../components/OnboardingItem";
-import OnboardingPaginator from "../components/OnboardingPaginator";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const slides = [
   {
     id: "1",
-    title: "All your favorites",
+    tagline: "DISCOVER",
+    title: "Cravings Delivered Fast",
     description:
-      "Get all your loved foods in one place, you just place the order we do the rest",
+      "Explore top-rated restaurants and authentic cuisines right in your neighborhood.",
     image: require("../assets/images/onboarding_1.png"),
   },
   {
     id: "2",
-    title: "Order from chosen chef",
+    tagline: "ORDER",
+    title: "Effortless Ordering",
     description:
-      "Get all your loved foods in one place, you just place the order we do the rest",
+      "Customize your favorite dishes, apply promos, and enjoy seamless quick checkout.",
     image: require("../assets/images/onboarding_2.png"),
   },
   {
     id: "3",
-    title: "Free delivery offers",
+    tagline: "TRACK",
+    title: "Doorstep Arrival",
     description:
-      "Get all your loved foods in one place, you just place the order we do the rest",
+      "Follow your order in real time from the kitchen right to your doorstep.",
     image: require("../assets/images/onboarding_3.png"),
   },
 ];
 
 export default function Onboarding() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const { completeOnboarding } = useOnboarding();
   const flatListRef = useRef<FlatList>(null);
@@ -60,10 +68,17 @@ export default function Onboarding() {
 
   const handleComplete = async () => {
     try {
+      // Optional location priming on final step
+      try {
+        await Location.requestForegroundPermissionsAsync();
+      } catch (locErr) {
+        console.log("Location permission skipped:", locErr);
+      }
       await completeOnboarding();
-      router.replace("/(app)");
+      router.replace("/(app)/(tabs)" as any);
     } catch (error) {
       console.error("Failed to complete onboarding:", error);
+      router.replace("/(app)/(tabs)" as any);
     }
   };
 
@@ -75,25 +90,49 @@ export default function Onboarding() {
     }
   };
 
-  const handleSkip = () => {
-    handleComplete();
-  };
+  const nextBtnPressed = useSharedValue(0);
+  const nextBtnStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: interpolate(nextBtnPressed.get(), [0, 1], [1, 0.97]) },
+    ],
+    opacity: interpolate(nextBtnPressed.get(), [0, 1], [1, 0.9]),
+  }));
+
+  const nextTap = Gesture.Tap()
+    .runOnJS(true)
+    .onBegin(() => {
+      nextBtnPressed.set(1);
+    })
+    .onFinalize(() => {
+      nextBtnPressed.set(0);
+    })
+    .onEnd((_event, success) => {
+      if (success) {
+        handleNext();
+      }
+    });
 
   const isLast = currentIndex === slides.length - 1;
-  const buttonText = isLast ? "Get Started" : "Next";
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View className="flex-1 bg-white">
       {/* Skip Button */}
-      <View className="flex-row justify-end px-6 pt-2">
-        <Button
-          variant="ghost"
-          onPress={handleSkip}
-          className="px-4 py-2 rounded-xl bg-[#F6F8FA]"
-          style={{ borderWidth: 1, borderColor: "#F0F0F0" }}
+      <View
+        className="absolute z-10 right-5 flex-row justify-end"
+        style={{ top: insets.top + 10 }}
+      >
+        <Pressable
+          onPress={handleComplete}
+          className="px-4 py-2 rounded-full bg-white/80"
+          style={{
+            borderCurve: "continuous",
+            boxShadow: "0px 2px 6px rgba(0,0,0,0.08)",
+          }}
         >
-          <Text className="text-text-gray font-sen-bold text-xs">Skip</Text>
-        </Button>
+          <Text className="text-secondary font-sen-bold text-xs">
+            Skip
+          </Text>
+        </Pressable>
       </View>
 
       {/* Slides */}
@@ -115,26 +154,26 @@ export default function Onboarding() {
       </View>
 
       {/* Bottom Controls */}
-      <View className="px-6 pb-8">
+      <View
+        className="px-6"
+        style={{ paddingBottom: insets.bottom + 24 }}
+      >
         <OnboardingPaginator data={slides} scrollX={scrollX} />
 
-        <Button
-          onPress={handleNext}
-          className="h-[56px] bg-primary rounded-2xl flex-row items-center justify-center"
-          style={{
-            shadowColor: "#FF7622",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 6,
-          }}
-        >
-          <Text className="font-sen-bold uppercase tracking-wider text-white mr-2">
-            {buttonText}
-          </Text>
-          <ArrowRight color="white" size={18} />
-        </Button>
+        <GestureDetector gesture={nextTap}>
+          <Animated.View
+            accessibilityRole="button"
+            accessibilityLabel={isLast ? "Get Started" : "Next slide"}
+            className="h-14 w-full bg-secondary rounded-full flex-row items-center justify-center gap-2"
+            style={nextBtnStyle}
+          >
+            <ButtonText className="font-sen-bold text-[15px] text-white">
+              {isLast ? "Get Started" : "Next"}
+            </ButtonText>
+            <HugeiconsIcon icon={ArrowRight01Icon} size={18} color="#FFFFFF" />
+          </Animated.View>
+        </GestureDetector>
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
