@@ -1,129 +1,146 @@
+import { IconButton } from "@/components/ui/icon-button";
 import { Restaurant } from "@/types/api";
+import {
+  Bookmark02Icon,
+  StarIcon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Image } from "expo-image";
-import { Clock, MapPin, Star, Truck } from "lucide-react-native";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
-const cardShadow = {
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 3 },
-  shadowOpacity: 0.08,
-  shadowRadius: 12,
-  elevation: 4,
-} as const;
-
-const badgeShadow = {
-  shadowColor: "#000",
-  shadowOffset: { width: 0, height: 1 },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
-} as const;
+const ACCENT = "#E0533A";
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
   onPress: () => void;
+  variant?: "full" | "compact";
 }
 
-function RestaurantCard({ restaurant, onPress }: RestaurantCardProps) {
-  const isCurrentlyOpen = restaurant.isOpen ?? restaurant.status === "Open";
+function RestaurantCard({
+  restaurant,
+  onPress,
+  variant = "full",
+}: RestaurantCardProps) {
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const isCurrentlyOpen = restaurant.isOpen ?? restaurant.status !== "Closed";
+
+  const cuisineText =
+    restaurant.cuisineTags && restaurant.cuisineTags.length > 0
+      ? restaurant.cuisineTags
+          .slice(0, 3)
+          .map((tag) => tag.charAt(0).toUpperCase() + tag.slice(1))
+          .join(" • ")
+      : restaurant.description || "Fresh Food • Fast Delivery";
+
+  const deliveryFeeText =
+    restaurant.deliveryFee === 0 ? "Free delivery" : `₦${restaurant.deliveryFee.toLocaleString()}`;
+
+  const isCompact = variant === "compact";
 
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [cardShadow, { opacity: pressed ? 0.7 : 1 }]}
-      className="bg-white rounded-2xl mb-4 overflow-hidden border border-[#F0F0F0]"
+      accessibilityRole="button"
+      accessibilityLabel={`${restaurant.name}, rating ${restaurant.rating}`}
+      className={`bg-white rounded-[20px] overflow-hidden ${
+        isCompact ? "w-[240px] mr-3.5" : "w-full mb-4"
+      }`}
+      style={{
+        borderCurve: "continuous",
+        borderWidth: 1,
+        borderColor: "#F0EFEB",
+        boxShadow: "0px 2px 8px rgba(0,0,0,0.04)",
+      }}
     >
-      {/* Image Container */}
-      <View className="relative">
+      {/* Image container */}
+      <View className="relative w-full overflow-hidden">
         <Image
           source={{ uri: restaurant.images[0] }}
-          className="w-full"
-          style={{ width: "100%", height: 180 }}
+          style={{ width: "100%", height: isCompact ? 130 : 168 }}
           contentFit="cover"
-          transition={200}
+          transition={150}
+          recyclingKey={restaurant._id}
         />
 
-        {/* Gradient overlay for text readability */}
+        {/* Rating pill top-left */}
         <View
-          className="absolute bottom-0 left-0 right-0 h-20"
+          className="absolute top-2.5 left-2.5 flex-row items-center gap-1 bg-white/95 px-2.5 py-1 rounded-full"
           style={{
-            backgroundColor: "transparent",
+            borderCurve: "continuous",
+            boxShadow: "0px 2px 6px rgba(0,0,0,0.08)",
           }}
-        />
-
-        {/* Rating Badge */}
-        <View
-          className="absolute top-3 left-3 flex-row items-center bg-white px-2.5 py-1.5 rounded-xl"
-          style={badgeShadow}
         >
-          <Star color="#FF7622" size={13} fill="#FF7622" />
-          <Text className="ml-1 font-sen-bold text-secondary text-xs">
-            {restaurant?.rating || "4.5"}
+          <HugeiconsIcon icon={StarIcon} size={13} color={ACCENT} fill={ACCENT} />
+          <Text className="text-xs font-sen-bold text-secondary">
+            {restaurant.rating?.toFixed(1) || "4.5"}
           </Text>
+          {restaurant.totalReviews ? (
+            <Text className="text-[10px] font-sen text-text-gray">
+              ({restaurant.totalReviews})
+            </Text>
+          ) : null}
         </View>
 
-        {/* Delivery Fee Badge */}
-        <View
-          className="absolute top-3 right-3 flex-row items-center bg-white px-2.5 py-1.5 rounded-xl"
-          style={badgeShadow}
-        >
-          <Truck color="#FF7622" size={13} />
-          <Text className="ml-1 font-sen-bold text-secondary text-xs">
-            {restaurant.deliveryFee === 0
-              ? "Free"
-              : `₦${restaurant.deliveryFee}`}
-          </Text>
+        {/* Bookmark/Favorite button top-right */}
+        <View className="absolute top-2.5 right-2.5">
+          <IconButton
+            icon={Bookmark02Icon}
+            accessibilityLabel="Bookmark restaurant"
+            size={36}
+            iconSize={18}
+            filled={isBookmarked}
+            fillColor={ACCENT}
+            color={isBookmarked ? ACCENT : "#262B33"}
+            onPress={() => setIsBookmarked((prev) => !prev)}
+          />
         </View>
 
-        {/* Closed Overlay */}
+        {/* Closed overlay */}
         {!isCurrentlyOpen && (
-          <View className="absolute top-0 left-0 right-0 bottom-0 bg-black/50 items-center justify-center rounded-t-2xl">
-            <View className="bg-white/20 px-6 py-2 rounded-full">
-              <Text className="text-white font-sen-bold text-base tracking-wider">
-                CLOSED
+          <View className="absolute inset-0 bg-black/60 items-center justify-center">
+            <View className="bg-white/20 px-4 py-1.5 rounded-full">
+              <Text className="text-white font-sen-bold text-xs tracking-wider uppercase">
+                Closed
               </Text>
             </View>
           </View>
         )}
       </View>
 
-      {/* Details */}
-      <View className="p-4">
+      {/* Details container */}
+      <View className="p-3.5">
         <Text
-          className="text-base font-sen-bold text-secondary mb-1"
           numberOfLines={1}
+          className="text-[16px] leading-5 font-sen-bold text-secondary"
         >
           {restaurant.name}
         </Text>
 
-        {restaurant.description ? (
-          <Text
-            className="text-text-gray font-sen text-xs mb-2.5"
-            numberOfLines={1}
-          >
-            {restaurant.description}
+        <Text
+          numberOfLines={1}
+          className="mt-1 text-xs font-sen text-text-gray"
+        >
+          {cuisineText}
+        </Text>
+
+        {/* Meta row: 20-30 min • Free delivery • $$ */}
+        <View className="mt-2.5 flex-row items-center gap-1.5">
+          <Text className="text-[12px] font-sen-medium text-secondary">
+            20-30 min
           </Text>
-        ) : null}
-
-        {/* Info Row */}
-        <View className="flex-row items-center">
-          <View className="flex-row items-center flex-1">
-            <MapPin color="#A0A5BA" size={12} />
-            <Text
-              className="text-text-gray font-sen text-[11px] ml-1 flex-1"
-              numberOfLines={1}
-            >
-              {restaurant.address}
-            </Text>
-          </View>
-
-          <View className="flex-row items-center ml-3 bg-[#F0F5FA] px-2.5 py-1 rounded-lg">
-            <Clock color="#646982" size={12} />
-            <Text className="font-sen text-text-gray text-[11px] ml-1">
-              {restaurant.openingTime} - {restaurant.closingTime}
-            </Text>
-          </View>
+          <Text className="text-[12px] font-sen text-text-gray">•</Text>
+          <Text className="text-[12px] font-sen text-text-gray">
+            {deliveryFeeText}
+          </Text>
+          {restaurant.priceLevel && (
+            <>
+              <Text className="text-[12px] font-sen text-text-gray">•</Text>
+              <Text className="text-[12px] font-sen-medium text-text-gray">
+                {restaurant.priceLevel}
+              </Text>
+            </>
+          )}
         </View>
       </View>
     </Pressable>
