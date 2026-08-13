@@ -8,11 +8,8 @@ import * as Location from "expo-location";
 import { useRouter } from "expo-router";
 import React, { useCallback, useRef, useState } from "react";
 import { FlatList, Pressable, Text, View } from "react-native";
-import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
-  interpolate,
   useAnimatedScrollHandler,
-  useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -90,33 +87,7 @@ export default function Onboarding() {
     }
   };
 
-  const nextBtnPressed = useSharedValue(0);
-  const nextBtnStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: interpolate(nextBtnPressed.get(), [0, 1], [1, 0.97]) },
-    ],
-    opacity: interpolate(nextBtnPressed.get(), [0, 1], [1, 0.9]),
-  }));
-
   const isLast = currentIndex === slides.length - 1;
-
-  const nextTap = React.useMemo(
-    () =>
-      Gesture.Tap()
-        .runOnJS(true)
-        .onBegin(() => {
-          nextBtnPressed.set(1);
-        })
-        .onFinalize(() => {
-          nextBtnPressed.set(0);
-        })
-        .onEnd((_event, success) => {
-          if (success) {
-            handleNext();
-          }
-        }),
-    [currentIndex, isLast],
-  );
 
   return (
     <View className="flex-1 bg-white">
@@ -164,19 +135,21 @@ export default function Onboarding() {
       >
         <OnboardingPaginator data={slides} scrollX={scrollX} />
 
-        <GestureDetector gesture={nextTap}>
-          <Animated.View
-            accessibilityRole="button"
-            accessibilityLabel={isLast ? "Get Started" : "Next slide"}
-            className="h-14 w-full bg-secondary rounded-full flex-row items-center justify-center gap-2"
-            style={nextBtnStyle}
-          >
-            <ButtonText className="font-sen-bold text-[15px] text-white">
-              {isLast ? "Get Started" : "Next"}
-            </ButtonText>
-            <HugeiconsIcon icon={ArrowRight01Icon} size={18} color="#FFFFFF" />
-          </Animated.View>
-        </GestureDetector>
+        <Pressable
+          onPress={handleNext}
+          accessibilityRole="button"
+          accessibilityLabel={isLast ? "Get Started" : "Next slide"}
+          className="h-14 w-full bg-secondary rounded-full flex-row items-center justify-center gap-2 active:opacity-90"
+          style={{
+            borderCurve: "continuous",
+            boxShadow: "0px 4px 12px rgba(38,43,51,0.2)",
+          }}
+        >
+          <ButtonText className="font-sen-bold text-[15px] text-white">
+            {isLast ? "Get Started" : "Next"}
+          </ButtonText>
+          <HugeiconsIcon icon={ArrowRight01Icon} size={18} color="#FFFFFF" />
+        </Pressable>
       </View>
     </View>
   );
