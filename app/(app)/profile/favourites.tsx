@@ -62,6 +62,7 @@ export default function Favourites() {
                 food={item.foodItem}
                 restaurantId={item.foodItem.restaurant?._id}
                 restaurantName={item.foodItem.restaurant?.name}
+                showRestaurantName={true}
                 onPress={() =>
                   router.push({
                     pathname: "/(app)/food/[id]",

@@ -432,6 +432,7 @@ export default function SearchPage() {
                     food={item.data}
                     restaurantId={item.data.restaurant?._id}
                     restaurantName={item.data.restaurant?.name}
+                    showRestaurantName={true}
                     onPress={() =>
                       router.push({
                         pathname: "/(app)/food/[id]",
