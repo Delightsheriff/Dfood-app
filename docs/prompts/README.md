@@ -55,6 +55,12 @@ Independent of each other; either can go first.
 | 15 | [Pinned headers](./15-pinned-headers.md) | `detail` header variant pinned over every pushed screen, blur on scroll, plus targeted design fixes |
 | 16 | [Banner & closed badge](./16-banner-and-closed-badge.md) | Promo banner crop/scrim rework; CLOSED badge off the centre of the food |
 
+## Round 4 — final pass
+
+| # | Prompt | Scope |
+| --- | --- | --- |
+| 17 | [Expo UI, blur coverage & Firebase](./17-expo-ui-native.md) | Audit `@expo/ui` and port the system surfaces; finish pinned headers on the 8 screens prompt 15 missed; make Firebase work from env vars alone |
+
 ## Two external resources that did not pan out
 
 Checked before writing prompt 12, so nobody burns time on them:
