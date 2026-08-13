@@ -283,12 +283,24 @@ export default function Home() {
           onSnapToItem={(index) => setActiveBannerIndex(index)}
           renderItem={({ item }) => (
             <View className="px-5 w-full h-full">
+              {/* Styled via `style`, not `className`: expo-linear-gradient
+                  isn't a core RN component, so NativeWind silently drops
+                  className unless it's registered with cssInterop — which
+                  left the gradient sizing to its content with square
+                  corners and dead space below it. */}
               <LinearGradient
                 colors={item.colors as any}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                className="w-full h-full rounded-[22px] p-5 justify-between overflow-hidden"
-                style={{ borderCurve: "continuous" }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: 22,
+                  borderCurve: "continuous",
+                  padding: 20,
+                  justifyContent: "space-between",
+                  overflow: "hidden",
+                }}
               >
                 <View>
                   <View className="flex-row items-center gap-1.5 self-start bg-white/20 px-2.5 py-0.5 rounded-full mb-1.5">
@@ -509,16 +521,30 @@ export default function Home() {
           </View>
         )}
         ListEmptyComponent={
-          <View className="py-12 px-6 items-center bg-surface-muted mx-5 rounded-[20px]">
-            <Text className="text-secondary font-sen-bold text-base mb-1">
-              No Restaurants Found
-            </Text>
-            <Text className="text-text-gray font-sen text-xs text-center">
-              {restaurantsError
-                ? "Couldn't load restaurants. Pull down to try again."
-                : "Try selecting another category or filter."}
-            </Text>
-          </View>
+          /* Categories are a static local list, so categoriesData is truthy
+             immediately and the screen-level loading guard stops applying
+             while the Overpass request (~10s) is still in flight. Without
+             this branch the empty state renders during that window and
+             blames the user's filters for a pending fetch. */
+          restaurantsLoading ? (
+            <View className="py-12 items-center">
+              <ActivityIndicator size="small" color={ACCENT} />
+              <Text className="text-text-gray font-sen text-xs mt-3">
+                Finding restaurants near you…
+              </Text>
+            </View>
+          ) : (
+            <View className="py-12 px-6 items-center bg-surface-muted mx-5 rounded-[20px]">
+              <Text className="text-secondary font-sen-bold text-base mb-1">
+                No Restaurants Found
+              </Text>
+              <Text className="text-text-gray font-sen text-xs text-center">
+                {restaurantsError
+                  ? "Couldn't load restaurants. Pull down to try again."
+                  : "Try selecting another category or filter."}
+              </Text>
+            </View>
+          )
         }
         refreshControl={
           <RefreshControl
