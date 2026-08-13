@@ -4,14 +4,19 @@ import {
   useProgressiveBlurHeaderHeight,
   useProgressiveBlurScroll,
 } from "@/components/ui/progressive-blur";
+import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
 import {
   ArrowRight01Icon,
+  CloudSavingDone01Icon,
   CreditCardIcon,
   HeartIcon,
   InformationCircleIcon,
   Location01Icon,
+  Login01Icon,
+  Logout01Icon,
   Notification02Icon,
+  RepeatIcon,
   UserCircle02Icon,
   UserEdit01Icon,
 } from "@hugeicons/core-free-icons";
@@ -20,6 +25,7 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Alert,
   Modal,
   Pressable,
   Text,
@@ -40,33 +46,58 @@ export default function Profile() {
   const avatarUri = useProfileStore((state) => state.avatarUri);
   const bio = useProfileStore((state) => state.bio);
 
+  const { user, syncStatus, signOut, syncNow } = useAuthStore();
   const [aboutModalVisible, setAboutModalVisible] = useState(false);
+
+  const handleSignOut = () => {
+    Alert.alert("Sign Out", "Are you sure you want to sign out?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Sign Out",
+        style: "destructive",
+        onPress: async () => {
+          await signOut();
+        },
+      },
+    ]);
+  };
+
+  const accountItems = [
+    {
+      icon: UserEdit01Icon,
+      label: "Personal Information",
+      onPress: () => router.push("/profile/personal-info" as any),
+    },
+    {
+      icon: Location01Icon,
+      label: "Delivery Addresses",
+      onPress: () => router.push("/profile/addresses" as any),
+    },
+    {
+      icon: CreditCardIcon,
+      label: "Payment Methods",
+      onPress: () => router.push("/profile/payment-methods" as any),
+    },
+    {
+      icon: HeartIcon,
+      label: "Saved Favourites",
+      onPress: () => router.push("/profile/favourites" as any),
+    },
+    ...(user
+      ? [
+          {
+            icon: Logout01Icon,
+            label: "Sign Out",
+            onPress: handleSignOut,
+          },
+        ]
+      : []),
+  ];
 
   const menuSections = [
     {
       title: "Account",
-      items: [
-        {
-          icon: UserEdit01Icon,
-          label: "Personal Information",
-          onPress: () => router.push("/profile/personal-info" as any),
-        },
-        {
-          icon: Location01Icon,
-          label: "Delivery Addresses",
-          onPress: () => router.push("/profile/addresses" as any),
-        },
-        {
-          icon: CreditCardIcon,
-          label: "Payment Methods",
-          onPress: () => router.push("/profile/payment-methods" as any),
-        },
-        {
-          icon: HeartIcon,
-          label: "Saved Favourites",
-          onPress: () => router.push("/profile/favourites" as any),
-        },
-      ],
+      items: accountItems,
     },
     {
       title: "Preferences & Info",
@@ -98,7 +129,7 @@ export default function Profile() {
         }}
       >
         {/* Profile Info Banner Card */}
-        <View className="flex-row items-center justify-between mb-8 p-4 bg-surface-muted rounded-[24px]">
+        <View className="flex-row items-center justify-between mb-4 p-4 bg-surface-muted rounded-[24px]">
           <View className="flex-row items-center flex-1 mr-3">
             {avatarUri ? (
               <Image
@@ -121,13 +152,13 @@ export default function Profile() {
                 numberOfLines={1}
                 className="text-xl font-display text-secondary"
               >
-                {name || "Foodie"}
+                {name || (user ? user.displayName || "Foodie" : "Foodie")}
               </Text>
               <Text
                 numberOfLines={1}
                 className="text-xs font-body text-text-gray mt-0.5"
               >
-                {bio || "Dfood Explorer"}
+                {bio || (user?.email ? user.email : "Dfood Explorer")}
               </Text>
             </View>
           </View>
@@ -138,6 +169,72 @@ export default function Profile() {
             size={18}
             onPress={() => router.push("/profile/personal-info" as any)}
           />
+        </View>
+
+        {/* Cloud Sync & Account Banner */}
+        <View
+          className="p-4 mb-6 rounded-[20px] bg-[#FFF8F6] border border-[#FFE8E4] flex-row items-center justify-between"
+          style={{ borderCurve: "continuous" }}
+        >
+          {user ? (
+            <View className="flex-row items-center flex-1 mr-3">
+              <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+                <HugeiconsIcon
+                  icon={syncStatus === "syncing" ? RepeatIcon : CloudSavingDone01Icon}
+                  size={20}
+                  color={ACCENT}
+                />
+              </View>
+              <View className="flex-1">
+                <View className="flex-row items-center gap-1.5">
+                  <Text className="text-xs font-title text-secondary">
+                    Cloud Synced
+                  </Text>
+                  <View className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                </View>
+                <Text
+                  numberOfLines={1}
+                  className="text-[11px] font-body text-text-gray mt-0.5"
+                >
+                  {user.email}
+                </Text>
+              </View>
+            </View>
+          ) : (
+            <View className="flex-row items-center flex-1 mr-3">
+              <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+                <HugeiconsIcon icon={Login01Icon} size={20} color={ACCENT} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs font-title text-secondary">
+                  Guest Mode
+                </Text>
+                <Text className="text-[11px] font-body text-text-gray mt-0.5">
+                  Sign in to back up your data to the cloud.
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {user ? (
+            <Pressable
+              onPress={syncNow}
+              className="px-3.5 py-2 rounded-full bg-white border border-gray-200"
+              style={{ borderCurve: "continuous" }}
+            >
+              <Text className="text-xs font-label text-secondary">
+                {syncStatus === "syncing" ? "Syncing…" : "Sync Now"}
+              </Text>
+            </Pressable>
+          ) : (
+            <Pressable
+              onPress={() => router.push("/(auth)/login" as any)}
+              className="px-4 py-2 rounded-full bg-secondary"
+              style={{ borderCurve: "continuous" }}
+            >
+              <Text className="text-xs font-label text-white">Sign In</Text>
+            </Pressable>
+          )}
         </View>
 
         {/* Menu Groups */}

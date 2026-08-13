@@ -74,14 +74,16 @@ function RootNavigator() {
   useEffect(() => {
     if (isLoading || hasNavigated.current) return;
 
-    const inOnboarding = segments[0] === "onboarding";
-    const inApp = segments[0] === "(app)";
+    const currentSegment = (segments as string[])[0];
+    const inOnboarding = currentSegment === "onboarding";
+    const inApp = currentSegment === "(app)";
+    const inAuth = currentSegment === "(auth)";
 
     let targetRoute: string | null = null;
 
     if (!hasCompletedOnboarding && !inOnboarding) {
       targetRoute = "/onboarding";
-    } else if (hasCompletedOnboarding && !inApp) {
+    } else if (hasCompletedOnboarding && !inApp && !inAuth) {
       targetRoute = "/(app)";
     }
 
@@ -99,6 +101,7 @@ function RootNavigator() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="(app)" />
+      <Stack.Screen name="(auth)" />
     </Stack>
   );
 }
