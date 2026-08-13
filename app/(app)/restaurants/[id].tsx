@@ -1,36 +1,46 @@
 import FoodCard from "@/components/FoodCard";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   useFoodItemsByRestaurant,
   useRestaurant,
 } from "@/hooks/useDataQueries";
-import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  ChevronLeft,
-  Clock,
-  MapPin,
-  MoreHorizontal,
-  Star,
-  Truck,
-  UtensilsCrossed,
-} from "lucide-react-native";
-import React, { useState } from "react";
+  ArrowLeft01Icon,
+  HeartIcon,
+  Share01Icon,
+  StarIcon,
+  Store01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { FlashList } from "@shopify/flash-list";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
-  ScrollView,
+  Share,
   Text,
-  Pressable,
   View,
 } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const ACCENT = "#E0533A";
+const INK = "#262B33";
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const HERO_HEIGHT = SCREEN_HEIGHT * 0.36;
 
 export default function RestaurantDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [activeOrderType, setActiveOrderType] = useState<"delivery" | "pickup">(
+    "delivery",
+  );
 
   const { data: restaurantData, isLoading: restaurantLoading } =
     useRestaurant(id);
@@ -40,12 +50,17 @@ export default function RestaurantDetails() {
   const restaurant = restaurantData?.data.restaurant;
   const foodItems = foodItemsData?.data.foodItems || [];
 
-  const isCurrentlyOpen = restaurant?.isOpen ?? restaurant?.status === "Open";
+  const handleShare = () => {
+    if (!restaurant) return;
+    Share.share({
+      message: `Check out ${restaurant.name} on Dfood!`,
+    });
+  };
 
   if (restaurantLoading) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color="#FF7622" />
+        <ActivityIndicator size="large" color={ACCENT} />
       </View>
     );
   }
@@ -58,67 +73,82 @@ export default function RestaurantDetails() {
     );
   }
 
-  return (
-    <View className="flex-1 bg-white">
-      {/* Image Carousel */}
-      <View className="h-[260px] relative">
+  const primaryCuisine =
+    restaurant.cuisineTags && restaurant.cuisineTags.length > 0
+      ? restaurant.cuisineTags[0].charAt(0).toUpperCase() +
+        restaurant.cuisineTags[0].slice(1)
+      : "Dining";
+
+  const renderHeader = () => (
+    <View>
+      {/* 1. Full-bleed Hero Image Carousel */}
+      <View style={{ height: HERO_HEIGHT }} className="relative w-full">
         <Carousel
           loop={false}
           width={SCREEN_WIDTH}
-          height={260}
+          height={HERO_HEIGHT}
           data={restaurant.images}
           onSnapToItem={(index) => setActiveImageIndex(index)}
           renderItem={({ item }) => (
             <Image
               source={{ uri: item }}
-              className="w-full h-full"
-              contentFit="cover"
               style={{ width: "100%", height: "100%" }}
-              transition={200}
+              contentFit="cover"
+              transition={150}
             />
           )}
         />
 
-        {/* Navigation Buttons */}
-        <View className="absolute top-12 left-6 right-6 flex-row items-center justify-between">
-          <Pressable
-            onPress={() => router.back()}
-            className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.12,
-              shadowRadius: 6,
-              elevation: 4,
-            }}
-          >
-            <ChevronLeft color="#181C2E" size={22} />
-          </Pressable>
+        {/* Top gradient scrim */}
+        <LinearGradient
+          pointerEvents="none"
+          colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0)"]}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            height: insets.top + 80,
+          }}
+        />
 
-          <Pressable
-            className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
-            style={{
-              shadowColor: "#000",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.12,
-              shadowRadius: 6,
-              elevation: 4,
-            }}
-          >
-            <MoreHorizontal color="#181C2E" size={20} />
-          </Pressable>
+        {/* Floating action buttons */}
+        <View
+          className="absolute flex-row items-center justify-between px-4"
+          style={{ top: insets.top + 8, left: 0, right: 0 }}
+        >
+          <IconButton
+            icon={ArrowLeft01Icon}
+            accessibilityLabel="Go back"
+            onPress={() => router.back()}
+          />
+          <View className="flex-row gap-2">
+            <IconButton
+              icon={HeartIcon}
+              accessibilityLabel="Favorite restaurant"
+              filled={isFavorite}
+              fillColor={ACCENT}
+              color={isFavorite ? ACCENT : INK}
+              onPress={() => setIsFavorite((prev) => !prev)}
+            />
+            <IconButton
+              icon={Share01Icon}
+              accessibilityLabel="Share restaurant"
+              onPress={handleShare}
+            />
+          </View>
         </View>
 
-        {/* Pagination Dots */}
+        {/* Pagination dots */}
         {restaurant.images.length > 1 && (
-          <View className="absolute bottom-12 left-0 right-0 flex-row justify-center items-center gap-2">
-            {restaurant.images.map((_: string, index: number) => (
+          <View className="absolute bottom-4 left-0 right-0 flex-row justify-center items-center gap-1.5">
+            {restaurant.images.map((_, index) => (
               <View
                 key={index}
                 className={`rounded-full ${
                   index === activeImageIndex
-                    ? "w-6 h-2 bg-white"
-                    : "w-2 h-2 bg-white/50"
+                    ? "w-5 h-1.5 bg-white"
+                    : "w-1.5 h-1.5 bg-white/60"
                 }`}
               />
             ))}
@@ -126,143 +156,182 @@ export default function RestaurantDetails() {
         )}
       </View>
 
-      {/* Content Sheet */}
-      <View className="flex-1 bg-white -mt-[30px] rounded-t-[30px]">
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 32 }}
-        >
-          <View className="px-6 pt-7">
-            {/* Restaurant Name */}
-            <Text className="text-2xl font-sen-extra-bold text-secondary mb-2">
-              {restaurant.name}
+      {/* 2. Restaurant Identity Block — Flat Edge, No Scoop Card */}
+      <View className="px-5 pt-5 pb-3">
+        {/* Name */}
+        <Text className="text-[26px] leading-8 font-sen-extra-bold text-secondary">
+          {restaurant.name}
+        </Text>
+
+        {/* Meta line: 4.5 ★ (120+) · Cuisine · PriceLevel */}
+        <View className="flex-row items-center gap-2 mt-2">
+          <View className="flex-row items-center gap-1">
+            <HugeiconsIcon icon={StarIcon} size={14} color={ACCENT} fill={ACCENT} />
+            <Text className="text-sm font-sen-bold text-secondary">
+              {restaurant.rating?.toFixed(1) || "4.5"}
             </Text>
-
-            {/* Description */}
-            {restaurant.description && (
-              <Text className="text-text-gray font-sen text-sm leading-5 mb-5">
-                {restaurant.description}
+            {restaurant.totalReviews ? (
+              <Text className="text-xs font-sen text-text-gray">
+                ({restaurant.totalReviews})
               </Text>
-            )}
-
-            {/* Address */}
-            <View className="flex-row items-center mb-5">
-              <View className="w-8 h-8 bg-[#F0F5FA] rounded-xl items-center justify-center mr-2.5">
-                <MapPin color="#FF7622" size={15} />
-              </View>
-              <Text className="text-text-gray font-sen text-sm flex-1">
-                {restaurant.address}
+            ) : null}
+          </View>
+          <Text className="text-xs text-text-gray">•</Text>
+          <Text className="text-xs font-sen-medium text-text-gray">
+            {primaryCuisine}
+          </Text>
+          {restaurant.priceLevel && (
+            <>
+              <Text className="text-xs text-text-gray">•</Text>
+              <Text className="text-xs font-sen-bold text-text-gray">
+                {restaurant.priceLevel}
               </Text>
-            </View>
+            </>
+          )}
+        </View>
 
-            {/* Info Pills */}
-            <View className="flex-row items-center flex-wrap gap-2.5 mb-7">
-              <View
-                className="flex-row items-center bg-[#FFF5EE] px-3.5 py-2.5 rounded-xl"
-                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
-              >
-                <Star color="#FF7622" size={15} fill="#FF7622" />
-                <Text className="ml-1.5 font-sen-bold text-secondary text-sm">
-                  {restaurant?.rating || "4.5"}
-                </Text>
-              </View>
+        {/* Description or address */}
+        {restaurant.address && (
+          <Text className="mt-2 text-xs font-sen text-text-gray" numberOfLines={1}>
+            {restaurant.address}
+          </Text>
+        )}
 
-              <View className="flex-row items-center bg-[#F0F5FA] px-3.5 py-2.5 rounded-xl">
-                <Truck color="#646982" size={15} />
-                <Text className="ml-1.5 font-sen text-secondary text-sm">
-                  ₦
-                  {restaurant.deliveryFee === 0
-                    ? "Free"
-                    : restaurant.deliveryFee}
-                </Text>
-              </View>
-
-              <View
-                className={`flex-row items-center px-3.5 py-2.5 rounded-xl ${
-                  isCurrentlyOpen ? "bg-green-50" : "bg-red-50"
+        {/* 3. Delivery / Pickup Segmented Toggle + Stat Row */}
+        <View
+          className="mt-5 p-3.5 bg-surface-muted rounded-[18px]"
+          style={{ borderCurve: "continuous" }}
+        >
+          {/* Segmented selector */}
+          <View className="flex-row bg-white p-1 rounded-full mb-3">
+            <View
+              className={`flex-1 py-1.5 rounded-full items-center justify-center ${
+                activeOrderType === "delivery" ? "bg-secondary" : ""
+              }`}
+            >
+              <Text
+                className={`text-xs font-sen-bold ${
+                  activeOrderType === "delivery" ? "text-white" : "text-text-gray"
                 }`}
-                style={{
-                  borderWidth: 1,
-                  borderColor: isCurrentlyOpen ? "#BBF7D0" : "#FECACA",
-                }}
               >
-                <View
-                  className={`w-2 h-2 rounded-full mr-2 ${
-                    restaurant.status === "Open" ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
-                <Text
-                  className={`font-sen-bold text-sm ${
-                    restaurant.status === "Open"
-                      ? "text-green-700"
-                      : "text-red-700"
-                  }`}
-                >
-                  {restaurant.status}
-                </Text>
-              </View>
-
-              <View className="flex-row items-center bg-[#F0F5FA] px-3.5 py-2.5 rounded-xl">
-                <Clock color="#646982" size={15} />
-                <Text className="ml-1.5 font-sen text-secondary text-sm">
-                  {restaurant.openingTime} - {restaurant.closingTime}
-                </Text>
-              </View>
+                Delivery
+              </Text>
+            </View>
+            <View
+              className={`flex-1 py-1.5 rounded-full items-center justify-center ${
+                activeOrderType === "pickup" ? "bg-secondary" : ""
+              }`}
+            >
+              <Text
+                className={`text-xs font-sen-bold ${
+                  activeOrderType === "pickup" ? "text-white" : "text-text-gray"
+                }`}
+              >
+                Pickup
+              </Text>
             </View>
           </View>
 
-          {/* Menu Section */}
-          <View className="px-6">
-            <View className="flex-row items-center mb-5">
-              <Text className="text-lg font-sen-bold text-secondary">Menu</Text>
-              {foodItems.length > 0 && (
-                <View className="bg-primary ml-2 px-2.5 py-0.5 rounded-lg">
-                  <Text className="text-white font-sen-bold text-xs">
-                    {foodItems.length}
-                  </Text>
-                </View>
-              )}
+          {/* Stat details */}
+          <View className="flex-row justify-between items-center px-2">
+            <View className="items-center">
+              <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+                Time
+              </Text>
+              <Text className="text-[13px] font-sen-bold text-secondary mt-0.5">
+                25-35 min
+              </Text>
             </View>
 
-            {/* Food Items Grid */}
-            {foodItemsLoading ? (
-              <View className="py-8">
-                <ActivityIndicator size="small" color="#FF7622" />
-              </View>
-            ) : foodItems.length === 0 ? (
-              <View className="items-center justify-center py-16 bg-[#F0F5FA] rounded-2xl">
-                <View className="w-16 h-16 bg-white rounded-2xl items-center justify-center mb-4">
-                  <UtensilsCrossed color="#A0A5BA" size={24} />
-                </View>
-                <Text className="text-secondary font-sen-bold text-sm mb-1">
-                  No menu items yet
-                </Text>
-                <Text className="text-text-gray font-sen text-xs">
-                  This restaurant hasn&apos;t added items
-                </Text>
-              </View>
-            ) : (
-              <View className="flex-row flex-wrap justify-between pb-6">
-                {foodItems.map((item) => (
-                  <View key={item._id} className="w-[48%] mb-5">
-                    <FoodCard
-                      food={item}
-                      restaurantId={restaurant._id}
-                      restaurantName={restaurant.name}
-                      onPress={() =>
-                        router.push({
-                          pathname: "/(app)/food/[id]",
-                          params: { id: item._id },
-                        })
-                      }
-                    />
-                  </View>
-                ))}
-              </View>
-            )}
+            <View className="w-[1px] h-6 bg-gray-200" />
+
+            <View className="items-center">
+              <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+                Fee
+              </Text>
+              <Text className="text-[13px] font-sen-bold text-secondary mt-0.5">
+                {restaurant.deliveryFee === 0
+                  ? "Free"
+                  : `₦${restaurant.deliveryFee}`}
+              </Text>
+            </View>
+
+            <View className="w-[1px] h-6 bg-gray-200" />
+
+            <View className="items-center">
+              <Text className="text-[10px] font-sen uppercase tracking-wider text-text-gray">
+                Status
+              </Text>
+              <Text
+                className={`text-[13px] font-sen-bold mt-0.5 ${
+                  restaurant.status === "Closed"
+                    ? "text-red-600"
+                    : "text-green-600"
+                }`}
+              >
+                {restaurant.status === "Closed" ? "Closed" : "Open now"}
+              </Text>
+            </View>
           </View>
-        </ScrollView>
+        </View>
+
+        {/* 4. Menu Section Title */}
+        <View className="mt-7 mb-3 flex-row justify-between items-center">
+          <Text className="text-[20px] font-sen-bold text-secondary">
+            Featured Menu
+          </Text>
+          <Text className="text-xs font-sen text-text-gray">
+            {foodItems.length} {foodItems.length === 1 ? "item" : "items"}
+          </Text>
+        </View>
       </View>
+    </View>
+  );
+
+  return (
+    <View className="flex-1 bg-white">
+      {foodItemsLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={ACCENT} />
+        </View>
+      ) : (
+        <FlashList
+          data={foodItems}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          ListHeaderComponent={renderHeader}
+          contentContainerStyle={{
+            paddingHorizontal: 14,
+            paddingBottom: insets.bottom + 24,
+          }}
+          renderItem={({ item }) => (
+            <View className="px-1.5 flex-1">
+              <FoodCard
+                food={item}
+                restaurantId={restaurant._id}
+                restaurantName={restaurant.name}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(app)/food/[id]",
+                    params: { id: item._id },
+                  })
+                }
+              />
+            </View>
+          )}
+          ListEmptyComponent={
+            <View className="py-12 px-6 items-center bg-surface-muted mx-3 rounded-[20px]">
+              <HugeiconsIcon icon={Store01Icon} size={28} color="#646982" />
+              <Text className="text-secondary font-sen-bold text-base mt-2 mb-1">
+                No Menu Items
+              </Text>
+              <Text className="text-text-gray font-sen text-xs text-center">
+                This restaurant hasn&apos;t listed menu items yet.
+              </Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
