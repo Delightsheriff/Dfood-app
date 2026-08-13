@@ -1,5 +1,6 @@
 import FoodCard from "@/components/FoodCard";
 import { IconButton } from "@/components/ui/icon-button";
+import { useProgressiveBlurScrollForList } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useFoodItemsByRestaurant,
@@ -38,9 +39,9 @@ export default function RestaurantDetails() {
   const insets = useSafeAreaInsets();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [activeOrderType] = useState<"delivery" | "pickup">(
-    "delivery",
-  );
+  const [activeOrderType] = useState<"delivery" | "pickup">("delivery");
+
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
 
   const { data: restaurantData, isLoading: restaurantLoading } =
     useRestaurant(id);
@@ -110,28 +111,6 @@ export default function RestaurantDetails() {
             right: 0,
             height: insets.top + 80,
           }}
-        />
-
-        {/* Floating action buttons via ScreenHeader variant="floating" */}
-        <ScreenHeader
-          variant="floating"
-          rightElement={
-            <View className="flex-row gap-2">
-              <IconButton
-                icon={HeartIcon}
-                accessibilityLabel="Favorite restaurant"
-                filled={isFavorite}
-                fillColor={ACCENT}
-                color={isFavorite ? ACCENT : INK}
-                onPress={() => setIsFavorite((prev) => !prev)}
-              />
-              <IconButton
-                icon={Share01Icon}
-                accessibilityLabel="Share restaurant"
-                onPress={handleShare}
-              />
-            </View>
-          }
         />
 
         {/* Pagination dots */}
@@ -285,6 +264,30 @@ export default function RestaurantDetails() {
 
   return (
     <View className="flex-1 bg-white">
+      {/* Pinned Detail Header (Accessible at any scroll position) */}
+      <ScreenHeader
+        variant="detail"
+        title={restaurant.name}
+        scrollY={scrollY}
+        rightElement={
+          <View className="flex-row gap-2">
+            <IconButton
+              icon={HeartIcon}
+              accessibilityLabel="Favorite restaurant"
+              filled={isFavorite}
+              fillColor={ACCENT}
+              color={isFavorite ? ACCENT : INK}
+              onPress={() => setIsFavorite((prev) => !prev)}
+            />
+            <IconButton
+              icon={Share01Icon}
+              accessibilityLabel="Share restaurant"
+              onPress={handleShare}
+            />
+          </View>
+        }
+      />
+
       {foodItemsLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />
@@ -294,6 +297,8 @@ export default function RestaurantDetails() {
           data={foodItems}
           keyExtractor={(item) => item._id}
           numColumns={2}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListHeaderComponent={renderHeader}
           contentContainerStyle={{
             paddingHorizontal: 14,

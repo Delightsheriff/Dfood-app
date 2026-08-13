@@ -1,5 +1,9 @@
 import { ButtonText } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
+import {
+  ProgressiveBlurFooter,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useCheckFavorite, useFoodItem } from "@/hooks/useDataQueries";
 import {
@@ -25,13 +29,13 @@ import {
   ActivityIndicator,
   Alert,
   Dimensions,
-  ScrollView,
   Share,
   Text,
   View,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
@@ -42,22 +46,19 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 const ACCENT = "#E0533A";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-// Full-bleed hero filling roughly the top 40-45% of the screen.
 const HERO_HEIGHT = SCREEN_HEIGHT * 0.42;
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <View className="flex-1">
-      <Text className="text-[11px] text-text-gray font-caption uppercase tracking-wider">
+    <View className="flex-1 bg-surface-muted p-3.5 rounded-2xl" style={{ borderCurve: "continuous" }}>
+      <Text className="text-[10px] text-text-gray font-caption uppercase tracking-wider">
         {label}
       </Text>
-      <Text className="mt-1 text-lg font-numeric text-secondary">{value}</Text>
+      <Text className="mt-1 text-[15px] font-numeric text-secondary font-semibold">{value}</Text>
     </View>
   );
 }
 
-// TheMealDB serves ingredient photography at this fixed path, sized via a
-// suffix on the image URL (same convention as strMealThumb).
 function ingredientThumbUrl(name: string): string {
   return `https://www.themealdb.com/images/ingredients/${encodeURIComponent(name)}.png/small`;
 }
@@ -68,6 +69,8 @@ export default function FoodDetails() {
   const insets = useSafeAreaInsets();
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
 
   const { data: foodData, isLoading: foodLoading } = useFoodItem(id);
   const { data: favoriteCheck } = useCheckFavorite(id);
@@ -91,6 +94,27 @@ export default function FoodDetails() {
       { scale: interpolate(addToCartPressed.get(), [0, 1], [1, 0.97]) },
     ],
     opacity: interpolate(addToCartPressed.get(), [0, 1], [1, 0.9]),
+  }));
+
+  const heroAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        translateY: interpolate(
+          scrollY.value,
+          [-150, 0, 300],
+          [-75, 0, 90],
+          Extrapolation.CLAMP,
+        ),
+      },
+      {
+        scale: interpolate(
+          scrollY.value,
+          [-150, 0],
+          [1.3, 1],
+          Extrapolation.CLAMP,
+        ),
+      },
+    ],
   }));
 
   const handleToggleFavorite = () => {
@@ -118,43 +142,26 @@ export default function FoodDetails() {
     Share.share({ message: food.name });
   };
 
-  if (foodLoading) {
-    return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <ActivityIndicator size="large" color={ACCENT} />
-      </View>
-    );
-  }
-
-  if (!food) {
-    return (
-      <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-text-gray font-body">Food item not found</Text>
-      </View>
-    );
-  }
-
-  const totalPrice = food.price * quantity;
-
   const handleAddToCart = () => {
-    if (!food || !restaurant) return;
+    if (!food) return;
 
-    if (currentRestaurantId && currentRestaurantId !== restaurant._id) {
+    if (currentRestaurantId && restaurant && currentRestaurantId !== restaurant._id) {
       Alert.alert(
-        "Switch Restaurant?",
-        "Your cart contains items from another restaurant. Adding this item will clear your current cart.",
+        "Start new basket?",
+        "You already have items from another restaurant in your cart. Adding this item will clear your current cart.",
         [
           { text: "Cancel", style: "cancel" },
           {
-            text: "Continue",
+            text: "Start New Basket",
+            style: "destructive",
             onPress: () => {
               addToCart({
                 foodItem: food,
                 quantity,
-                restaurantId: restaurant._id,
-                restaurantName: restaurant.name,
+                restaurantId: restaurant?._id || "local",
+                restaurantName: restaurant?.name || "Local Kitchen",
               });
-              router.back();
+              router.push("/(app)/cart");
             },
           },
         ],
@@ -165,15 +172,14 @@ export default function FoodDetails() {
     addToCart({
       foodItem: food,
       quantity,
-      restaurantId: restaurant._id,
-      restaurantName: restaurant.name,
+      restaurantId: restaurant?._id || "local",
+      restaurantName: restaurant?.name || "Local Kitchen",
     });
-    router.back();
+    router.push("/(app)/cart");
   };
 
   const addToCartTap = Gesture.Tap()
     .runOnJS(true)
-    .enabled(!!restaurant)
     .onBegin(() => {
       addToCartPressed.set(1);
     })
@@ -186,124 +192,141 @@ export default function FoodDetails() {
       }
     });
 
+  if (foodLoading) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color={ACCENT} />
+      </View>
+    );
+  }
+
+  if (!food) {
+    return (
+      <View className="flex-1 bg-white items-center justify-center px-6">
+        <Text className="text-lg font-title text-secondary mb-2">
+          Food item not found
+        </Text>
+        <Text className="text-xs font-body text-text-gray mb-6 text-center">
+          The requested dish might no longer be available.
+        </Text>
+        <IconButton
+          icon={MinusSignIcon}
+          accessibilityLabel="Go back"
+          onPress={() => router.back()}
+        />
+      </View>
+    );
+  }
+
+  const totalPrice = food.price * quantity;
+
   const stats: { label: string; value: string }[] = [
-    { label: "Rating", value: String(food.rating) },
+    { label: "Rating", value: `${food.rating} ★` },
+    { label: "Reviews", value: `${food.totalReviews}+` },
     ...(food.calories
-      ? [{ label: "Calories", value: String(food.calories) }]
-      : []),
-    { label: "Price", value: `₦${food.price.toLocaleString()}` },
-    ...(food.categories?.[0]
-      ? [{ label: "Category", value: food.categories[0] }]
-      : []),
+      ? [{ label: "Calories", value: `${food.calories} kcal` }]
+      : [{ label: "Prep Time", value: "15–20 min" }]),
   ];
 
   const ingredients = food.ingredients;
 
   return (
     <View className="flex-1 bg-white">
-      {/* Hero image carousel, edge to edge */}
-      <View style={{ height: HERO_HEIGHT }}>
-        <Carousel
-          loop={false}
-          width={SCREEN_WIDTH}
-          height={HERO_HEIGHT}
-          data={food.images}
-          onSnapToItem={(index) => setActiveImageIndex(index)}
-          renderItem={({ item }) => (
-            <Image
-              source={{ uri: item }}
-              className="w-full h-full"
-              contentFit="cover"
-              style={{ width: "100%", height: "100%" }}
-              transition={200}
+      <ScreenHeader
+        variant="detail"
+        title={food.name}
+        scrollY={scrollY}
+        rightElement={
+          <View className="flex-row gap-2">
+            <IconButton
+              icon={HeartIcon}
+              accessibilityLabel={
+                isFavorite ? "Remove from favorites" : "Add to favorites"
+              }
+              filled={isFavorite}
+              fillColor={ACCENT}
+              color={isFavorite ? ACCENT : "#262B33"}
+              disabled={
+                addFavoriteMutation.isPending || removeFavoriteMutation.isPending
+              }
+              onPress={handleToggleFavorite}
             />
-          )}
-        />
-
-        {/* Subtle top scrim so the status bar and icon buttons stay legible
-            over any photo, regardless of how bright it is. */}
-        <LinearGradient
-          pointerEvents="none"
-          colors={["rgba(0,0,0,0.35)", "rgba(0,0,0,0)"]}
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: insets.top + 96,
-          }}
-        />
-
-        {/* Floating icon buttons via ScreenHeader variant="floating" */}
-        <ScreenHeader
-          variant="floating"
-          rightElement={
-            <View className="flex-row gap-2">
-              <IconButton
-                icon={HeartIcon}
-                accessibilityLabel={
-                  isFavorite ? "Remove from favorites" : "Add to favorites"
-                }
-                filled={isFavorite}
-                fillColor={ACCENT}
-                color={isFavorite ? ACCENT : "#262B33"}
-                disabled={addFavoriteMutation.isPending || removeFavoriteMutation.isPending}
-                onPress={handleToggleFavorite}
-              />
-              <IconButton
-                icon={Share01Icon}
-                accessibilityLabel="Share food item"
-                onPress={handleShare}
-              />
-            </View>
-          }
-        />
-
-        {/* Pagination dots */}
-        {food.images.length > 1 && (
-          <View className="absolute bottom-10 left-0 right-0 flex-row justify-center items-center gap-2">
-            {food.images.map((_: string, index: number) => (
-              <View
-                key={index}
-                className={`rounded-full ${
-                  index === activeImageIndex
-                    ? "w-6 h-2 bg-white"
-                    : "w-2 h-2 bg-white/50"
-                }`}
-              />
-            ))}
+            <IconButton
+              icon={Share01Icon}
+              accessibilityLabel="Share food item"
+              onPress={handleShare}
+            />
           </View>
-        )}
-      </View>
+        }
+      />
 
-      {/* Content — a flat, hard edge below the hero, not a rounded overlap
-          card. Neither DoorDash's hero screen nor Epicurious "scoop" the
-          content over the image; they cut cleanly and let a badge + byline
-          row do the transition work instead. */}
-      <View className="flex-1 bg-white">
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingHorizontal: 20,
-            paddingTop: 20,
-            paddingBottom: 28,
-          }}
-        >
-          {/* Category badge, editorial-style (Epicurious's genre pill) */}
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingBottom: insets.bottom + 100,
+        }}
+      >
+        <Animated.View style={[{ height: HERO_HEIGHT }, heroAnimatedStyle]}>
+          <Carousel
+            loop={false}
+            width={SCREEN_WIDTH}
+            height={HERO_HEIGHT}
+            data={food.images}
+            onSnapToItem={(index) => setActiveImageIndex(index)}
+            renderItem={({ item }) => (
+              <Image
+                source={{ uri: item }}
+                className="w-full h-full"
+                contentFit="cover"
+                style={{ width: "100%", height: "100%" }}
+                transition={200}
+              />
+            )}
+          />
+
+          <LinearGradient
+            pointerEvents="none"
+            colors={["rgba(0,0,0,0.4)", "rgba(0,0,0,0)"]}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: insets.top + 96,
+            }}
+          />
+
+          {food.images.length > 1 && (
+            <View className="absolute bottom-6 left-0 right-0 flex-row justify-center items-center gap-2">
+              {food.images.map((_: string, index: number) => (
+                <View
+                  key={index}
+                  className={`rounded-full ${
+                    index === activeImageIndex
+                      ? "w-6 h-2 bg-white"
+                      : "w-2 h-2 bg-white/50"
+                  }`}
+                />
+              ))}
+            </View>
+          )}
+        </Animated.View>
+
+        <View className="px-5 pt-5 bg-white">
           {food.categories?.[0] && (
-            <View className="self-start bg-surface-muted rounded-full px-3 py-1">
-              <Text className="text-[11px] font-caption text-secondary uppercase tracking-wide">
+            <View className="self-start bg-surface-muted rounded-full px-3 py-1 mb-2">
+              <Text className="text-[11px] font-caption text-secondary uppercase tracking-wider font-semibold">
                 {food.categories[0]}
               </Text>
             </View>
           )}
 
-          {/* Name */}
-          <Text className="mt-3 text-[26px] leading-8 font-display text-secondary">
+          <Text className="text-[28px] leading-8 font-display text-secondary tracking-tight">
             {food.name}
           </Text>
 
-          {/* Byline row: which restaurant, and the rating */}
           <View
             className={cn(
               "flex-row items-center mt-2.5",
@@ -317,7 +340,7 @@ export default function FoodDetails() {
             )}
             <View className="flex-row items-center gap-1.5">
               <HugeiconsIcon icon={StarIcon} size={14} color={ACCENT} fill={ACCENT} />
-              <Text className="text-sm font-numeric text-secondary">
+              <Text className="text-sm font-numeric text-secondary font-medium">
                 {food.rating}
               </Text>
               <Text className="text-sm font-numeric text-text-gray">
@@ -326,22 +349,18 @@ export default function FoodDetails() {
             </View>
           </View>
 
-          {/* Divider */}
-          <View className="h-[1px] bg-surface-muted mt-5" />
+          <View className="h-[1px] bg-gray-100 mt-5" />
 
-          {/* Stat grid, evenly spaced, no dividers between columns */}
-          <View className="flex-row justify-between gap-4 mt-5">
+          <View className="flex-row justify-between gap-3 mt-5">
             {stats.map((stat) => (
               <Stat key={stat.label} label={stat.label} value={stat.value} />
             ))}
           </View>
 
-          {/* Description */}
           <Text className="mt-6 text-[15px] leading-6 font-body text-text-gray">
             {food.description}
           </Text>
 
-          {/* Ingredients — real TheMealDB thumbnails, not text-only chips */}
           {ingredients && ingredients.length > 0 && (
             <View className="mt-8">
               <Text className="mb-3 text-lg font-title text-secondary">
@@ -383,19 +402,19 @@ export default function FoodDetails() {
               />
             </View>
           )}
-        </ScrollView>
-      </View>
+        </View>
+      </Animated.ScrollView>
 
-      {/* Sticky bottom bar */}
       <View
-        className="bg-white px-5 pt-3"
-        style={{
-          paddingBottom: insets.bottom + 12,
-          boxShadow: "0px -4px 16px rgba(0,0,0,0.06)",
-        }}
+        className="absolute bottom-0 left-0 right-0 z-30"
+        style={{ paddingBottom: insets.bottom + 12 }}
       >
-        <View className="flex-row items-center gap-3">
-          {/* Quantity stepper */}
+        <ProgressiveBlurFooter
+          barHeight={74}
+          zIndex={1}
+          style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
+        />
+        <View className="px-5 pt-3 flex-row items-center gap-3" style={{ zIndex: 2 }}>
           <View
             className="flex-row items-center bg-surface-muted rounded-[16px]"
             style={{ borderCurve: "continuous" }}
@@ -418,7 +437,6 @@ export default function FoodDetails() {
             />
           </View>
 
-          {/* Add to Cart pill with live total */}
           <GestureDetector gesture={addToCartTap}>
             <Animated.View
               accessibilityRole="button"

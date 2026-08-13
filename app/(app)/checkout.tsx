@@ -1,4 +1,8 @@
 import { ButtonText } from "@/components/ui/button";
+import {
+  ProgressiveBlurFooter,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useAddresses,
@@ -45,6 +49,7 @@ const ACCENT = "#E0533A";
 export default function Checkout() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
 
   const items = useCartStore((state) => state.items);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice());
@@ -179,13 +184,20 @@ export default function Checkout() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScreenHeader title="Checkout" />
+      <ScreenHeader
+        variant="detail"
+        title="Checkout"
+        scrollY={scrollY}
+        alwaysShowTitle
+      />
 
-      <ScrollView
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingTop: 16,
+          paddingTop: insets.top + 56,
           paddingBottom: insets.bottom + 100,
         }}
       >
@@ -221,46 +233,27 @@ export default function Checkout() {
                 >
                   {selectedAddress
                     ? `${selectedAddress.street}, ${selectedAddress.city}`
-                    : "Tap to add a new delivery address"}
+                    : "Tap to add or select a delivery address"}
                 </Text>
               </View>
             </View>
-            <Text className="text-xs font-label text-primary">
-              {selectedAddress ? "Change" : "Add"}
-            </Text>
+            <Text className="text-xs font-title text-primary">Change</Text>
           </Pressable>
         </View>
 
-        {/* 2. Delivery Time Estimate */}
-        <View className="mb-4">
-          <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
-            Delivery Time
-          </Text>
-          <View
-            className="p-4 bg-surface-muted rounded-[20px] flex-row items-center"
-            style={{ borderCurve: "continuous" }}
-          >
-            <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
-              <HugeiconsIcon icon={Clock01Icon} size={20} color="#262B33" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-[15px] font-title text-secondary">
-                Standard Delivery
-              </Text>
-              <Text className="text-xs font-body text-text-gray mt-0.5">
-                Estimated 25–35 mins
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* 3. Payment Method Card */}
+        {/* 2. Payment Method Card */}
         <View className="mb-4">
           <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
             Payment Method
           </Text>
           <Pressable
-            onPress={() => setPaymentModalVisible(true)}
+            onPress={() => {
+              if (paymentMethods.length === 0) {
+                router.push("/profile/payment-methods" as any);
+              } else {
+                setPaymentModalVisible(true);
+              }
+            }}
             className="p-4 bg-surface-muted rounded-[20px] flex-row items-center justify-between"
             style={{ borderCurve: "continuous" }}
           >
@@ -268,55 +261,76 @@ export default function Checkout() {
               <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
                 <HugeiconsIcon
                   icon={
-                    selectedPaymentMethod?.type === "card"
-                      ? CreditCardIcon
-                      : Money01Icon
+                    selectedPaymentMethod?.type === "cash"
+                      ? Money01Icon
+                      : CreditCardIcon
                   }
                   size={20}
                   color={ACCENT}
                 />
               </View>
               <View className="flex-1">
-                <View className="flex-row items-center gap-2">
-                  <Text className="text-[15px] font-title text-secondary">
-                    {selectedPaymentMethod?.type === "card"
-                      ? `Card •••• ${selectedPaymentMethod.cardLast4 || "4242"}`
-                      : "Cash on Delivery"}
-                  </Text>
-                  <View className="bg-white px-2 py-0.5 rounded-md">
-                    <Text className="text-[10px] font-numeric text-text-gray">
-                      Demo
-                    </Text>
-                  </View>
-                </View>
+                <Text className="text-[15px] font-title text-secondary">
+                  {selectedPaymentMethod
+                    ? selectedPaymentMethod.type === "card"
+                      ? `•••• ${selectedPaymentMethod.cardLast4 || "4242"}`
+                      : "Cash on Delivery"
+                    : "No Payment Method"}
+                </Text>
                 <Text className="text-xs font-body text-text-gray mt-0.5">
                   {selectedPaymentMethod?.type === "card"
-                    ? "Pay with saved demo card"
-                    : "Pay with cash upon delivery"}
+                    ? `${selectedPaymentMethod.cardBrand?.toUpperCase() || "Card"} payment`
+                    : "Pay when you receive your order"}
                 </Text>
               </View>
             </View>
-            <Text className="text-xs font-label text-primary">Change</Text>
+            <Text className="text-xs font-title text-primary">Change</Text>
           </Pressable>
         </View>
 
-        {/* 4. Customer Notes Input */}
-        <View className="mb-5">
+        {/* 3. Delivery Instructions Card */}
+        <View className="mb-4">
           <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
-            Rider Notes (Optional)
+            Delivery Notes (Optional)
           </Text>
           <View
-            className="p-3.5 bg-surface-muted rounded-[18px] flex-row items-center"
+            className="p-4 bg-surface-muted rounded-[20px] flex-row items-start"
             style={{ borderCurve: "continuous" }}
           >
-            <HugeiconsIcon icon={Note01Icon} size={18} color="#646982" />
+            <HugeiconsIcon
+              icon={Note01Icon}
+              size={20}
+              color="#646982"
+              className="mt-0.5 mr-3"
+            />
             <TextInput
-              placeholder="e.g. Ring doorbell, gate code #1234"
+              placeholder="e.g. Leave at the front gate, ring the bell..."
               placeholderTextColor="#A0A5BA"
               value={customerNotes}
               onChangeText={setCustomerNotes}
-              className="flex-1 ml-2.5 font-body text-[13px] text-secondary"
+              className="flex-1 font-body text-sm text-secondary min-h-[48px]"
+              multiline
             />
+          </View>
+        </View>
+
+        {/* 4. Estimated Delivery Time Banner */}
+        <View className="mb-4">
+          <View
+            className="p-4 bg-[#FFF8F6] border border-[#FFE8E4] rounded-[20px] flex-row items-center"
+            style={{ borderCurve: "continuous" }}
+          >
+            <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+              <HugeiconsIcon icon={Clock01Icon} size={20} color={ACCENT} />
+            </View>
+            <View className="flex-1">
+              <Text className="text-xs font-title text-secondary">
+                Estimated Delivery
+              </Text>
+              <Text className="text-xs font-body text-text-gray mt-0.5">
+                25–35 mins • Priority Delivery
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -391,32 +405,38 @@ export default function Checkout() {
             </View>
           </View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
-      {/* Sticky "Place Order" Button */}
+      {/* Sticky "Place Order" Button with ProgressiveBlurFooter */}
       <View
-        className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-3 border-t border-gray-100"
+        className="absolute bottom-0 left-0 right-0 z-30"
         style={{
           paddingBottom: insets.bottom + 12,
-          boxShadow: "0px -4px 16px rgba(0,0,0,0.06)",
         }}
       >
-        <GestureDetector gesture={placeOrderTap}>
-          <Animated.View
-            accessibilityRole="button"
-            accessibilityLabel="Place Order"
-            className="h-14 w-full flex-row items-center justify-center bg-secondary rounded-full"
-            style={placeOrderStyle}
-          >
-            {createOrderMutation.isPending ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
-            ) : (
-              <ButtonText className="font-label text-base">
-                Place Order • ₦{total.toLocaleString()}
-              </ButtonText>
-            )}
-          </Animated.View>
-        </GestureDetector>
+        <ProgressiveBlurFooter
+          barHeight={80}
+          zIndex={1}
+          style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
+        />
+        <View className="px-5 pt-3" style={{ zIndex: 2 }}>
+          <GestureDetector gesture={placeOrderTap}>
+            <Animated.View
+              accessibilityRole="button"
+              accessibilityLabel="Place Order"
+              className="h-14 w-full flex-row items-center justify-center bg-secondary rounded-full"
+              style={placeOrderStyle}
+            >
+              {createOrderMutation.isPending ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <ButtonText className="font-label text-base">
+                  Place Order • ₦{total.toLocaleString()}
+                </ButtonText>
+              )}
+            </Animated.View>
+          </GestureDetector>
+        </View>
       </View>
 
       {/* Address Switcher Modal */}

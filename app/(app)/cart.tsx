@@ -1,4 +1,8 @@
 import { ButtonText } from "@/components/ui/button";
+import {
+  ProgressiveBlurFooter,
+  useProgressiveBlurScrollForList,
+} from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useDefaultAddress, useRestaurant } from "@/hooks/useDataQueries";
 import { useCartStore } from "@/store/cartStore";
@@ -37,6 +41,7 @@ const ACCENT = "#E0533A";
 export default function Cart() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
 
   const items = useCartStore((state) => state.items);
   const incrementItem = useCartStore((state) => state.incrementItem);
@@ -229,17 +234,24 @@ export default function Cart() {
       {items.length === 0 ? (
         /* Empty Cart State */
         <View className="flex-1">
-          <ScreenHeader title="Your Cart" />
-
+          <ScreenHeader
+            variant="detail"
+            title="Your Cart"
+            alwaysShowTitle
+          />
           <View className="flex-1 items-center justify-center px-6">
-            <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
-              <HugeiconsIcon icon={ShoppingBag01Icon} size={36} color="#646982" />
+            <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-5">
+              <HugeiconsIcon
+                icon={ShoppingBag01Icon}
+                size={36}
+                color="#646982"
+              />
             </View>
-            <Text className="text-xl font-title text-secondary mb-1">
+            <Text className="text-xl font-display text-secondary mb-2">
               Your cart is empty
             </Text>
-            <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
-              Explore restaurants and add delicious dishes to start your order.
+            <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-8 leading-5">
+              Explore restaurants in your area and add your favorite dishes to get started.
             </Text>
             <Pressable
               onPress={() => router.push("/(app)/(tabs)" as any)}
@@ -256,10 +268,13 @@ export default function Cart() {
         /* Populated Cart */
         <View className="flex-1">
           <ScreenHeader
+            variant="detail"
             title={restaurantName || "Your Cart"}
             subtitle={`${items.length} ${items.length === 1 ? "item" : "items"}`}
+            scrollY={scrollY}
+            alwaysShowTitle
             rightElement={
-              <Text className="text-base font-numeric text-secondary">
+              <Text className="text-base font-numeric text-secondary font-medium">
                 ₦{subtotal.toLocaleString()}
               </Text>
             }
@@ -267,9 +282,11 @@ export default function Cart() {
           <FlashList
             data={items}
             keyExtractor={(item) => item.foodItem._id}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
             ListHeaderComponent={renderHeader}
             ListFooterComponent={renderFooter}
-            contentContainerStyle={{ paddingBottom: 100 }}
+            contentContainerStyle={{ paddingTop: 64, paddingBottom: insets.bottom + 100 }}
             renderItem={({ item }) => (
               <View className="px-5 mb-3">
                 <View
@@ -350,29 +367,35 @@ export default function Cart() {
             )}
           />
 
-          {/* Sticky Bottom Bar — Full-width Ink CTA with Total Docked */}
+          {/* Sticky Bottom Bar with ProgressiveBlurFooter */}
           <View
-            className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-3 border-t border-gray-100"
+            className="absolute bottom-0 left-0 right-0 z-30"
             style={{
               paddingBottom: insets.bottom + 12,
-              boxShadow: "0px -4px 16px rgba(0,0,0,0.06)",
             }}
           >
-            <GestureDetector gesture={checkoutTap}>
-              <Animated.View
-                accessibilityRole="button"
-                accessibilityLabel="Proceed to checkout"
-                className="h-14 w-full flex-row items-center justify-between px-6 bg-secondary rounded-full"
-                style={checkoutStyle}
-              >
-                <ButtonText className="font-label text-[15px]">
-                  Proceed to Checkout
-                </ButtonText>
-                <ButtonText className="font-numeric text-[16px]">
-                  ₦{total.toLocaleString()}
-                </ButtonText>
-              </Animated.View>
-            </GestureDetector>
+            <ProgressiveBlurFooter
+              barHeight={80}
+              zIndex={1}
+              style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}
+            />
+            <View className="px-5 pt-3" style={{ zIndex: 2 }}>
+              <GestureDetector gesture={checkoutTap}>
+                <Animated.View
+                  accessibilityRole="button"
+                  accessibilityLabel="Proceed to checkout"
+                  className="h-14 w-full flex-row items-center justify-between px-6 bg-secondary rounded-full"
+                  style={checkoutStyle}
+                >
+                  <ButtonText className="font-label text-[15px]">
+                    Proceed to Checkout
+                  </ButtonText>
+                  <ButtonText className="font-numeric text-[16px]">
+                    ₦{total.toLocaleString()}
+                  </ButtonText>
+                </Animated.View>
+              </GestureDetector>
+            </View>
           </View>
         </View>
       )}

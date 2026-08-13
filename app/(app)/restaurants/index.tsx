@@ -1,4 +1,5 @@
 import RestaurantCard from "@/components/RestaurantCard";
+import { useProgressiveBlurScrollForList } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useRestaurants } from "@/hooks/useDataQueries";
 import {
@@ -24,6 +25,7 @@ type FilterType = "all" | "open" | "free_delivery" | "top_rated" | "budget";
 export default function AllRestaurants() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
 
   const {
@@ -67,10 +69,10 @@ export default function AllRestaurants() {
   ];
 
   const renderHeader = () => (
-    <View className="pb-3">
+    <View className="pb-3 pt-16">
       {/* Screen title & result count */}
       <View className="px-5 mt-3 mb-4">
-        <Text className="text-[26px] font-display text-secondary">
+        <Text className="text-[26px] font-display text-secondary tracking-tight">
           All Restaurants
         </Text>
         <Text className="mt-1 text-xs font-numeric text-text-gray">
@@ -100,7 +102,7 @@ export default function AllRestaurants() {
                 className={`text-xs ${
                   isSelected
                     ? "font-label text-white"
-                    : "font-label text-secondary"
+                    : "font-body text-secondary"
                 }`}
               >
                 {item.label}
@@ -114,7 +116,12 @@ export default function AllRestaurants() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScreenHeader title="Restaurants" />
+      <ScreenHeader
+        variant="detail"
+        title="Restaurants"
+        scrollY={scrollY}
+        alwaysShowTitle
+      />
       {isLoading && !restaurantsData ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />
@@ -123,12 +130,13 @@ export default function AllRestaurants() {
         <FlashList
           data={filteredRestaurants}
           keyExtractor={(item) => item._id}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListHeaderComponent={renderHeader}
           renderItem={({ item }) => (
-            <View className="px-5">
+            <View className="px-5 mb-4">
               <RestaurantCard
                 restaurant={item}
-                variant="full"
                 onPress={() =>
                   router.push({
                     pathname: "/(app)/restaurants/[id]",
@@ -140,21 +148,19 @@ export default function AllRestaurants() {
           )}
           ListEmptyComponent={
             <View className="py-16 px-6 items-center bg-surface-muted mx-5 rounded-[20px]">
-              <View className="w-14 h-14 rounded-full bg-white items-center justify-center mb-3">
-                <HugeiconsIcon icon={Store01Icon} size={28} color="#646982" />
-              </View>
-              <Text className="text-secondary font-title text-base mb-1">
+              <HugeiconsIcon icon={Store01Icon} size={28} color="#646982" />
+              <Text className="text-secondary font-title text-base mt-2 mb-1">
                 No Restaurants Found
               </Text>
               <Text className="text-text-gray font-body text-xs text-center">
-                Try switching your filter to see more results.
+                Try selecting a different filter option above.
               </Text>
             </View>
           }
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
-              onRefresh={() => refetch()}
+              onRefresh={refetch}
               tintColor={ACCENT}
             />
           }

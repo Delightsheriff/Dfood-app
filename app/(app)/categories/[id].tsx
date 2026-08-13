@@ -1,5 +1,6 @@
 import FoodCard from "@/components/FoodCard";
 import RestaurantCard from "@/components/RestaurantCard";
+import { useProgressiveBlurScrollForList } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useCategories,
@@ -23,6 +24,7 @@ export default function CategoryDetails() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
 
   const { data: categoriesData } = useCategories();
   const { data: foodItemsData, isLoading: foodItemsLoading } =
@@ -46,7 +48,7 @@ export default function CategoryDetails() {
   }, [restaurantsData, id]);
 
   const renderHeader = () => (
-    <View className="pb-3 pt-2">
+    <View className="pb-3 pt-16">
 
       {/* 2. Hero Strip (~130px) */}
       {categoryImage ? (
@@ -121,7 +123,12 @@ export default function CategoryDetails() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScreenHeader title={categoryName} />
+      <ScreenHeader
+        variant="detail"
+        title={categoryName}
+        scrollY={scrollY}
+        alwaysShowTitle
+      />
       {foodItemsLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />
@@ -131,6 +138,8 @@ export default function CategoryDetails() {
           data={foodItems}
           keyExtractor={(item) => item._id}
           numColumns={2}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListHeaderComponent={renderHeader}
           contentContainerStyle={{
             paddingHorizontal: 14,

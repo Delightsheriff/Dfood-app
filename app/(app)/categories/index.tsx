@@ -1,3 +1,4 @@
+import { useProgressiveBlurScrollForList } from "@/components/ui/progressive-blur";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useCategories, useRestaurants } from "@/hooks/useDataQueries";
 import { matchesCategory } from "@/lib/adapters/categories";
@@ -19,6 +20,7 @@ const ACCENT = "#E0533A";
 export default function AllCategories() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
 
   const { data: categoriesData, isLoading: categoriesLoading } =
     useCategories();
@@ -37,10 +39,10 @@ export default function AllCategories() {
   };
 
   const renderHeader = () => (
-    <View className="pb-4">
+    <View className="pb-4 pt-16">
       {/* Screen Title */}
       <View className="px-5 mt-3">
-        <Text className="text-[26px] font-display text-secondary">
+        <Text className="text-[26px] font-display text-secondary tracking-tight">
           Explore Cuisines
         </Text>
         <Text className="mt-1 text-xs font-body text-text-gray">
@@ -52,7 +54,12 @@ export default function AllCategories() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScreenHeader title="Categories" />
+      <ScreenHeader
+        variant="detail"
+        title="Categories"
+        scrollY={scrollY}
+        alwaysShowTitle
+      />
       {categoriesLoading && categories.length === 0 ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={ACCENT} />
@@ -62,6 +69,8 @@ export default function AllCategories() {
           data={categories}
           keyExtractor={(item) => item._id}
           numColumns={2}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           ListHeaderComponent={renderHeader}
           contentContainerStyle={{
             paddingHorizontal: 14,
