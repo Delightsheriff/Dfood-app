@@ -1,391 +1,349 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ButtonText } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { useUpdateAddress } from "@/hooks/useAddressMutations";
 import { useAddresses } from "@/hooks/useDataQueries";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ArrowLeft01Icon,
+  Briefcase01Icon,
+  Gps01Icon,
+  Home01Icon,
+  Location01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
 import * as Location from "expo-location";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ChevronLeft, MapPin } from "lucide-react-native";
-import React, { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
   ScrollView,
   Text,
-  Pressable,
+  TextInput,
   View,
 } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { z } from "zod";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const addressSchema = z.object({
-  street: z.string().min(5, "Street must be at least 5 characters").max(200),
-  city: z.string().min(2, "City must be at least 2 characters").max(100),
-  state: z.string().min(2, "State must be at least 2 characters").max(100),
-});
-
-type AddressFormData = z.infer<typeof addressSchema>;
-
-const LABEL_OPTIONS = ["Home", "Work", "Other"];
+const ACCENT = "#E0533A";
 
 export default function EditAddress() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { data: addressesData, isLoading: addressesLoading } = useAddresses();
   const updateAddressMutation = useUpdateAddress();
+  const mapRef = useRef<MapView>(null);
 
   const address = addressesData?.data.addresses.find((a) => a._id === id);
 
-  const [selectedLabel, setSelectedLabel] = useState(address?.label || "Home");
+  const [label, setLabel] = useState<string>("Home");
+  const [street, setStreet] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [state, setState] = useState<string>("");
+  const [coords, setCoords] = useState({ latitude: 6.5244, longitude: 3.3792 });
   const [mapRegion, setMapRegion] = useState<Region>({
-    latitude: address?.coordinates.lat || 6.5244,
-    longitude: address?.coordinates.lng || 3.3792,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421,
+    latitude: 6.5244,
+    longitude: 3.3792,
+    latitudeDelta: 0.008,
+    longitudeDelta: 0.008,
   });
-  const [markerPosition, setMarkerPosition] = useState({
-    latitude: address?.coordinates.lat || 6.5244,
-    longitude: address?.coordinates.lng || 3.3792,
-  });
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<AddressFormData>({
-    resolver: zodResolver(addressSchema),
-    defaultValues: {
-      street: address?.street || "",
-      city: address?.city || "",
-      state: address?.state || "",
-    },
-  });
-
-  // Update form when address data loads
   useEffect(() => {
-    if (address) {
-      setValue("street", address.street);
-      setValue("city", address.city);
-      setValue("state", address.state);
-      setSelectedLabel(address.label);
+    if (address && !initialized) {
+      setLabel(address.label || "Home");
+      setStreet(address.street || "");
+      setCity(address.city || "");
+      setState(address.state || "Lagos");
+      const c = {
+        latitude: address.coordinates?.lat || 6.5244,
+        longitude: address.coordinates?.lng || 3.3792,
+      };
+      setCoords(c);
       setMapRegion({
-        latitude: address.coordinates.lat,
-        longitude: address.coordinates.lng,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        ...c,
+        latitudeDelta: 0.008,
+        longitudeDelta: 0.008,
       });
-      setMarkerPosition({
-        latitude: address.coordinates.lat,
-        longitude: address.coordinates.lng,
-      });
+      setInitialized(true);
     }
-  }, [address]);
+  }, [address, initialized]);
 
-  const handleMapPress = async (e: any) => {
-    const { latitude, longitude } = e.nativeEvent.coordinate;
-    setMarkerPosition({ latitude, longitude });
-
+  const reverseGeocode = async (lat: number, lng: number) => {
     try {
-      const addresses = await Location.reverseGeocodeAsync({
-        latitude,
-        longitude,
+      const results = await Location.reverseGeocodeAsync({
+        latitude: lat,
+        longitude: lng,
       });
-
-      if (addresses.length > 0) {
-        const addr = addresses[0];
-        setValue("street", addr.street || "");
-        setValue("city", addr.city || "");
-        setValue("state", addr.region || "");
+      if (results.length > 0) {
+        const item = results[0];
+        const streetName = [item.streetNumber, item.street, item.name]
+          .filter(Boolean)
+          .join(" ");
+        if (streetName) setStreet(streetName);
+        if (item.city || item.subregion)
+          setCity(item.city || item.subregion || "");
+        if (item.region) setState(item.region);
       }
-    } catch (error) {
-      console.error("Geocoding error:", error);
+    } catch {
+      // Graceful fallback
     }
   };
 
-  const onSubmit = (data: AddressFormData) => {
+  const handleGetCurrentLocation = async () => {
+    setLocationLoading(true);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Location permission is needed to find your current spot.",
+        );
+        setLocationLoading(false);
+        return;
+      }
+
+      const location = await Location.getCurrentPositionAsync({});
+      const newCoords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+
+      setCoords(newCoords);
+      const newRegion: Region = {
+        ...newCoords,
+        latitudeDelta: 0.008,
+        longitudeDelta: 0.008,
+      };
+      setMapRegion(newRegion);
+      mapRef.current?.animateToRegion(newRegion, 400);
+
+      await reverseGeocode(newCoords.latitude, newCoords.longitude);
+    } catch (err) {
+      console.log("GPS lookup failed:", err);
+    } finally {
+      setLocationLoading(false);
+    }
+  };
+
+  const handleMapPress = async (e: any) => {
+    const newCoords = e.nativeEvent.coordinate;
+    setCoords(newCoords);
+    await reverseGeocode(newCoords.latitude, newCoords.longitude);
+  };
+
+  const handleSave = () => {
+    if (!address) return;
+    if (!street.trim()) {
+      Alert.alert("Street Required", "Please enter the street address.");
+      return;
+    }
+    if (!city.trim()) {
+      Alert.alert("City Required", "Please enter the city.");
+      return;
+    }
+
     updateAddressMutation.mutate(
       {
-        id,
+        id: address._id,
         data: {
-          label: selectedLabel,
-          street: data.street,
-          city: data.city,
-          state: data.state,
-          coordinates: {
-            lat: markerPosition.latitude,
-            lng: markerPosition.longitude,
-          },
+          label,
+          street: street.trim(),
+          city: city.trim(),
+          state: state.trim() || "Lagos",
+          coordinates: { lat: coords.latitude, lng: coords.longitude },
         },
       },
       {
         onSuccess: () => {
-          Alert.alert("Success", "Address updated successfully");
+          Alert.alert("Updated", "Address updated successfully.");
           router.back();
         },
-        onError: (error: any) => {
-          const message =
-            error.response?.data?.message || "Failed to update address";
-          Alert.alert("Error", message);
+        onError: (err: any) => {
+          Alert.alert("Error", err.message || "Failed to update address.");
         },
       },
     );
   };
 
-  const LabelChip = ({ label }: { label: string }) => (
-    <Pressable
-      onPress={() => setSelectedLabel(label)}
-      className={`px-6 py-3 rounded-2xl mr-3 ${
-        selectedLabel === label ? "bg-primary" : "bg-[#F0F5FA]"
-      }`}
-      style={
-        selectedLabel === label
-          ? {
-              shadowColor: "#FF7622",
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.25,
-              shadowRadius: 4,
-              elevation: 4,
-            }
-          : undefined
-      }
-    >
-      <Text
-        className={`font-sen-bold text-sm uppercase ${
-          selectedLabel === label ? "text-white" : "text-text-gray"
-        }`}
-      >
-        {label}
-      </Text>
-    </Pressable>
-  );
-
-  if (addressesLoading) {
+  if (addressesLoading && !address) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
-        </View>
-      </SafeAreaView>
-    );
-  }
-
-  if (!address) {
-    return (
-      <SafeAreaView className="flex-1 bg-white">
-        <View className="flex-1 items-center justify-center px-6">
-          <View className="w-20 h-20 bg-[#F0F5FA] rounded-3xl items-center justify-center mb-5">
-            <MapPin color="#A0A5BA" size={32} />
-          </View>
-          <Text className="text-base font-sen-bold text-secondary mb-2">
-            Address not found
-          </Text>
-          <Text className="text-text-gray font-sen text-sm text-center">
-            This address may have been deleted
-          </Text>
-        </View>
-      </SafeAreaView>
+      <View className="flex-1 bg-white items-center justify-center">
+        <ActivityIndicator size="large" color={ACCENT} />
+      </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-      {/* Header overlaying Map */}
-      <View className="z-10 absolute top-12 left-6">
-        <Pressable
-          onPress={() => router.back()}
-          className="w-11 h-11 bg-white rounded-2xl items-center justify-center"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.12,
-            shadowRadius: 6,
-            elevation: 4,
-          }}
-        >
-          <ChevronLeft color="#181C2E" size={22} />
-        </Pressable>
-      </View>
-
-      {/* Map View */}
-      <View className="h-[300px]">
-        <MapView
-          style={{ flex: 1 }}
-          region={mapRegion}
-          onRegionChangeComplete={setMapRegion}
-          onPress={handleMapPress}
-        >
-          <Marker
-            coordinate={markerPosition}
-            draggable
-            onDragEnd={handleMapPress}
-          />
-        </MapView>
-
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <View className="flex-1 bg-white">
+        {/* Header */}
         <View
-          className="absolute bottom-4 self-center bg-[#181C2E] py-2.5 px-4 rounded-2xl flex-row items-center"
-          style={{
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 2 },
-            shadowOpacity: 0.2,
-            shadowRadius: 4,
-            elevation: 4,
-          }}
+          className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between bg-white z-10"
+          style={{ paddingTop: insets.top + 4 }}
         >
-          <Text className="text-white text-xs font-sen mr-2">
-            Tap or drag marker to update location
-          </Text>
-          <View className="w-2.5 h-2.5 bg-primary rounded-full" />
-        </View>
-      </View>
-
-      <ScrollView
-        className="flex-1 bg-white -mt-6 rounded-t-[30px] px-6 pt-8"
-        showsVerticalScrollIndicator={false}
-      >
-        <Text className="text-xs text-text-gray font-sen uppercase mb-3 tracking-wide">
-          SELECTED ADDRESS
-        </Text>
-
-        <View
-          className="bg-[#F0F5FA] rounded-2xl p-4 flex-row items-center mb-6"
-          style={{
-            borderWidth: 1,
-            borderColor: "#E8ECF2",
-          }}
-        >
-          <View className="w-8 h-8 bg-white rounded-xl items-center justify-center mr-3">
-            <MapPin color="#2D8EFF" size={16} />
-          </View>
-          <Text className="text-sm font-sen text-secondary flex-1">
-            {markerPosition.latitude.toFixed(4)},{" "}
-            {markerPosition.longitude.toFixed(4)}
-          </Text>
-        </View>
-
-        {/* Street Field */}
-        <View className="mb-6">
-          <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-            STREET
-          </Label>
-          <Controller
-            control={control}
-            name="street"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
-                placeholder="e.g., 123 Main Street"
-                placeholderTextColor="#B4B9CA"
-                value={value}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 rounded-2xl ${
-                  errors.street ? "border border-red-500" : ""
-                }`}
-              />
-            )}
+          <IconButton
+            icon={ArrowLeft01Icon}
+            accessibilityLabel="Go back"
+            onPress={() => router.back()}
           />
-          {errors.street && (
-            <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-              {errors.street.message}
-            </Text>
-          )}
+          <Text className="text-[17px] font-sen-bold text-secondary">
+            Edit Address
+          </Text>
+          <View className="w-11" />
         </View>
 
-        {/* City & State Row */}
-        <View className="flex-row gap-4 mb-6">
-          <View className="flex-1">
-            <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-              CITY
-            </Label>
-            <Controller
-              control={control}
-              name="city"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="City"
-                  placeholderTextColor="#B4B9CA"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 rounded-2xl ${
-                    errors.city ? "border border-red-500" : ""
-                  }`}
-                />
-              )}
-            />
-            {errors.city && (
-              <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-                {errors.city.message}
-              </Text>
-            )}
-          </View>
+        {/* Map Header Area */}
+        <View className="h-56 w-full relative bg-surface-muted">
+          <MapView
+            ref={mapRef}
+            style={{ width: "100%", height: "100%" }}
+            region={mapRegion}
+            onPress={handleMapPress}
+          >
+            <Marker coordinate={coords} pinColor={ACCENT} />
+          </MapView>
 
-          <View className="flex-1">
-            <Label className="text-[#32343E] font-sen-bold text-[13px] mb-2 uppercase tracking-wide">
-              STATE
-            </Label>
-            <Controller
-              control={control}
-              name="state"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  placeholder="State"
-                  placeholderTextColor="#B4B9CA"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  className={`h-[62px] !bg-[#F0F5FA] text-text-gray-dark border-0 rounded-2xl ${
-                    errors.state ? "border border-red-500" : ""
-                  }`}
-                />
-              )}
-            />
-            {errors.state && (
-              <Text className="text-red-500 text-[12px] font-sen mt-1.5 ml-1">
-                {errors.state.message}
-              </Text>
+          {/* Floating GPS button */}
+          <Pressable
+            onPress={handleGetCurrentLocation}
+            className="absolute bottom-3 right-3 w-10 h-10 bg-white rounded-full items-center justify-center"
+            style={{
+              boxShadow: "0px 2px 8px rgba(0,0,0,0.15)",
+            }}
+          >
+            {locationLoading ? (
+              <ActivityIndicator size="small" color={ACCENT} />
+            ) : (
+              <HugeiconsIcon icon={Gps01Icon} size={20} color={ACCENT} />
             )}
-          </View>
+          </Pressable>
         </View>
 
-        <Text className="text-xs text-text-gray font-sen uppercase mb-3 tracking-wide">
-          LABEL AS
-        </Text>
+        {/* Form Fields */}
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="mb-8"
-        >
-          {LABEL_OPTIONS.map((label) => (
-            <LabelChip key={label} label={label} />
-          ))}
-        </ScrollView>
-
-        <Button
-          onPress={handleSubmit(onSubmit)}
-          disabled={updateAddressMutation.isPending}
-          className="h-[56px] bg-primary mb-10 rounded-2xl"
-          style={{
-            shadowColor: "#FF7622",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 6,
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingTop: 16,
+            paddingBottom: insets.bottom + 40,
           }}
         >
-          {updateAddressMutation.isPending ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text className="text-white font-sen-bold text-sm uppercase tracking-wider">
-              UPDATE LOCATION
+          {/* Label selector */}
+          <View className="mb-4">
+            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              Address Label
             </Text>
-          )}
-        </Button>
-      </ScrollView>
-    </SafeAreaView>
+            <View className="flex-row gap-2">
+              {[
+                { key: "Home", icon: Home01Icon },
+                { key: "Work", icon: Briefcase01Icon },
+                { key: "Other", icon: Location01Icon },
+              ].map((item) => {
+                const isSelected = label === item.key;
+                return (
+                  <Pressable
+                    key={item.key}
+                    onPress={() => setLabel(item.key)}
+                    className={`flex-1 py-3 px-2 rounded-2xl border flex-row items-center justify-center gap-1.5 ${
+                      isSelected
+                        ? "bg-[#FFF5F3] border-primary"
+                        : "bg-surface-muted border-transparent"
+                    }`}
+                    style={{ borderCurve: "continuous" }}
+                  >
+                    <HugeiconsIcon
+                      icon={item.icon}
+                      size={16}
+                      color={isSelected ? ACCENT : "#646982"}
+                    />
+                    <Text
+                      className={`text-xs ${
+                        isSelected
+                          ? "font-sen-bold text-primary"
+                          : "font-sen text-secondary"
+                      }`}
+                    >
+                      {item.key}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Street Address */}
+          <View className="mb-4">
+            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              Street Address
+            </Text>
+            <TextInput
+              value={street}
+              onChangeText={setStreet}
+              placeholder="e.g. 12 Adeola Odeku St"
+              placeholderTextColor="#A0A5BA"
+              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              style={{ borderCurve: "continuous" }}
+            />
+          </View>
+
+          {/* City */}
+          <View className="mb-4">
+            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              City
+            </Text>
+            <TextInput
+              value={city}
+              onChangeText={setCity}
+              placeholder="e.g. Victoria Island"
+              placeholderTextColor="#A0A5BA"
+              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              style={{ borderCurve: "continuous" }}
+            />
+          </View>
+
+          {/* State */}
+          <View className="mb-6">
+            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              State / Region
+            </Text>
+            <TextInput
+              value={state}
+              onChangeText={setState}
+              placeholder="e.g. Lagos"
+              placeholderTextColor="#A0A5BA"
+              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              style={{ borderCurve: "continuous" }}
+            />
+          </View>
+
+          {/* Submit */}
+          <Pressable
+            onPress={handleSave}
+            disabled={updateAddressMutation.isPending}
+            className="w-full h-14 bg-secondary rounded-full items-center justify-center"
+            style={{
+              borderCurve: "continuous",
+              boxShadow: "0px 4px 12px rgba(38,43,51,0.2)",
+            }}
+          >
+            {updateAddressMutation.isPending ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <ButtonText className="font-sen-bold text-base text-white">
+                Update Address
+              </ButtonText>
+            )}
+          </Pressable>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
