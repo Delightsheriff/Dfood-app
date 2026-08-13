@@ -37,7 +37,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const BANNER_HEIGHT = 140;
+const BANNER_HEIGHT = 168;
 
 const ALL_CATEGORY: Category = {
   _id: "all",
@@ -55,21 +55,21 @@ const PROMO_SLIDES = [
     tag: "SPECIAL OFFER",
     title: "Free Delivery on Your 1st Order",
     subtitle: "Use code WELCOME at checkout",
-    colors: ["#E0533A", "#B92B15"] as const,
+    image: "https://www.themealdb.com/images/media/meals/urzj1d1587670726.jpg",
   },
   {
     id: "2",
     tag: "POPULAR PICKS",
     title: "Up to 25% Off Top Cuisines",
-    subtitle: "Taste the finest flavors in town",
-    colors: ["#262B33", "#121418"] as const,
+    subtitle: "Taste the finest artisan pizza & grills",
+    image: "https://www.themealdb.com/images/media/meals/x0lk931587671470.jpg",
   },
   {
     id: "3",
     tag: "LIGHTNING FAST",
     title: "Delivered in Under 30 Mins",
-    subtitle: "Hot & fresh meals to your doorstep",
-    colors: ["#E0533A", "#7C1A0A"] as const,
+    subtitle: "Hot & fresh meals straight to your doorstep",
+    image: "https://www.themealdb.com/images/media/meals/1529446352.jpg",
   },
 ];
 
@@ -281,27 +281,61 @@ export default function Home() {
           onSnapToItem={(index) => setActiveBannerIndex(index)}
           renderItem={({ item }) => (
             <View className="px-5 w-full h-full">
-              {/* Styled via `style`, not `className`: expo-linear-gradient
-                  isn't a core RN component, so NativeWind silently drops
-                  className unless it's registered with cssInterop — which
-                  left the gradient sizing to its content with square
-                  corners and dead space below it. */}
-              <LinearGradient
-                colors={item.colors as any}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+              <View
                 style={{
                   width: "100%",
                   height: "100%",
                   borderRadius: 22,
                   borderCurve: "continuous",
-                  padding: 20,
-                  justifyContent: "space-between",
                   overflow: "hidden",
+                  position: "relative",
+                  boxShadow: "0px 4px 16px rgba(0,0,0,0.12)",
                 }}
               >
-                <View>
-                  <View className="flex-row items-center gap-1.5 self-start bg-white/20 px-2.5 py-0.5 rounded-full mb-1.5">
+                {/* Background food photography from TheMealDB */}
+                <Image
+                  source={{ uri: item.image }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  contentFit="cover"
+                  transition={200}
+                />
+
+                {/* Dark bottom-up scrim gradient for legibility */}
+                <LinearGradient
+                  colors={[
+                    "rgba(18,20,24,0.2)",
+                    "rgba(18,20,24,0.55)",
+                    "rgba(18,20,24,0.92)",
+                  ]}
+                  locations={[0, 0.45, 1]}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                />
+
+                {/* Content Overlay */}
+                <View
+                  style={{
+                    padding: 18,
+                    justifyContent: "space-between",
+                    height: "100%",
+                  }}
+                >
+                  <View className="flex-row items-center gap-1.5 self-start bg-black/40 px-2.5 py-1 rounded-full border border-white/20">
                     <HugeiconsIcon
                       icon={SparklesIcon}
                       size={12}
@@ -311,15 +345,17 @@ export default function Home() {
                       {item.tag}
                     </Text>
                   </View>
-                  <Text className="text-[18px] leading-6 font-display text-white max-w-[220px]">
-                    {item.title}
-                  </Text>
-                </View>
 
-                <Text className="text-[12px] font-body text-white/80">
-                  {item.subtitle}
-                </Text>
-              </LinearGradient>
+                  <View>
+                    <Text className="text-[19px] leading-6 font-display text-white max-w-[280px]">
+                      {item.title}
+                    </Text>
+                    <Text className="text-[12px] font-body text-white/85 mt-1">
+                      {item.subtitle}
+                    </Text>
+                  </View>
+                </View>
+              </View>
             </View>
           )}
         />
