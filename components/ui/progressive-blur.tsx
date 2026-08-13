@@ -6,11 +6,13 @@ import {
   type BlurViewProps,
 } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ReactNode } from 'react';
+import { useCallback, type ReactNode } from 'react';
 import {
   StyleSheet,
   View,
   type ColorValue,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -409,6 +411,33 @@ export function useProgressiveBlurScroll() {
       scrollY.value = Math.max(event.contentOffset.y, 0);
     },
   });
+
+  return { scrollY, onScroll };
+}
+
+/**
+ * FlashList-safe variant of useProgressiveBlurScroll.
+ *
+ * FlashList v2 does not forward `onScroll` to its underlying scroller — its
+ * RecyclerView invokes `props.onScroll.call(props, event)` directly. A
+ * Reanimated worklet from useAnimatedScrollHandler is not callable that way
+ * and throws "undefined is not a function" on the first scroll event, so
+ * `renderScrollComponent={Animated.ScrollView}` does not help either.
+ *
+ * This returns a plain JS handler that writes the same shared value. It runs
+ * on the JS thread rather than the UI thread, which is an acceptable cost for
+ * a header-opacity driver; the blur itself still animates on the UI thread.
+ *
+ * Use this for FlashList. Use useProgressiveBlurScroll for Animated.ScrollView.
+ */
+export function useProgressiveBlurScrollForList() {
+  const scrollY = useSharedValue(0);
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      scrollY.set(Math.max(event.nativeEvent.contentOffset.y, 0));
+    },
+    [scrollY],
+  );
 
   return { scrollY, onScroll };
 }

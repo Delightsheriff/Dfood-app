@@ -4,7 +4,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useProgressiveBlurHeaderHeight,
-  useProgressiveBlurScroll,
+  useProgressiveBlurScrollForList,
 } from "@/components/ui/progressive-blur";
 import {
   useCategories,
@@ -75,7 +75,7 @@ const PROMO_SLIDES = [
     tag: "POPULAR PICKS",
     title: "Up to 25% Off Top Cuisines",
     subtitle: "Taste the finest artisan pizza & grills",
-    image: "https://www.themealdb.com/images/media/meals/x0lk931587671470.jpg",
+    image: "https://www.themealdb.com/images/media/meals/usywpp1511189717.jpg",
   },
   {
     id: "3",
@@ -95,7 +95,7 @@ export default function Home() {
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
   const headerHeight = useProgressiveBlurHeaderHeight(56);
   const reduceMotion = useReducedMotion();
   const cartBadgeScale = useSharedValue(1);
@@ -495,6 +495,7 @@ export default function Home() {
       <FlashList
         data={filteredRestaurants}
         keyExtractor={(item) => item._id}
+        // useAnimatedScrollHandler returns a Reanimated worklet, but
         onScroll={onScroll}
         scrollEventThrottle={16}
         ListHeaderComponent={renderHeader}

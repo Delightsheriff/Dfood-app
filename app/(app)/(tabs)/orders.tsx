@@ -1,7 +1,7 @@
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useProgressiveBlurHeaderHeight,
-  useProgressiveBlurScroll,
+  useProgressiveBlurScrollForList,
 } from "@/components/ui/progressive-blur";
 import { useOrders } from "@/hooks/useDataQueries";
 import { Order } from "@/types/api";
@@ -28,7 +28,7 @@ export default function Orders() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { data: ordersData, isLoading, refetch } = useOrders();
-  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
   const headerHeight = useProgressiveBlurHeaderHeight(58);
 
   const orders = ordersData?.data.orders || [];

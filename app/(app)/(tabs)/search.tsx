@@ -4,7 +4,7 @@ import SearchFilterSheet from "@/components/SearchFilterSheet";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import {
   useProgressiveBlurHeaderHeight,
-  useProgressiveBlurScroll,
+  useProgressiveBlurScrollForList,
 } from "@/components/ui/progressive-blur";
 import { useSearch } from "@/hooks/useDataQueries";
 import { useDebounce } from "@/hooks/useDebounce";
@@ -48,7 +48,7 @@ export default function SearchPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
-  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const { scrollY, onScroll } = useProgressiveBlurScrollForList();
   const headerHeight = useProgressiveBlurHeaderHeight(104);
 
   const debouncedQuery = useDebounce(searchQuery, 500);
