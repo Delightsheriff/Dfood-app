@@ -137,16 +137,36 @@ Also on the cards, `priceLevel` sits directly beside the delivery fee
 meaningless — and the ink/grey split from prompt 11 makes `$$$$` look like a
 4-point rating rather than a tier.
 
-Pick one and justify it:
+**Remove it entirely.** This is decided — don't weigh alternatives:
 
-- **Remove it.** Drop `priceLevel` from the cards and delete the filter. The
-  delivery fee already carries a real cost signal. Simplest and most honest.
-- **Keep it for display, drop the filter.** Acceptable — a decorative tier is a
-  normal food-app convention — but then the filter must go, and the visual
-  treatment should stop resembling a rating.
+1. Delete the `$`/`$$`/`$$$`/`$$$$` display from `components/RestaurantCard.tsx`
+   (both `compact` and `full` variants). The delivery fee already carries a real
+   cost signal, and removing this leaves the meta row cleaner:
+   `25–35 min · ₦2,500`.
+2. Delete the entire **PRICE LEVEL** section from
+   `components/SearchFilterSheet.tsx`, and the `priceLevel` field from the
+   filter state in `store/searchStore.ts` plus the `filters.priceLevel` branch
+   in `search.tsx`'s `filteredRestaurants`.
+3. Remove `priceLevel` from the `Restaurant` type in `types/api.ts` and stop
+   generating it in `lib/adapters/restaurant.ts`.
+Every reference, so none is missed (verified by grep — `grep -rn priceLevel`
+should return nothing when you're done):
 
-Do **not** keep the filter as-is. If you keep `priceLevel` anywhere, the
-fabrication comment in the adapter must say plainly that it is not real data.
+| File | Line | What |
+| --- | --- | --- |
+| `lib/adapters/restaurant.ts` | 93 | the fabrication itself |
+| `types/api.ts` | 34 | the field on `Restaurant` |
+| `components/RestaurantCard.tsx` | 43 | card display (`\|\| "$$"` fallback) |
+| `app/(app)/restaurants/[id].tsx` | 157, 161 | detail meta line |
+| `components/SearchFilterSheet.tsx` | 35, 191, 196 | the `priceTiers` array + filter UI |
+| `store/searchStore.ts` | 13, 22, 86 | filter state, default, active-count |
+| `app/(app)/(tabs)/search.tsx` | 91–92 | the filter branch |
+| `app/(app)/restaurants/index.tsx` | 55 | **a second price filter** on the restaurants list — `(r) => !r.priceLevel \|\| r.priceLevel === "$"`. Remove that pill too. |
+
+**Leave the "Cost: Low to High" sort.** It sorts on `deliveryFee`
+(`search.tsx:98`), which is real-ish data, not on `priceLevel` — so it survives.
+Rename it to something like "Delivery fee: Low to High" so it's honest about
+what it orders by.
 
 ---
 
