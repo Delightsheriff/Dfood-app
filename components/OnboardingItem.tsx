@@ -47,14 +47,14 @@ export default function OnboardingItem({ item }: OnboardingItemProps) {
       {/* Copy Block */}
       <View className="px-8 pb-4 items-center">
         <View className="bg-[#FFF5F3] px-3.5 py-1 rounded-full mb-3 self-center">
-          <Text className="text-[11px] font-sen-bold text-primary uppercase tracking-widest">
+          <Text className="text-[11px] font-caption text-primary uppercase tracking-widest">
             {item.tagline}
           </Text>
         </View>
-        <Text className="text-[28px] leading-8 text-secondary text-center mb-3 font-sen-extra-bold">
+        <Text className="text-[28px] leading-8 text-secondary text-center mb-3 font-display">
           {item.title}
         </Text>
-        <Text className="text-[14px] leading-6 text-text-gray text-center font-sen max-w-[300px]">
+        <Text className="text-[14px] leading-6 text-text-gray text-center font-body max-w-[300px]">
           {item.description}
         </Text>
       </View>

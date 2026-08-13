@@ -72,11 +72,11 @@ function RestaurantCard({
           }}
         >
           <HugeiconsIcon icon={StarIcon} size={13} color={ACCENT} fill={ACCENT} />
-          <Text className="text-xs font-sen-bold text-secondary">
+          <Text className="text-xs font-numeric text-secondary">
             {restaurant.rating?.toFixed(1) || "4.5"}
           </Text>
           {restaurant.totalReviews ? (
-            <Text className="text-[10px] font-sen text-text-gray">
+            <Text className="text-[10px] font-label text-text-gray">
               ({restaurant.totalReviews})
             </Text>
           ) : null}
@@ -100,7 +100,7 @@ function RestaurantCard({
         {!isCurrentlyOpen && (
           <View className="absolute inset-0 bg-black/60 items-center justify-center">
             <View className="bg-white/20 px-4 py-1.5 rounded-full">
-              <Text className="text-white font-sen-bold text-xs tracking-wider uppercase">
+              <Text className="text-white font-caption text-xs tracking-wider uppercase">
                 Closed
               </Text>
             </View>
@@ -112,31 +112,31 @@ function RestaurantCard({
       <View className="p-3.5">
         <Text
           numberOfLines={1}
-          className="text-[16px] leading-5 font-sen-bold text-secondary"
+          className="text-[16px] leading-5 font-title text-secondary"
         >
           {restaurant.name}
         </Text>
 
         <Text
           numberOfLines={1}
-          className="mt-1 text-xs font-sen text-text-gray"
+          className="mt-1 text-xs font-body text-text-gray"
         >
           {cuisineText}
         </Text>
 
         {/* Meta row: 20-30 min • Free delivery • $$ */}
         <View className="mt-2.5 flex-row items-center gap-1.5">
-          <Text className="text-[12px] font-sen-medium text-secondary">
+          <Text className="text-[12px] font-numeric text-secondary">
             20-30 min
           </Text>
-          <Text className="text-[12px] font-sen text-text-gray">•</Text>
-          <Text className="text-[12px] font-sen text-text-gray">
+          <Text className="text-[12px] font-body text-text-gray">•</Text>
+          <Text className="text-[12px] font-label text-text-gray">
             {deliveryFeeText}
           </Text>
           {restaurant.priceLevel && (
             <>
-              <Text className="text-[12px] font-sen text-text-gray">•</Text>
-              <Text className="text-[12px] font-sen-medium text-text-gray">
+              <Text className="text-[12px] font-body text-text-gray">•</Text>
+              <Text className="text-[12px] font-label text-text-gray">
                 {restaurant.priceLevel}
               </Text>
             </>

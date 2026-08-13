@@ -122,7 +122,7 @@ function FoodCard({
             }}
           >
             <HugeiconsIcon icon={StarIcon} size={11} color={ACCENT} fill={ACCENT} />
-            <Text className="text-[11px] font-sen-bold text-secondary">
+            <Text className="text-[11px] font-numeric text-secondary">
               {food.rating.toFixed(1)}
             </Text>
           </View>
@@ -146,7 +146,7 @@ function FoodCard({
       <View className="p-3">
         <Text
           numberOfLines={1}
-          className="text-[14px] leading-5 font-sen-bold text-secondary"
+          className="text-[14px] leading-5 font-title text-secondary"
         >
           {food.name}
         </Text>
@@ -154,20 +154,20 @@ function FoodCard({
         {restaurantName ? (
           <Text
             numberOfLines={1}
-            className="mt-0.5 text-[11px] text-text-gray font-sen"
+            className="mt-0.5 text-[11px] text-text-gray font-label"
           >
             {restaurantName}
           </Text>
         ) : food.categories?.[0] ? (
           <Text
             numberOfLines={1}
-            className="mt-0.5 text-[11px] text-text-gray font-sen"
+            className="mt-0.5 text-[11px] text-text-gray font-label"
           >
             {food.categories[0]}
           </Text>
         ) : null}
 
-        <Text className="mt-2 text-[15px] font-sen-extra-bold text-secondary">
+        <Text className="mt-2 text-[15px] font-numeric text-secondary">
           ₦{food.price.toLocaleString()}
         </Text>
       </View>

@@ -57,7 +57,7 @@ function ToastBase({
         <View className="flex-1">
           {text1 ? (
             <Text
-              className="font-sen-bold text-sm text-secondary"
+              className="font-label text-sm text-secondary"
               numberOfLines={1}
             >
               {text1}
@@ -65,7 +65,7 @@ function ToastBase({
           ) : null}
           {text2 ? (
             <Text
-              className="font-sen text-xs text-text-gray mt-0.5"
+              className="font-body text-xs text-text-gray mt-0.5"
               numberOfLines={1}
             >
               {text2}

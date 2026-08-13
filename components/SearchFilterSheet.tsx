@@ -56,11 +56,11 @@ export default function SearchFilterSheet({
           {/* Header */}
           <View className="flex-row items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
             <View>
-              <Text className="text-xl font-sen-bold text-secondary">
+              <Text className="text-xl font-title text-secondary">
                 Filter & Sort
               </Text>
               {activeCount > 0 && (
-                <Text className="text-xs font-sen text-primary mt-0.5">
+                <Text className="text-xs font-body text-primary mt-0.5">
                   {activeCount} {activeCount === 1 ? "filter" : "filters"} applied
                 </Text>
               )}
@@ -69,7 +69,7 @@ export default function SearchFilterSheet({
             <View className="flex-row items-center gap-3">
               {activeCount > 0 && (
                 <Pressable onPress={resetFilters}>
-                  <Text className="text-xs font-sen-bold text-text-gray uppercase tracking-wider">
+                  <Text className="text-xs font-caption text-text-gray uppercase tracking-wider">
                     Clear all
                   </Text>
                 </Pressable>
@@ -90,7 +90,7 @@ export default function SearchFilterSheet({
           >
             {/* Sort Options */}
             <View className="mb-6">
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-3">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-3">
                 Sort By
               </Text>
               <View className="gap-2">
@@ -110,8 +110,8 @@ export default function SearchFilterSheet({
                       <Text
                         className={`text-sm ${
                           isSelected
-                            ? "font-sen-bold text-primary"
-                            : "font-sen text-secondary"
+                            ? "font-label text-primary"
+                            : "font-body text-secondary"
                         }`}
                       >
                         {option.label}
@@ -131,7 +131,7 @@ export default function SearchFilterSheet({
 
             {/* Quick Filters */}
             <View className="mb-6">
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-3">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-3">
                 Quick Options
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -170,8 +170,8 @@ export default function SearchFilterSheet({
                     <Text
                       className={`text-xs ${
                         item.active
-                          ? "font-sen-bold text-white"
-                          : "font-sen-medium text-secondary"
+                          ? "font-label text-white"
+                          : "font-label text-secondary"
                       }`}
                     >
                       {item.label}
@@ -183,7 +183,7 @@ export default function SearchFilterSheet({
 
             {/* Price Level */}
             <View className="mb-8">
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-3">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-3">
                 Price Level
               </Text>
               <View className="flex-row gap-2.5">
@@ -205,8 +205,8 @@ export default function SearchFilterSheet({
                       <Text
                         className={`text-sm ${
                           isSelected
-                            ? "font-sen-bold text-white"
-                            : "font-sen-medium text-secondary"
+                            ? "font-label text-white"
+                            : "font-label text-secondary"
                         }`}
                       >
                         {tier}
@@ -228,7 +228,7 @@ export default function SearchFilterSheet({
                 boxShadow: "0px 4px 12px rgba(38,43,51,0.25)",
               }}
             >
-              <Text className="text-white font-sen-bold text-base">
+              <Text className="text-white font-label text-base">
                 {resultCount !== undefined
                   ? `Show ${resultCount} Results`
                   : "Apply Filters"}

@@ -73,10 +73,10 @@ export default function AuthLayout({
             )}
 
             <View className="mt-16 items-center">
-              <Text className="text-[30px] text-white font-sen-bold text-center mb-2 leading-9">
+              <Text className="text-[30px] text-white font-display text-center mb-2 leading-9">
                 {title}
               </Text>
-              <Text className="text-[16px] text-white font-sen text-center opacity-70 leading-6">
+              <Text className="text-[16px] text-white font-body text-center opacity-70 leading-6">
                 {subtitle}
               </Text>
             </View>

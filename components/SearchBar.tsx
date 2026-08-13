@@ -28,7 +28,7 @@ function SearchBar({
         <HugeiconsIcon icon={Search01Icon} size={18} color="#646982" />
         <Text
           numberOfLines={1}
-          className="flex-1 font-sen text-[14px] text-text-gray ml-2.5"
+          className="flex-1 font-body text-[14px] text-text-gray ml-2.5"
         >
           {placeholder}
         </Text>
