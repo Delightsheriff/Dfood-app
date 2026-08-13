@@ -12,11 +12,10 @@ type PersistApi = {
  * the store's empty default instead of the persisted data.
  */
 export function useStoreHydrated(persistApi: PersistApi): boolean {
-  const [hydrated, setHydrated] = useState(persistApi.hasHydrated());
+  const [hydrated, setHydrated] = useState(() => persistApi.hasHydrated());
 
   useEffect(() => {
     if (persistApi.hasHydrated()) {
-      setHydrated(true);
       return;
     }
     return persistApi.onFinishHydration(() => setHydrated(true));

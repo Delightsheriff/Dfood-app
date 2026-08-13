@@ -64,8 +64,9 @@ export default function Checkout() {
 
   const createOrderMutation = useCreateOrder();
 
-  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+  const [selectedAddressOverride, setSelectedAddressOverride] =
+    useState<Address | null>(null);
+  const [selectedPaymentOverride, setSelectedPaymentOverride] =
     useState<PaymentMethod | null>(null);
   const [customerNotes, setCustomerNotes] = useState("");
   const [itemsExpanded, setItemsExpanded] = useState(false);
@@ -77,21 +78,16 @@ export default function Checkout() {
   const addresses = addressesData?.data.addresses || [];
   const paymentMethods = paymentMethodsData?.data.paymentMethods || [];
 
-  useEffect(() => {
-    if (defaultAddressData?.data.address && !selectedAddress) {
-      setSelectedAddress(defaultAddressData.data.address);
-    } else if (addresses.length > 0 && !selectedAddress) {
-      setSelectedAddress(addresses[0]);
-    }
-  }, [defaultAddressData, addresses, selectedAddress]);
-
-  useEffect(() => {
-    if (defaultPaymentData?.data.paymentMethod && !selectedPaymentMethod) {
-      setSelectedPaymentMethod(defaultPaymentData.data.paymentMethod);
-    } else if (paymentMethods.length > 0 && !selectedPaymentMethod) {
-      setSelectedPaymentMethod(paymentMethods[0]);
-    }
-  }, [defaultPaymentData, paymentMethods, selectedPaymentMethod]);
+  const selectedAddress =
+    selectedAddressOverride ??
+    defaultAddressData?.data.address ??
+    addresses[0] ??
+    null;
+  const selectedPaymentMethod =
+    selectedPaymentOverride ??
+    defaultPaymentData?.data.paymentMethod ??
+    paymentMethods[0] ??
+    null;
 
   const subtotal = getTotalPrice;
   const deliveryFee = restaurant?.deliveryFee ?? 0;
@@ -476,7 +472,7 @@ export default function Checkout() {
                   <Pressable
                     key={addr._id}
                     onPress={() => {
-                      setSelectedAddress(addr);
+                      setSelectedAddressOverride(addr);
                       setAddressModalVisible(false);
                     }}
                     className={`p-4 rounded-2xl mb-2.5 border ${
@@ -526,7 +522,7 @@ export default function Checkout() {
                   <Pressable
                     key={pm._id}
                     onPress={() => {
-                      setSelectedPaymentMethod(pm);
+                      setSelectedPaymentOverride(pm);
                       setPaymentModalVisible(false);
                     }}
                     className={`p-4 rounded-2xl mb-2.5 border flex-row items-center justify-between ${
