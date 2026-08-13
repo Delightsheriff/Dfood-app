@@ -1,4 +1,9 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
+import {
+  useProgressiveBlurHeaderHeight,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
 import { useProfileStore } from "@/store/profileStore";
 import {
   ArrowRight01Icon,
@@ -17,10 +22,10 @@ import React, { useState } from "react";
 import {
   Modal,
   Pressable,
-  ScrollView,
   Text,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
@@ -28,6 +33,8 @@ const ACCENT = "#E0533A";
 export default function Profile() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const headerHeight = useProgressiveBlurHeaderHeight(52);
 
   const name = useProfileStore((state) => state.name);
   const avatarUri = useProfileStore((state) => state.avatarUri);
@@ -80,37 +87,39 @@ export default function Profile() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScrollView
+      <Animated.ScrollView
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingHorizontal: 20,
-          paddingTop: insets.top + 16,
+          paddingTop: headerHeight + 16,
           paddingBottom: insets.bottom + 32,
         }}
       >
-        {/* Profile Header */}
-        <View className="flex-row items-center justify-between mb-8 pt-2">
+        {/* Profile Info Banner Card */}
+        <View className="flex-row items-center justify-between mb-8 p-4 bg-surface-muted rounded-[24px]">
           <View className="flex-row items-center flex-1 mr-3">
             {avatarUri ? (
               <Image
                 source={{ uri: avatarUri }}
-                style={{ width: 68, height: 68, borderRadius: 34 }}
+                style={{ width: 64, height: 64, borderRadius: 32 }}
                 contentFit="cover"
               />
             ) : (
-              <View className="w-[68px] h-[68px] rounded-full bg-surface-muted items-center justify-center">
+              <View className="w-16 h-16 rounded-full bg-white items-center justify-center">
                 <HugeiconsIcon
                   icon={UserCircle02Icon}
-                  size={42}
+                  size={38}
                   color={ACCENT}
                 />
               </View>
             )}
 
-            <View className="ml-4 flex-1">
+            <View className="ml-3.5 flex-1">
               <Text
                 numberOfLines={1}
-                className="text-2xl font-display text-secondary"
+                className="text-xl font-display text-secondary"
               >
                 {name || "Foodie"}
               </Text>
@@ -223,6 +232,14 @@ export default function Profile() {
           </View>
         </View>
       </Modal>
+
+      {/* Large Header with Progressive Blur */}
+      <ScreenHeader
+        variant="large"
+        scrollY={scrollY}
+        barHeight={52}
+        title="Profile"
+      />
     </View>
   );
 }

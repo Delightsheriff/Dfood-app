@@ -1,11 +1,17 @@
 import RestaurantCard from "@/components/RestaurantCard";
 import SearchBar from "@/components/SearchBar";
 import { IconButton } from "@/components/ui/icon-button";
+import { ScreenHeader } from "@/components/ui/screen-header";
+import {
+  useProgressiveBlurHeaderHeight,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
 import {
   useCategories,
   useDefaultAddress,
   useRestaurants,
 } from "@/hooks/useDataQueries";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { matchesCategory } from "@/lib/adapters/categories";
 import { getGreeting } from "@/lib/greeting";
 import { useCartStore } from "@/store/cartStore";
@@ -23,7 +29,7 @@ import { FlashList } from "@shopify/flash-list";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -32,6 +38,13 @@ import {
   Text,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 import Carousel from "react-native-reanimated-carousel";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -80,13 +93,18 @@ export default function Home() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const headerHeight = useProgressiveBlurHeaderHeight(56);
+  const reduceMotion = useReducedMotion();
+  const cartBadgeScale = useSharedValue(1);
 
   // Queries
   const {
     data: categoriesData,
     isLoading: categoriesLoading,
     refetch: refetchCategories,
-    isRefetching: categoriesRefetching,
   } = useCategories();
 
   const {
@@ -94,16 +112,15 @@ export default function Home() {
     isLoading: restaurantsLoading,
     error: restaurantsError,
     refetch: refetchRestaurants,
-    isRefetching: restaurantsRefetching,
   } = useRestaurants();
 
   const { data: defaultAddressData } = useDefaultAddress();
   const defaultAddress = defaultAddressData?.data.address;
 
-  const isRefreshing = categoriesRefetching || restaurantsRefetching;
-
   const handleRefresh = async () => {
+    setIsRefreshing(true);
     await Promise.all([refetchCategories(), refetchRestaurants()]);
+    setIsRefreshing(false);
   };
 
   const categories = useMemo(() => {
@@ -151,15 +168,23 @@ export default function Home() {
     return result;
   }, [rawRestaurants, selectedCategoryId, selectedFilter]);
 
-  // Fastest restaurants for the horizontal rail
-  const fastestRestaurants = useMemo(() => {
-    return rawRestaurants
-      .filter((r) => r.isOpen !== false && r.status !== "Closed")
-      .slice(0, 6);
-  }, [rawRestaurants]);
-
   const greeting = getGreeting();
   const cartItemCount = useCartStore((state) => state.getItemCount());
+
+  useEffect(() => {
+    if (cartItemCount > 0 && !reduceMotion) {
+      cartBadgeScale.value = withSequence(
+        withTiming(1.35, { duration: 140 }),
+        withSpring(1, { damping: 9, stiffness: 220 }),
+      );
+    } else {
+      cartBadgeScale.value = 1;
+    }
+  }, [cartItemCount, reduceMotion]);
+
+  const cartBadgeAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: cartBadgeScale.value }],
+  }));
 
   const filterOptions: { id: FilterType; label: string }[] = [
     { id: "all", label: "All" },
@@ -183,82 +208,8 @@ export default function Home() {
 
   const renderHeader = () => (
     <View className="pb-4">
-      {/* 1. Location Header Row */}
-      <View
-        className="flex-row items-center justify-between px-5 pt-3 pb-2"
-        style={{ paddingTop: insets.top + 4 }}
-      >
-        <Pressable
-          onPress={() => router.push("/profile/addresses" as any)}
-          className="flex-row items-center flex-1 mr-3"
-          accessibilityRole="button"
-          accessibilityLabel="Change delivery location"
-        >
-          <View className="w-10 h-10 rounded-full bg-surface-muted items-center justify-center mr-2.5">
-            <HugeiconsIcon icon={Location01Icon} size={20} color={ACCENT} />
-          </View>
-          <View className="flex-1">
-            <View className="flex-row items-center gap-1">
-              <Text className="text-[11px] font-caption text-primary uppercase tracking-wider">
-                Deliver To
-              </Text>
-              <HugeiconsIcon
-                icon={ArrowDown01Icon}
-                size={12}
-                color={ACCENT}
-              />
-            </View>
-            <Text
-              numberOfLines={1}
-              className="text-[14px] font-title text-secondary"
-            >
-              {defaultAddress
-                ? defaultAddress.label || defaultAddress.street
-                : "Set your location"}
-            </Text>
-          </View>
-        </Pressable>
-
-        {/* Action icons: notification + badged cart */}
-        <View className="flex-row items-center gap-2">
-          <IconButton
-            icon={Notification02Icon}
-            accessibilityLabel="Notifications"
-            size={20}
-            className="h-[42px] w-[42px] rounded-[14px]"
-            onPress={() => {}}
-          />
-
-          <View className="relative">
-            <Pressable
-              onPress={() => router.push("/cart")}
-              accessibilityRole="button"
-              accessibilityLabel={`Cart with ${cartItemCount} items`}
-              className="w-[42px] h-[42px] rounded-[14px] bg-secondary items-center justify-center"
-              style={{
-                borderCurve: "continuous",
-                boxShadow: "0px 2px 8px rgba(38,43,51,0.2)",
-              }}
-            >
-              <HugeiconsIcon
-                icon={ShoppingBag01Icon}
-                size={20}
-                color="#FFFFFF"
-              />
-            </Pressable>
-            {cartItemCount > 0 && (
-              <View className="absolute -top-1 -right-1 bg-primary min-w-[18px] h-[18px] rounded-full items-center justify-center border-2 border-white px-1">
-                <Text className="text-white text-[10px] font-numeric">
-                  {cartItemCount}
-                </Text>
-              </View>
-            )}
-          </View>
-        </View>
-      </View>
-
       {/* Greeting */}
-      <View className="px-5 mt-3 mb-3">
+      <View className="px-5 mt-2 mb-3">
         <Text className="text-2xl font-display text-secondary">
           {greeting}
         </Text>
@@ -537,6 +488,8 @@ export default function Home() {
       <FlashList
         data={filteredRestaurants}
         keyExtractor={(item) => item._id}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         ListHeaderComponent={renderHeader}
         renderItem={({ item }) => (
           <View className="px-5">
@@ -580,8 +533,87 @@ export default function Home() {
             tintColor={ACCENT}
           />
         }
-        contentContainerStyle={{ paddingBottom: 32 }}
+        contentContainerStyle={{
+          paddingTop: headerHeight + 8,
+          paddingBottom: insets.bottom + 32,
+        }}
       />
+
+      {/* Progressive Blur Header with Location and Cart */}
+      <ScreenHeader variant="large" scrollY={scrollY} barHeight={56}>
+        <View className="flex-row items-center justify-between px-5 w-full">
+          <Pressable
+            onPress={() => router.push("/profile/addresses" as any)}
+            className="flex-row items-center flex-1 mr-3"
+            accessibilityRole="button"
+            accessibilityLabel="Change delivery location"
+          >
+            <View className="w-10 h-10 rounded-full bg-surface-muted items-center justify-center mr-2.5">
+              <HugeiconsIcon icon={Location01Icon} size={20} color={ACCENT} />
+            </View>
+            <View className="flex-1">
+              <View className="flex-row items-center gap-1">
+                <Text className="text-[11px] font-caption text-primary uppercase tracking-wider">
+                  Deliver To
+                </Text>
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  size={12}
+                  color={ACCENT}
+                />
+              </View>
+              <Text
+                numberOfLines={1}
+                className="text-[14px] font-title text-secondary"
+              >
+                {defaultAddressData
+                  ? defaultAddressData.label || defaultAddressData.street
+                  : "Set your location"}
+              </Text>
+            </View>
+          </Pressable>
+
+          {/* Action icons: notification + badged cart */}
+          <View className="flex-row items-center gap-2">
+            <IconButton
+              icon={Notification02Icon}
+              accessibilityLabel="Notifications"
+              size={20}
+              className="h-[42px] w-[42px] rounded-[14px]"
+              onPress={() => {}}
+            />
+
+            <View className="relative">
+              <Pressable
+                onPress={() => router.push("/cart")}
+                accessibilityRole="button"
+                accessibilityLabel={`Cart with ${cartItemCount} items`}
+                className="w-[42px] h-[42px] rounded-[14px] bg-secondary items-center justify-center"
+                style={{
+                  borderCurve: "continuous",
+                  boxShadow: "0px 2px 8px rgba(38,43,51,0.2)",
+                }}
+              >
+                <HugeiconsIcon
+                  icon={ShoppingBag01Icon}
+                  size={20}
+                  color="#FFFFFF"
+                />
+              </Pressable>
+              {cartItemCount > 0 && (
+                <Animated.View
+                  style={cartBadgeAnimatedStyle}
+                  className="absolute -top-1 -right-1 bg-primary min-w-[18px] h-[18px] rounded-full items-center justify-center border-2 border-white px-1"
+                >
+                  <Text className="text-white text-[10px] font-numeric">
+                    {cartItemCount}
+                  </Text>
+                </Animated.View>
+              )}
+            </View>
+          </View>
+        </View>
+      </ScreenHeader>
     </View>
   );
 }

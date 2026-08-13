@@ -1,3 +1,8 @@
+import { ScreenHeader } from "@/components/ui/screen-header";
+import {
+  useProgressiveBlurHeaderHeight,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
 import { useOrders } from "@/hooks/useDataQueries";
 import { Order } from "@/types/api";
 import {
@@ -10,6 +15,7 @@ import { useRouter } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
+  Animated,
   Pressable,
   RefreshControl,
   Text,
@@ -23,6 +29,8 @@ export default function Orders() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { data: ordersData, isLoading, refetch } = useOrders();
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const headerHeight = useProgressiveBlurHeaderHeight(58);
 
   const orders = ordersData?.data.orders || [];
 
@@ -63,29 +71,6 @@ export default function Orders() {
     }
   };
 
-  const renderHeader = () => (
-    <View
-      className="px-5 pt-3 pb-4 flex-row items-center justify-between"
-      style={{ paddingTop: insets.top + 8 }}
-    >
-      <View>
-        <Text className="text-[26px] font-display text-secondary">
-          My Orders
-        </Text>
-        <Text className="text-xs font-body text-text-gray mt-0.5">
-          {orders.length} {orders.length === 1 ? "order" : "orders"} placed
-        </Text>
-      </View>
-      {orders.length > 0 && (
-        <View className="bg-surface-muted px-3 py-1 rounded-full">
-          <Text className="text-xs font-numeric text-secondary">
-            {orders.length} Total
-          </Text>
-        </View>
-      )}
-    </View>
-  );
-
   return (
     <View className="flex-1 bg-white">
       {isLoading && !ordersData ? (
@@ -93,39 +78,41 @@ export default function Orders() {
           <ActivityIndicator size="large" color={ACCENT} />
         </View>
       ) : orders.length === 0 ? (
-        <View className="flex-1">
-          {renderHeader()}
-          <View className="flex-1 items-center justify-center px-6 -mt-10">
-            <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
-              <HugeiconsIcon
-                icon={ShoppingBag01Icon}
-                size={36}
-                color="#646982"
-              />
-            </View>
-            <Text className="text-xl font-title text-secondary mb-1">
-              No Orders Yet
-            </Text>
-            <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
-              When you place an order, it will appear here with live tracking.
-            </Text>
-            <Pressable
-              onPress={() => router.push("/(app)/(tabs)" as any)}
-              className="px-8 py-3.5 rounded-full bg-secondary"
-              style={{ borderCurve: "continuous" }}
-            >
-              <Text className="text-white font-label text-sm">
-                Start Ordering
-              </Text>
-            </Pressable>
+        <View
+          className="flex-1 items-center justify-center px-6"
+          style={{ paddingTop: headerHeight }}
+        >
+          <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
+            <HugeiconsIcon
+              icon={ShoppingBag01Icon}
+              size={36}
+              color="#646982"
+            />
           </View>
+          <Text className="text-xl font-title text-secondary mb-1">
+            No Orders Yet
+          </Text>
+          <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
+            When you place an order, it will appear here with live tracking.
+          </Text>
+          <Pressable
+            onPress={() => router.push("/(app)/(tabs)" as any)}
+            className="px-8 py-3.5 rounded-full bg-secondary"
+            style={{ borderCurve: "continuous" }}
+          >
+            <Text className="text-white font-label text-sm">
+              Start Ordering
+            </Text>
+          </Pressable>
         </View>
       ) : (
         <FlashList
           data={orders}
           keyExtractor={(item) => item._id}
-          ListHeaderComponent={renderHeader}
+          onScroll={onScroll}
+          scrollEventThrottle={16}
           contentContainerStyle={{
+            paddingTop: headerHeight + 12,
             paddingHorizontal: 20,
             paddingBottom: insets.bottom + 24,
           }}
@@ -213,6 +200,24 @@ export default function Orders() {
           }
         />
       )}
+
+      {/* Large Header with Progressive Blur (rendered after scroll for native sampling) */}
+      <ScreenHeader
+        variant="large"
+        scrollY={scrollY}
+        barHeight={58}
+        title="My Orders"
+        subtitle={`${orders.length} ${orders.length === 1 ? "order" : "orders"} placed`}
+        rightElement={
+          orders.length > 0 ? (
+            <View className="bg-surface-muted px-3 py-1 rounded-full">
+              <Text className="text-xs font-numeric text-secondary">
+                {orders.length} Total
+              </Text>
+            </View>
+          ) : undefined
+        }
+      />
     </View>
   );
 }

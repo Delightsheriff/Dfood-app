@@ -1,6 +1,11 @@
 import FoodCard from "@/components/FoodCard";
 import RestaurantCard from "@/components/RestaurantCard";
 import SearchFilterSheet from "@/components/SearchFilterSheet";
+import { ScreenHeader } from "@/components/ui/screen-header";
+import {
+  useProgressiveBlurHeaderHeight,
+  useProgressiveBlurScroll,
+} from "@/components/ui/progressive-blur";
 import { useSearch } from "@/hooks/useDataQueries";
 import { useDebounce } from "@/hooks/useDebounce";
 import { CURATED_CATEGORIES } from "@/lib/adapters/categories";
@@ -26,6 +31,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
@@ -41,6 +47,9 @@ export default function SearchPage() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+
+  const { scrollY, onScroll } = useProgressiveBlurScroll();
+  const headerHeight = useProgressiveBlurHeaderHeight(104);
 
   const debouncedQuery = useDebounce(searchQuery, 500);
 
@@ -158,141 +167,18 @@ export default function SearchPage() {
       style={{ flex: 1 }}
     >
       <View className="flex-1 bg-white">
-        {/* Search Header */}
-        <View
-          className="px-5 pt-3 pb-3 bg-white border-b border-gray-100"
-          style={{ paddingTop: insets.top + 6 }}
-        >
-          {/* Focused Search Input Row */}
-          <View
-            className="flex-row items-center bg-surface-muted rounded-2xl px-4 h-12"
-            style={{ borderCurve: "continuous" }}
-          >
-            <HugeiconsIcon icon={Search01Icon} size={20} color="#646982" />
-            <TextInput
-              placeholder='Search "Jollof", "Pizza", "Burgers"...'
-              placeholderTextColor="#A0A5BA"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearchSubmit}
-              className="flex-1 ml-3 font-body text-[15px] text-secondary"
-              returnKeyType="search"
-              autoCorrect={false}
-            />
-            {searchQuery.length > 0 && (
-              <Pressable
-                onPress={() => setSearchQuery("")}
-                className="w-7 h-7 bg-white rounded-full items-center justify-center"
-              >
-                <HugeiconsIcon icon={Cancel01Icon} size={14} color="#646982" />
-              </Pressable>
-            )}
-          </View>
-
-          {/* Filter Chips Horizontal Row */}
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="mt-3"
-            contentContainerStyle={{ gap: 8 }}
-          >
-            {/* Filter Sheet trigger */}
-            <Pressable
-              onPress={() => setFilterSheetVisible(true)}
-              className={`flex-row items-center gap-1.5 px-3.5 py-1.5 rounded-full border ${
-                activeFilterCount > 0
-                  ? "bg-[#FFF5F3] border-primary"
-                  : "bg-surface-muted border-transparent"
-              }`}
-              style={{ borderCurve: "continuous" }}
-            >
-              <HugeiconsIcon
-                icon={FilterVerticalIcon}
-                size={14}
-                color={activeFilterCount > 0 ? ACCENT : "#262B33"}
-              />
-              <Text
-                className={`text-xs ${
-                  activeFilterCount > 0
-                    ? "font-label text-primary"
-                    : "font-label text-secondary"
-                }`}
-              >
-                Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
-              </Text>
-            </Pressable>
-
-            {/* Quick Filter: Open now */}
-            <Pressable
-              onPress={() => setFilter("openNow", !filters.openNow)}
-              className={`px-3.5 py-1.5 rounded-full border ${
-                filters.openNow
-                  ? "bg-secondary border-secondary"
-                  : "bg-surface-muted border-transparent"
-              }`}
-              style={{ borderCurve: "continuous" }}
-            >
-              <Text
-                className={`text-xs ${
-                  filters.openNow
-                    ? "font-label text-white"
-                    : "font-label text-secondary"
-                }`}
-              >
-                Open now
-              </Text>
-            </Pressable>
-
-            {/* Quick Filter: Free delivery */}
-            <Pressable
-              onPress={() => setFilter("freeDelivery", !filters.freeDelivery)}
-              className={`px-3.5 py-1.5 rounded-full border ${
-                filters.freeDelivery
-                  ? "bg-secondary border-secondary"
-                  : "bg-surface-muted border-transparent"
-              }`}
-              style={{ borderCurve: "continuous" }}
-            >
-              <Text
-                className={`text-xs ${
-                  filters.freeDelivery
-                    ? "font-label text-white"
-                    : "font-label text-secondary"
-                }`}
-              >
-                Free delivery
-              </Text>
-            </Pressable>
-
-            {/* Quick Filter: Top rated */}
-            <Pressable
-              onPress={() => setFilter("topRated", !filters.topRated)}
-              className={`px-3.5 py-1.5 rounded-full border ${
-                filters.topRated
-                  ? "bg-secondary border-secondary"
-                  : "bg-surface-muted border-transparent"
-              }`}
-              style={{ borderCurve: "continuous" }}
-            >
-              <Text
-                className={`text-xs ${
-                  filters.topRated
-                    ? "font-label text-white"
-                    : "font-label text-secondary"
-                }`}
-              >
-                Top rated (4.5+)
-              </Text>
-            </Pressable>
-          </ScrollView>
-        </View>
-
         {/* Content Area */}
         {!isSearchActive ? (
           /* Resting State: Recent Searches + Popular Cuisines */
-          <ScrollView
+          <Animated.ScrollView
+            onScroll={onScroll}
+            scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}
-            className="flex-1 px-5 pt-4"
+            contentContainerStyle={{
+              paddingTop: headerHeight + 12,
+              paddingHorizontal: 20,
+              paddingBottom: insets.bottom + 32,
+            }}
           >
             {/* Recent Searches */}
             {recentSearches.length > 0 && (
@@ -364,10 +250,13 @@ export default function SearchPage() {
                 ))}
               </View>
             </View>
-          </ScrollView>
+          </Animated.ScrollView>
         ) : isLoading ? (
           /* Loading State */
-          <View className="flex-1 items-center justify-center py-20">
+          <View
+            className="flex-1 items-center justify-center py-20"
+            style={{ paddingTop: headerHeight }}
+          >
             <ActivityIndicator size="large" color={ACCENT} />
             <Text className="text-text-gray font-body text-xs mt-3">
               Searching for &quot;{debouncedQuery}&quot;...
@@ -375,7 +264,10 @@ export default function SearchPage() {
           </View>
         ) : totalResults === 0 ? (
           /* No Results State */
-          <View className="flex-1 items-center justify-center px-6 py-20">
+          <View
+            className="flex-1 items-center justify-center px-6 py-20"
+            style={{ paddingTop: headerHeight }}
+          >
             <View className="w-16 h-16 rounded-full bg-surface-muted items-center justify-center mb-3">
               <HugeiconsIcon icon={Search01Icon} size={28} color="#646982" />
             </View>
@@ -392,9 +284,11 @@ export default function SearchPage() {
             data={listItems}
             keyExtractor={(item) => item.id}
             getItemType={(item) => item.type}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
             contentContainerStyle={{
               paddingHorizontal: 20,
-              paddingTop: 12,
+              paddingTop: headerHeight + 12,
               paddingBottom: insets.bottom + 24,
             }}
             renderItem={({ item }) => {
@@ -447,6 +341,134 @@ export default function SearchPage() {
             }}
           />
         )}
+
+        {/* Progressive Blur Search Header */}
+        <ScreenHeader variant="large" scrollY={scrollY} barHeight={104}>
+          <View className="px-5 w-full pt-1 pb-2">
+            {/* Focused Search Input Row */}
+            <View
+              className="flex-row items-center bg-surface-muted rounded-2xl px-4 h-12"
+              style={{ borderCurve: "continuous" }}
+            >
+              <HugeiconsIcon icon={Search01Icon} size={20} color="#646982" />
+              <TextInput
+                placeholder='Search "Jollof", "Pizza", "Burgers"...'
+                placeholderTextColor="#A0A5BA"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                onSubmitEditing={handleSearchSubmit}
+                className="flex-1 ml-3 font-body text-[15px] text-secondary"
+                returnKeyType="search"
+                autoCorrect={false}
+              />
+              {searchQuery.length > 0 && (
+                <Pressable
+                  onPress={() => setSearchQuery("")}
+                  className="w-7 h-7 bg-white rounded-full items-center justify-center"
+                >
+                  <HugeiconsIcon icon={Cancel01Icon} size={14} color="#646982" />
+                </Pressable>
+              )}
+            </View>
+
+            {/* Filter Chips Horizontal Row */}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="mt-2.5"
+              contentContainerStyle={{ gap: 8 }}
+            >
+              {/* Filter Sheet trigger */}
+              <Pressable
+                onPress={() => setFilterSheetVisible(true)}
+                className={`flex-row items-center gap-1.5 px-3.5 py-1.5 rounded-full border ${
+                  activeFilterCount > 0
+                    ? "bg-[#FFF5F3] border-primary"
+                    : "bg-white border-gray-200"
+                }`}
+                style={{ borderCurve: "continuous" }}
+              >
+                <HugeiconsIcon
+                  icon={FilterVerticalIcon}
+                  size={14}
+                  color={activeFilterCount > 0 ? ACCENT : "#262B33"}
+                />
+                <Text
+                  className={`text-xs ${
+                    activeFilterCount > 0
+                      ? "font-label text-primary"
+                      : "font-label text-secondary"
+                  }`}
+                >
+                  Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}
+                </Text>
+              </Pressable>
+
+              {/* Quick Filter: Open now */}
+              <Pressable
+                onPress={() => setFilter("openNow", !filters.openNow)}
+                className={`px-3.5 py-1.5 rounded-full border ${
+                  filters.openNow
+                    ? "bg-secondary border-secondary"
+                    : "bg-white border-gray-200"
+                }`}
+                style={{ borderCurve: "continuous" }}
+              >
+                <Text
+                  className={`text-xs ${
+                    filters.openNow
+                      ? "font-label text-white"
+                      : "font-label text-secondary"
+                  }`}
+                >
+                  Open now
+                </Text>
+              </Pressable>
+
+              {/* Quick Filter: Free delivery */}
+              <Pressable
+                onPress={() => setFilter("freeDelivery", !filters.freeDelivery)}
+                className={`px-3.5 py-1.5 rounded-full border ${
+                  filters.freeDelivery
+                    ? "bg-secondary border-secondary"
+                    : "bg-white border-gray-200"
+                }`}
+                style={{ borderCurve: "continuous" }}
+              >
+                <Text
+                  className={`text-xs ${
+                    filters.freeDelivery
+                      ? "font-label text-white"
+                      : "font-label text-secondary"
+                  }`}
+                >
+                  Free delivery
+                </Text>
+              </Pressable>
+
+              {/* Quick Filter: Top rated */}
+              <Pressable
+                onPress={() => setFilter("topRated", !filters.topRated)}
+                className={`px-3.5 py-1.5 rounded-full border ${
+                  filters.topRated
+                    ? "bg-secondary border-secondary"
+                    : "bg-white border-gray-200"
+                }`}
+                style={{ borderCurve: "continuous" }}
+              >
+                <Text
+                  className={`text-xs ${
+                    filters.topRated
+                      ? "font-label text-white"
+                      : "font-label text-secondary"
+                  }`}
+                >
+                  Top rated (4.5+)
+                </Text>
+              </Pressable>
+            </ScrollView>
+          </View>
+        </ScreenHeader>
 
         {/* Filter Modal Sheet */}
         <SearchFilterSheet
