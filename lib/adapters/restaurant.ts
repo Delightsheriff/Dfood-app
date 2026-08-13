@@ -11,6 +11,12 @@ const SYNTHETIC_DATE = "2026-01-01T00:00:00.000Z";
 const OPENING_TIMES = ["8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM"];
 const CLOSING_TIMES = ["9:00 PM", "10:00 PM", "11:00 PM"];
 const DELIVERY_FEES = [1000, 1500, 2500, 3500];
+const DELIVERY_TIMES = ["15–25 min", "20–30 min", "25–35 min", "30–45 min"];
+
+export function deliveryTimeForRestaurant(idOrRef: string): string {
+  const hash = hashString(idOrRef);
+  return DELIVERY_TIMES[hash % DELIVERY_TIMES.length];
+}
 
 // OSM has no photos, so a deterministic TheMealDB category thumbnail
 // (the same category that stands in for the restaurant's menu) is used.

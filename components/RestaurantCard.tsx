@@ -1,4 +1,5 @@
 import { IconButton } from "@/components/ui/icon-button";
+import { deliveryTimeForRestaurant } from "@/lib/adapters/restaurant";
 import { Restaurant } from "@/types/api";
 import {
   Bookmark02Icon,
@@ -37,6 +38,12 @@ function RestaurantCard({
     restaurant.deliveryFee === 0 ? "Free delivery" : `₦${restaurant.deliveryFee.toLocaleString()}`;
 
   const isCompact = variant === "compact";
+  const deliveryTime = deliveryTimeForRestaurant(restaurant._id || restaurant.name);
+
+  const priceStr = restaurant.priceLevel || "$$";
+  const spentCount = Math.min(4, Math.max(1, priceStr.length));
+  const spentSigns = "$".repeat(spentCount);
+  const unspentSigns = "$".repeat(4 - spentCount);
 
   return (
     <Pressable
@@ -98,9 +105,16 @@ function RestaurantCard({
 
         {/* Closed overlay */}
         {!isCurrentlyOpen && (
-          <View className="absolute inset-0 bg-black/60 items-center justify-center">
-            <View className="bg-white/20 px-4 py-1.5 rounded-full">
-              <Text className="text-white font-caption text-xs tracking-wider uppercase">
+          <View className="absolute inset-0 bg-black/30 items-center justify-center">
+            <View
+              className="bg-secondary/90 px-3 py-1 rounded-full flex-row items-center gap-1.5"
+              style={{
+                borderCurve: "continuous",
+                boxShadow: "0px 2px 8px rgba(0,0,0,0.2)",
+              }}
+            >
+              <View className="w-1.5 h-1.5 rounded-full bg-red-400" />
+              <Text className="text-white font-caption text-[10px] tracking-wider uppercase">
                 Closed
               </Text>
             </View>
@@ -124,20 +138,21 @@ function RestaurantCard({
           {cuisineText}
         </Text>
 
-        {/* Meta row: 20-30 min • Free delivery • $$ */}
+        {/* Meta row: Delivery time (prominent) • Delivery fee • Price level ($$·$$) */}
         <View className="mt-2.5 flex-row items-center gap-1.5">
           <Text className="text-[12px] font-numeric text-secondary">
-            20-30 min
+            {deliveryTime}
           </Text>
-          <Text className="text-[12px] font-body text-text-gray">•</Text>
+          <Text className="text-[12px] font-body text-text-gray/50">•</Text>
           <Text className="text-[12px] font-label text-text-gray">
             {deliveryFeeText}
           </Text>
-          {restaurant.priceLevel && (
+          {!isCompact && (
             <>
-              <Text className="text-[12px] font-body text-text-gray">•</Text>
-              <Text className="text-[12px] font-label text-text-gray">
-                {restaurant.priceLevel}
+              <Text className="text-[12px] font-body text-text-gray/50">•</Text>
+              <Text className="text-[12px] font-numeric">
+                <Text className="text-secondary">{spentSigns}</Text>
+                <Text className="text-secondary/25">{unspentSigns}</Text>
               </Text>
             </>
           )}
