@@ -100,6 +100,54 @@ already `useProgressiveBlurHeaderHeight` for exactly this).
 Add `ProgressiveBlurFooter` to any screen with a sticky bottom bar that doesn't
 have it yet — `order-confirmation` is the obvious gap.
 
+### B2 — Search filter pills
+
+The horizontal pill row under the search bar (`app/(app)/(tabs)/search.tsx`)
+has three problems:
+
+1. **The last pill is clipped.** "Top rated (4.5+)" is sliced by the right edge
+   with no scroll affordance and no trailing padding — it reads as broken
+   rather than scrollable. Add horizontal content padding and make the
+   scrollability visible (partial peek of the next pill, or a fade).
+2. **It duplicates the sheet.** The row offers *Open now / Free delivery / Top
+   rated*, and `SearchFilterSheet`'s "QUICK OPTIONS" section offers exactly the
+   same three. Two controls for one setting. Decide which is authoritative:
+   either the row becomes the only quick toggle and the sheet drops that
+   section, or the row becomes a read-only summary of what the sheet set. Say
+   which you chose.
+3. **Active state is incomplete.** Prompt 05 specified Zomato's treatment — an
+   active chip shows its count and an inline `✕` to clear it individually.
+   Only the "Filters (n)" chip does this. Apply it to the rest, or drop the
+   pattern deliberately and note why.
+
+### B3 — The fabricated price level
+
+`Restaurant.priceLevel` is generated in `lib/adapters/restaurant.ts` as
+`"$".repeat(((hash >>> 4) % 4) + 1)` — a stable hash of the OSM id. OSM has no
+price data, so this is a deterministic random number, exactly like the
+fabricated rating and delivery time.
+
+That was an accepted trade-off for *display*. It is no longer only display:
+`SearchFilterSheet` now has a **PRICE LEVEL filter** built on it, so users can
+filter by a value that means nothing. That crosses from "plausible placeholder"
+into "the control lies about what it does."
+
+Also on the cards, `priceLevel` sits directly beside the delivery fee
+(`₦2,500 · $$$`), giving two price signals — one semi-plausible, one
+meaningless — and the ink/grey split from prompt 11 makes `$$$$` look like a
+4-point rating rather than a tier.
+
+Pick one and justify it:
+
+- **Remove it.** Drop `priceLevel` from the cards and delete the filter. The
+  delivery fee already carries a real cost signal. Simplest and most honest.
+- **Keep it for display, drop the filter.** Acceptable — a decorative tier is a
+  normal food-app convention — but then the filter must go, and the visual
+  treatment should stop resembling a rating.
+
+Do **not** keep the filter as-is. If you keep `priceLevel` anywhere, the
+fabrication comment in the adapter must say plainly that it is not real data.
+
 ---
 
 ## Part C — Make Firebase truly plug-and-play
