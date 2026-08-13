@@ -53,6 +53,7 @@ Independent of each other; either can go first.
 | --- | --- | --- |
 | 14 | [Auth sheet](./14-auth-sheet.md) | Replace the three full-screen `(auth)` pages with one Google/Apple bottom sheet; document the Firebase env vars |
 | 15 | [Pinned headers](./15-pinned-headers.md) | `detail` header variant pinned over every pushed screen, blur on scroll, plus targeted design fixes |
+| 16 | [Banner & closed badge](./16-banner-and-closed-badge.md) | Promo banner crop/scrim rework; CLOSED badge off the centre of the food |
 
 ## Two external resources that did not pan out
 
