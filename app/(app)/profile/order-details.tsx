@@ -1,4 +1,3 @@
-import { IconButton } from "@/components/ui/icon-button";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useOrder } from "@/hooks/useDataQueries";
 import { useCancelOrder } from "@/hooks/useOrderMutations";
@@ -11,7 +10,7 @@ import {
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import { Image } from "expo-image";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
@@ -27,7 +26,6 @@ const ACCENT = "#E0533A";
 
 export default function OrderDetails() {
   const { orderId } = useLocalSearchParams<{ orderId: string }>();
-  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { data: orderData, isLoading } = useOrder(orderId);
   const cancelOrderMutation = useCancelOrder();

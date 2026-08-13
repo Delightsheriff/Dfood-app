@@ -193,7 +193,7 @@ export default function Profile() {
             Dfood Application v1.0.0
           </Text>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* About & Attribution Modal */}
       <Modal

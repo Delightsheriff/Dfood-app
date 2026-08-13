@@ -168,6 +168,13 @@ export default function Home() {
     return result;
   }, [rawRestaurants, selectedCategoryId, selectedFilter]);
 
+  // Fastest restaurants for the horizontal rail
+  const fastestRestaurants = useMemo(() => {
+    return rawRestaurants
+      .filter((r) => r.isOpen !== false && r.status !== "Closed")
+      .slice(0, 6);
+  }, [rawRestaurants]);
+
   const greeting = getGreeting();
   const cartItemCount = useCartStore((state) => state.getItemCount());
 
@@ -180,7 +187,7 @@ export default function Home() {
     } else {
       cartBadgeScale.value = 1;
     }
-  }, [cartItemCount, reduceMotion]);
+  }, [cartItemCount, reduceMotion, cartBadgeScale]);
 
   const cartBadgeAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: cartBadgeScale.value }],
@@ -566,8 +573,8 @@ export default function Home() {
                 numberOfLines={1}
                 className="text-[14px] font-title text-secondary"
               >
-                {defaultAddressData
-                  ? defaultAddressData.label || defaultAddressData.street
+                {defaultAddress
+                  ? defaultAddress.label || defaultAddress.street
                   : "Set your location"}
               </Text>
             </View>

@@ -6,7 +6,6 @@ import {
   useRestaurant,
 } from "@/hooks/useDataQueries";
 import {
-  ArrowLeft01Icon,
   HeartIcon,
   Share01Icon,
   StarIcon,

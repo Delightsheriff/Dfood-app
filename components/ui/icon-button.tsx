@@ -1,12 +1,17 @@
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react-native";
 import { cn } from "@/lib/utils";
 import { BlurView } from "expo-blur";
+import { useEffect } from "react";
 import { StyleProp, StyleSheet, ViewStyle } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
+  withSequence,
+  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 
 type IconButtonProps = {
@@ -44,16 +49,29 @@ export function IconButton({
   className,
   style,
 }: IconButtonProps) {
+  const reduceMotion = useReducedMotion();
   const pressed = useSharedValue(0);
+  const iconScale = useSharedValue(1);
+
+  useEffect(() => {
+    if (filled && !reduceMotion) {
+      iconScale.value = withSequence(
+        withTiming(1.32, { duration: 140 }),
+        withSpring(1, { damping: 10, stiffness: 240 }),
+      );
+    } else {
+      iconScale.value = 1;
+    }
+  }, [filled, reduceMotion, iconScale]);
 
   const tap = Gesture.Tap()
     .runOnJS(true)
     .enabled(!disabled)
     .onBegin(() => {
-      pressed.set(1);
+      pressed.value = 1;
     })
     .onFinalize(() => {
-      pressed.set(0);
+      pressed.value = 0;
     })
     .onEnd((_event, success) => {
       if (success) {
@@ -62,10 +80,16 @@ export function IconButton({
     });
 
   const animatedStyle = useAnimatedStyle(() => {
-    const scale = interpolate(pressed.get(), [0, 1], [1, 0.94]);
-    const opacity = interpolate(pressed.get(), [0, 1], [1, 0.85]);
+    const scale = reduceMotion
+      ? 1
+      : interpolate(pressed.value, [0, 1], [1, 0.94]);
+    const opacity = interpolate(pressed.value, [0, 1], [1, 0.85]);
     return { transform: [{ scale }], opacity };
   });
+
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: iconScale.value }],
+  }));
 
   return (
     <GestureDetector gesture={tap}>
@@ -88,13 +112,15 @@ export function IconButton({
             { alignItems: "center", justifyContent: "center" },
           ]}
         >
-          <HugeiconsIcon
-            icon={icon}
-            size={size}
-            color={color}
-            strokeWidth={2}
-            fill={filled && fillColor ? fillColor : "transparent"}
-          />
+          <Animated.View style={iconAnimatedStyle}>
+            <HugeiconsIcon
+              icon={icon}
+              size={size}
+              color={color}
+              strokeWidth={2}
+              fill={filled && fillColor ? fillColor : "transparent"}
+            />
+          </Animated.View>
         </BlurView>
       </Animated.View>
     </GestureDetector>

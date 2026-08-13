@@ -11,7 +11,6 @@ import { useCartStore } from "@/store/cartStore";
 import { HugeiconsIcon } from "@hugeicons/react-native";
 import {
   Add01Icon,
-  ArrowLeft01Icon,
   HeartIcon,
   MinusSignIcon,
   Share01Icon,
@@ -41,7 +40,6 @@ import Carousel from "react-native-reanimated-carousel";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const ACCENT = "#E0533A";
-const INK = "#262B33";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 // Full-bleed hero filling roughly the top 40-45% of the screen.

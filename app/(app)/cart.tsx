@@ -1,5 +1,4 @@
 import { ButtonText } from "@/components/ui/button";
-import { IconButton } from "@/components/ui/icon-button";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { useDefaultAddress, useRestaurant } from "@/hooks/useDataQueries";
 import { useCartStore } from "@/store/cartStore";
