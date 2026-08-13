@@ -176,7 +176,7 @@ export default function EditAddress() {
             accessibilityLabel="Go back"
             onPress={() => router.back()}
           />
-          <Text className="text-[17px] font-sen-bold text-secondary">
+          <Text className="text-[17px] font-title text-secondary">
             Edit Address
           </Text>
           <View className="w-11" />
@@ -220,7 +220,7 @@ export default function EditAddress() {
         >
           {/* Label selector */}
           <View className="mb-4">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               Address Label
             </Text>
             <View className="flex-row gap-2">
@@ -249,8 +249,8 @@ export default function EditAddress() {
                     <Text
                       className={`text-xs ${
                         isSelected
-                          ? "font-sen-bold text-primary"
-                          : "font-sen text-secondary"
+                          ? "font-label text-primary"
+                          : "font-body text-secondary"
                       }`}
                     >
                       {item.key}
@@ -263,7 +263,7 @@ export default function EditAddress() {
 
           {/* Street Address */}
           <View className="mb-4">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               Street Address
             </Text>
             <TextInput
@@ -271,14 +271,14 @@ export default function EditAddress() {
               onChangeText={setStreetOverride}
               placeholder="e.g. 12 Adeola Odeku St"
               placeholderTextColor="#A0A5BA"
-              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
               style={{ borderCurve: "continuous" }}
             />
           </View>
 
           {/* City */}
           <View className="mb-4">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               City
             </Text>
             <TextInput
@@ -286,14 +286,14 @@ export default function EditAddress() {
               onChangeText={setCityOverride}
               placeholder="e.g. Victoria Island"
               placeholderTextColor="#A0A5BA"
-              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
               style={{ borderCurve: "continuous" }}
             />
           </View>
 
           {/* State */}
           <View className="mb-6">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               State / Region
             </Text>
             <TextInput
@@ -301,7 +301,7 @@ export default function EditAddress() {
               onChangeText={setStateOverride}
               placeholder="e.g. Lagos"
               placeholderTextColor="#A0A5BA"
-              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
               style={{ borderCurve: "continuous" }}
             />
           </View>
@@ -319,7 +319,7 @@ export default function EditAddress() {
             {updateAddressMutation.isPending ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <ButtonText className="font-sen-bold text-base text-white">
+              <ButtonText className="font-label text-base text-white">
                 Update Address
               </ButtonText>
             )}

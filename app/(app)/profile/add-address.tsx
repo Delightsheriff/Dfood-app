@@ -156,7 +156,7 @@ export default function AddAddress() {
             accessibilityLabel="Go back"
             onPress={() => router.back()}
           />
-          <Text className="text-[17px] font-sen-bold text-secondary">
+          <Text className="text-[17px] font-title text-secondary">
             Add Address
           </Text>
           <View className="w-11" />
@@ -200,7 +200,7 @@ export default function AddAddress() {
         >
           {/* Label selector */}
           <View className="mb-4">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               Address Label
             </Text>
             <View className="flex-row gap-2">
@@ -229,8 +229,8 @@ export default function AddAddress() {
                     <Text
                       className={`text-xs ${
                         isSelected
-                          ? "font-sen-bold text-primary"
-                          : "font-sen text-secondary"
+                          ? "font-label text-primary"
+                          : "font-body text-secondary"
                       }`}
                     >
                       {item.key}
@@ -243,7 +243,7 @@ export default function AddAddress() {
 
           {/* Street Address */}
           <View className="mb-4">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               Street Address
             </Text>
             <TextInput
@@ -251,14 +251,14 @@ export default function AddAddress() {
               onChangeText={setStreet}
               placeholder="e.g. 12 Adeola Odeku St"
               placeholderTextColor="#A0A5BA"
-              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
               style={{ borderCurve: "continuous" }}
             />
           </View>
 
           {/* City */}
           <View className="mb-4">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               City
             </Text>
             <TextInput
@@ -266,14 +266,14 @@ export default function AddAddress() {
               onChangeText={setCity}
               placeholder="e.g. Victoria Island"
               placeholderTextColor="#A0A5BA"
-              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
               style={{ borderCurve: "continuous" }}
             />
           </View>
 
           {/* State */}
           <View className="mb-6">
-            <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
               State / Region
             </Text>
             <TextInput
@@ -281,7 +281,7 @@ export default function AddAddress() {
               onChangeText={setState}
               placeholder="e.g. Lagos"
               placeholderTextColor="#A0A5BA"
-              className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+              className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
               style={{ borderCurve: "continuous" }}
             />
           </View>
@@ -299,7 +299,7 @@ export default function AddAddress() {
             {createAddressMutation.isPending ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <ButtonText className="font-sen-bold text-base text-white">
+              <ButtonText className="font-label text-base text-white">
                 Save Address
               </ButtonText>
             )}

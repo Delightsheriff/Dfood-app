@@ -89,7 +89,7 @@ export default function Addresses() {
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <Text className="text-[17px] font-sen-bold text-secondary">
+        <Text className="text-[17px] font-title text-secondary">
           Delivery Addresses
         </Text>
         <IconButton
@@ -108,10 +108,10 @@ export default function Addresses() {
           <View className="w-20 h-20 rounded-full bg-surface-muted items-center justify-center mb-4">
             <HugeiconsIcon icon={Location01Icon} size={36} color="#646982" />
           </View>
-          <Text className="text-xl font-sen-bold text-secondary mb-1">
+          <Text className="text-xl font-title text-secondary mb-1">
             No Addresses Saved
           </Text>
-          <Text className="text-xs font-sen text-text-gray text-center max-w-[260px] mb-6">
+          <Text className="text-xs font-body text-text-gray text-center max-w-[260px] mb-6">
             Add your home, office, or favorite delivery locations.
           </Text>
           <Pressable
@@ -119,7 +119,7 @@ export default function Addresses() {
             className="px-8 py-3.5 rounded-full bg-secondary"
             style={{ borderCurve: "continuous" }}
           >
-            <Text className="text-white font-sen-bold text-sm">
+            <Text className="text-white font-label text-sm">
               Add New Address
             </Text>
           </Pressable>
@@ -155,18 +155,18 @@ export default function Addresses() {
                     </View>
                     <View className="flex-1">
                       <View className="flex-row items-center gap-2 mb-0.5">
-                        <Text className="text-[15px] font-sen-bold text-secondary">
+                        <Text className="text-[15px] font-title text-secondary">
                           {address.label}
                         </Text>
                         {address.isDefault && (
                           <View className="bg-primary px-2 py-0.5 rounded-md">
-                            <Text className="text-white text-[9px] font-sen-bold">
+                            <Text className="text-white text-[9px] font-caption">
                               DEFAULT
                             </Text>
                           </View>
                         )}
                       </View>
-                      <Text className="text-xs font-sen text-text-gray leading-4">
+                      <Text className="text-xs font-body text-text-gray leading-4">
                         {address.street}, {address.city}, {address.state}
                       </Text>
                     </View>

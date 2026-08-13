@@ -33,7 +33,7 @@ export default function Favourites() {
         accessibilityLabel="Go back"
         onPress={() => router.back()}
       />
-      <Text className="text-[17px] font-sen-bold text-secondary">
+      <Text className="text-[17px] font-title text-secondary">
         Saved Favourites
       </Text>
       <View className="w-11" />
@@ -74,10 +74,10 @@ export default function Favourites() {
           ListEmptyComponent={
             <View className="py-20 px-6 items-center bg-surface-muted mx-3 rounded-[24px]">
               <HugeiconsIcon icon={HeartIcon} size={36} color="#646982" />
-              <Text className="text-secondary font-sen-bold text-base mt-3 mb-1">
+              <Text className="text-secondary font-title text-base mt-3 mb-1">
                 No Favourites Saved
               </Text>
-              <Text className="text-text-gray font-sen text-xs text-center max-w-[240px]">
+              <Text className="text-text-gray font-body text-xs text-center max-w-[240px]">
                 Tap the heart icon on any dish or restaurant to save it here for later.
               </Text>
             </View>

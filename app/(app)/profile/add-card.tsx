@@ -74,7 +74,7 @@ export default function AddCard() {
             accessibilityLabel="Go back"
             onPress={() => router.back()}
           />
-          <Text className="text-[17px] font-sen-bold text-secondary">
+          <Text className="text-[17px] font-title text-secondary">
             Add Payment Card
           </Text>
           <View className="w-11" />
@@ -99,13 +99,13 @@ export default function AddCard() {
             <View className="flex-row justify-between items-center mb-6">
               <HugeiconsIcon icon={CreditCardIcon} size={28} color="#FFFFFF" />
               <View className="bg-white/15 px-2.5 py-1 rounded-md">
-                <Text className="text-white text-[10px] font-sen-bold uppercase tracking-wider">
+                <Text className="text-white text-[10px] font-caption uppercase tracking-wider">
                   Demo Mode
                 </Text>
               </View>
             </View>
 
-            <Text className="text-xl font-sen-bold text-white tracking-widest mb-4">
+            <Text className="text-xl font-numeric text-white tracking-widest mb-4">
               {cardNumber
                 ? cardNumber
                 : "••••  ••••  ••••  4242"}
@@ -113,18 +113,18 @@ export default function AddCard() {
 
             <View className="flex-row justify-between items-end">
               <View>
-                <Text className="text-[9px] font-sen uppercase tracking-wider text-white/60">
+                <Text className="text-[9px] font-caption uppercase tracking-wider text-white/60">
                   Card Holder
                 </Text>
-                <Text className="text-xs font-sen-bold text-white mt-0.5">
+                <Text className="text-xs font-title text-white mt-0.5">
                   {cardHolder ? cardHolder.toUpperCase() : "DELIGHT SHERIFF"}
                 </Text>
               </View>
               <View>
-                <Text className="text-[9px] font-sen uppercase tracking-wider text-white/60">
+                <Text className="text-[9px] font-caption uppercase tracking-wider text-white/60">
                   Expires
                 </Text>
-                <Text className="text-xs font-sen-bold text-white mt-0.5">
+                <Text className="text-xs font-numeric text-white mt-0.5">
                   {expiry ? expiry : "12/30"}
                 </Text>
               </View>
@@ -134,7 +134,7 @@ export default function AddCard() {
           {/* Form Fields */}
           <View className="gap-4 mb-6">
             <View>
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
                 Card Number
               </Text>
               <TextInput
@@ -144,13 +144,13 @@ export default function AddCard() {
                 placeholderTextColor="#A0A5BA"
                 keyboardType="numeric"
                 maxLength={19}
-                className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                className="p-4 bg-surface-muted rounded-[18px] font-numeric text-sm text-secondary"
                 style={{ borderCurve: "continuous" }}
               />
             </View>
 
             <View>
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
                 Cardholder Name
               </Text>
               <TextInput
@@ -159,14 +159,14 @@ export default function AddCard() {
                 placeholder="Name on card"
                 placeholderTextColor="#A0A5BA"
                 autoCapitalize="characters"
-                className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
                 style={{ borderCurve: "continuous" }}
               />
             </View>
 
             <View className="flex-row gap-3">
               <View className="flex-1">
-                <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+                <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
                   Expiry Date
                 </Text>
                 <TextInput
@@ -176,13 +176,13 @@ export default function AddCard() {
                   placeholderTextColor="#A0A5BA"
                   keyboardType="numeric"
                   maxLength={5}
-                  className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                  className="p-4 bg-surface-muted rounded-[18px] font-numeric text-sm text-secondary"
                   style={{ borderCurve: "continuous" }}
                 />
               </View>
 
               <View className="flex-1">
-                <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+                <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
                   CVV
                 </Text>
                 <TextInput
@@ -193,7 +193,7 @@ export default function AddCard() {
                   keyboardType="numeric"
                   secureTextEntry
                   maxLength={4}
-                  className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                  className="p-4 bg-surface-muted rounded-[18px] font-numeric text-sm text-secondary"
                   style={{ borderCurve: "continuous" }}
                 />
               </View>
@@ -203,7 +203,7 @@ export default function AddCard() {
           {/* Security note */}
           <View className="p-4 bg-surface-muted rounded-[18px] flex-row items-center gap-3 mb-6">
             <HugeiconsIcon icon={Shield01Icon} size={20} color={ACCENT} />
-            <Text className="text-xs font-sen text-text-gray flex-1 leading-4">
+            <Text className="text-xs font-body text-text-gray flex-1 leading-4">
               Demo card tokenization. No real charges are ever made to your card.
             </Text>
           </View>
@@ -221,7 +221,7 @@ export default function AddCard() {
             {addCardMutation.isPending ? (
               <ActivityIndicator size="small" color="#FFFFFF" />
             ) : (
-              <ButtonText className="font-sen-bold text-base text-white">
+              <ButtonText className="font-label text-base text-white">
                 Save Card
               </ButtonText>
             )}

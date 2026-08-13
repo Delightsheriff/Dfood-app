@@ -73,7 +73,7 @@ export default function OrderDetails() {
   if (!order) {
     return (
       <View className="flex-1 bg-white items-center justify-center px-6">
-        <Text className="text-text-gray font-sen text-base">
+        <Text className="text-text-gray font-body text-base">
           Order not found
         </Text>
       </View>
@@ -109,11 +109,11 @@ export default function OrderDetails() {
         <View className="items-center flex-1 mx-3">
           <Text
             numberOfLines={1}
-            className="text-[17px] font-sen-bold text-secondary"
+            className="text-[17px] font-numeric text-secondary"
           >
             Order #{order.orderNumber || order._id.slice(-6).toUpperCase()}
           </Text>
-          <Text className="text-[11px] font-sen text-text-gray">
+          <Text className="text-[11px] font-body text-text-gray">
             {order.restaurantId.name}
           </Text>
         </View>
@@ -134,7 +134,7 @@ export default function OrderDetails() {
           style={{ borderCurve: "continuous" }}
         >
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-[15px] font-sen-bold text-secondary">
+            <Text className="text-[15px] font-title text-secondary">
               Order Status
             </Text>
             <View
@@ -143,7 +143,7 @@ export default function OrderDetails() {
               }`}
             >
               <Text
-                className={`text-[11px] font-sen-bold uppercase ${
+                className={`text-[11px] font-caption uppercase tracking-wider ${
                   order.status === "cancelled"
                     ? "text-red-700"
                     : "text-green-700"
@@ -180,8 +180,8 @@ export default function OrderDetails() {
                       numberOfLines={1}
                       className={`text-[10px] text-center ${
                         isPassed
-                          ? "font-sen-bold text-secondary"
-                          : "font-sen text-text-gray"
+                          ? "font-caption text-secondary"
+                          : "font-caption text-text-gray"
                       }`}
                     >
                       {step.label}
@@ -191,7 +191,7 @@ export default function OrderDetails() {
               })}
             </View>
           ) : (
-            <Text className="text-xs font-sen text-red-600">
+            <Text className="text-xs font-body text-red-600">
               This order was cancelled.
             </Text>
           )}
@@ -206,10 +206,10 @@ export default function OrderDetails() {
             <HugeiconsIcon icon={Location01Icon} size={20} color={ACCENT} />
           </View>
           <View className="flex-1">
-            <Text className="text-[14px] font-sen-bold text-secondary">
+            <Text className="text-[14px] font-title text-secondary">
               Delivery Address
             </Text>
-            <Text className="text-xs font-sen text-text-gray mt-0.5">
+            <Text className="text-xs font-body text-text-gray mt-0.5">
               {order.deliveryAddress.street}, {order.deliveryAddress.city}
             </Text>
           </View>
@@ -228,10 +228,10 @@ export default function OrderDetails() {
             />
           </View>
           <View className="flex-1">
-            <Text className="text-[14px] font-sen-bold text-secondary">
+            <Text className="text-[14px] font-title text-secondary">
               Payment Method
             </Text>
-            <Text className="text-xs font-sen text-text-gray mt-0.5">
+            <Text className="text-xs font-body text-text-gray mt-0.5">
               {order.paymentMethod === "card" ? "Credit/Debit Card" : "Cash on Delivery"}
             </Text>
           </View>
@@ -242,7 +242,7 @@ export default function OrderDetails() {
           className="p-5 bg-surface-muted rounded-[20px] mb-6"
           style={{ borderCurve: "continuous" }}
         >
-          <Text className="text-[15px] font-sen-bold text-secondary mb-3">
+          <Text className="text-[15px] font-title text-secondary mb-3">
             Order Items ({order.items.length})
           </Text>
 
@@ -262,12 +262,12 @@ export default function OrderDetails() {
                   ) : null}
                   <Text
                     numberOfLines={1}
-                    className="text-xs font-sen text-secondary flex-1"
+                    className="text-xs font-body text-secondary flex-1"
                   >
                     {item.quantity}x {item.name}
                   </Text>
                 </View>
-                <Text className="text-xs font-sen-bold text-secondary">
+                <Text className="text-xs font-numeric text-secondary">
                   ₦{(item.price * item.quantity).toLocaleString()}
                 </Text>
               </View>
@@ -278,22 +278,22 @@ export default function OrderDetails() {
 
           <View className="gap-2">
             <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-sen text-text-gray">Subtotal</Text>
-              <Text className="text-xs font-sen-bold text-secondary">
+              <Text className="text-xs font-body text-text-gray">Subtotal</Text>
+              <Text className="text-xs font-numeric text-secondary">
                 ₦{order.subtotal.toLocaleString()}
               </Text>
             </View>
             <View className="flex-row justify-between items-center">
-              <Text className="text-xs font-sen text-text-gray">Delivery Fee</Text>
-              <Text className="text-xs font-sen-bold text-secondary">
+              <Text className="text-xs font-body text-text-gray">Delivery Fee</Text>
+              <Text className="text-xs font-numeric text-secondary">
                 {order.deliveryFee === 0
                   ? "Free"
                   : `₦${order.deliveryFee.toLocaleString()}`}
               </Text>
             </View>
             <View className="flex-row justify-between items-center pt-1">
-              <Text className="text-sm font-sen-bold text-secondary">Total</Text>
-              <Text className="text-base font-sen-extra-bold text-secondary">
+              <Text className="text-sm font-title text-secondary">Total</Text>
+              <Text className="text-base font-numeric text-secondary">
                 ₦{order.total.toLocaleString()}
               </Text>
             </View>
@@ -310,7 +310,7 @@ export default function OrderDetails() {
             {cancelOrderMutation.isPending ? (
               <ActivityIndicator size="small" color="#EF4444" />
             ) : (
-              <Text className="text-red-600 font-sen-bold text-xs uppercase tracking-wider">
+              <Text className="text-red-600 font-label text-xs uppercase tracking-wider">
                 Cancel Order
               </Text>
             )}

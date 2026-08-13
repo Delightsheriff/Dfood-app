@@ -130,7 +130,7 @@ export default function FoodDetails() {
   if (!food) {
     return (
       <View className="flex-1 bg-white items-center justify-center">
-        <Text className="text-text-gray font-sen">Food item not found</Text>
+        <Text className="text-text-gray font-body">Food item not found</Text>
       </View>
     );
   }

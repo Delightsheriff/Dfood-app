@@ -75,7 +75,7 @@ export default function PaymentMethods() {
           accessibilityLabel="Go back"
           onPress={() => router.back()}
         />
-        <Text className="text-[17px] font-sen-bold text-secondary">
+        <Text className="text-[17px] font-title text-secondary">
           Payment Methods
         </Text>
         <IconButton
@@ -124,20 +124,20 @@ export default function PaymentMethods() {
                     </View>
                     <View className="flex-1">
                       <View className="flex-row items-center gap-2 mb-0.5">
-                        <Text className="text-[15px] font-sen-bold text-secondary">
+                        <Text className="text-[15px] font-title text-secondary">
                           {isCash
                             ? "Cash on Delivery"
                             : `${pm.cardBrand || "Card"} •••• ${pm.cardLast4 || "4242"}`}
                         </Text>
                         {pm.isDefault && (
                           <View className="bg-primary px-2 py-0.5 rounded-md">
-                            <Text className="text-white text-[9px] font-sen-bold">
+                            <Text className="text-white text-[9px] font-caption">
                               DEFAULT
                             </Text>
                           </View>
                         )}
                       </View>
-                      <Text className="text-xs font-sen text-text-gray">
+                      <Text className="text-xs font-body text-text-gray">
                         {isCash
                           ? "Pay directly when your order arrives"
                           : `${pm.bank || "Mock Bank"} • Expires ${pm.cardExpMonth}/${pm.cardExpYear}`}

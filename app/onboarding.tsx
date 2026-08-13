@@ -104,7 +104,7 @@ export default function Onboarding() {
             boxShadow: "0px 2px 6px rgba(0,0,0,0.08)",
           }}
         >
-          <Text className="text-secondary font-sen-bold text-xs">
+          <Text className="text-secondary font-label text-xs">
             Skip
           </Text>
         </Pressable>
@@ -145,7 +145,7 @@ export default function Onboarding() {
             boxShadow: "0px 4px 12px rgba(38,43,51,0.2)",
           }}
         >
-          <ButtonText className="font-sen-bold text-[15px] text-white">
+          <ButtonText className="font-label text-[15px] text-white">
             {isLast ? "Get Started" : "Next"}
           </ButtonText>
           <HugeiconsIcon icon={ArrowRight01Icon} size={18} color="#FFFFFF" />

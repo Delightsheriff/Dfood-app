@@ -98,7 +98,7 @@ export default function PersonalInfo() {
             accessibilityLabel="Go back"
             onPress={() => router.back()}
           />
-          <Text className="text-[17px] font-sen-bold text-secondary">
+          <Text className="text-[17px] font-title text-secondary">
             Personal Information
           </Text>
           <View className="w-11" />
@@ -153,7 +153,7 @@ export default function PersonalInfo() {
                 className="mt-3 flex-row items-center gap-1.5"
               >
                 <HugeiconsIcon icon={Delete02Icon} size={14} color="#EF4444" />
-                <Text className="text-xs font-sen-bold text-red-500">
+                <Text className="text-xs font-label text-red-500">
                   Remove photo
                 </Text>
               </Pressable>
@@ -163,7 +163,7 @@ export default function PersonalInfo() {
           {/* Form Fields */}
           <View className="gap-5 mb-8">
             <View>
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
                 Full Name
               </Text>
               <TextInput
@@ -171,13 +171,13 @@ export default function PersonalInfo() {
                 onChangeText={setNameInput}
                 placeholder="Enter your name"
                 placeholderTextColor="#A0A5BA"
-                className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
                 style={{ borderCurve: "continuous" }}
               />
             </View>
 
             <View>
-              <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+              <Text className="text-[11px] font-caption uppercase tracking-wider text-text-gray mb-2">
                 Bio / Status
               </Text>
               <TextInput
@@ -185,7 +185,7 @@ export default function PersonalInfo() {
                 onChangeText={setBioInput}
                 placeholder="e.g. Food explorer & pizza enthusiast"
                 placeholderTextColor="#A0A5BA"
-                className="p-4 bg-surface-muted rounded-[18px] font-sen text-sm text-secondary"
+                className="p-4 bg-surface-muted rounded-[18px] font-body text-sm text-secondary"
                 style={{ borderCurve: "continuous" }}
               />
             </View>
@@ -200,7 +200,7 @@ export default function PersonalInfo() {
               boxShadow: "0px 4px 12px rgba(38,43,51,0.2)",
             }}
           >
-            <ButtonText className="font-sen-bold text-base text-white">
+            <ButtonText className="font-label text-base text-white">
               Save Profile
             </ButtonText>
           </Pressable>
