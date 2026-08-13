@@ -87,8 +87,8 @@ function RestaurantCard({
           <IconButton
             icon={Bookmark02Icon}
             accessibilityLabel="Bookmark restaurant"
-            size={36}
-            iconSize={18}
+            size={16}
+            className="h-9 w-9 rounded-xl"
             filled={isBookmarked}
             fillColor={ACCENT}
             color={isBookmarked ? ACCENT : "#262B33"}
