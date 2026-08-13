@@ -1,10 +1,5 @@
-import { CheckoutHeader } from "@/components/checkout/CheckoutHeader";
-import { DeliveryAddressSection } from "@/components/checkout/DeliveryAddressSection";
-import { OrderSummary } from "@/components/checkout/OrderSummary";
-import { PaymentMethodSection } from "@/components/checkout/PaymentMethodSection";
-import { PlaceOrderButton } from "@/components/checkout/PlaceOrderButton";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ButtonText } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import {
   useAddresses,
   useDefaultAddress,
@@ -15,463 +10,560 @@ import {
 import { useCreateOrder } from "@/hooks/useOrderMutations";
 import { useCartStore } from "@/store/cartStore";
 import { Address, PaymentMethod } from "@/types/api";
-import BottomSheet, {
-  BottomSheetBackdrop,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
-import { useRouter } from "expo-router";
 import {
-  Banknote,
-  Briefcase,
-  Check,
-  CreditCard,
-  Home,
-  MapPin,
-  MessageSquare,
-  Plus,
-} from "lucide-react-native";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+  ArrowDown01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  ArrowUp01Icon,
+  Clock01Icon,
+  CreditCardIcon,
+  Location01Icon,
+  Money01Icon,
+  Note01Icon,
+  ShoppingBag01Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react-native";
+import { useRouter } from "expo-router";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Modal,
+  Pressable,
   ScrollView,
   Text,
-  Pressable,
+  TextInput,
   View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const ACCENT = "#E0533A";
 
 export default function Checkout() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
+
   const items = useCartStore((state) => state.items);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice());
   const clearCart = useCartStore((state) => state.clearCart);
+  const restaurantId = useCartStore((state) => state.getRestaurantId()) || "";
+
+  const { data: restaurantData } = useRestaurant(restaurantId);
+  const restaurant = restaurantData?.data.restaurant;
 
   const { data: addressesData } = useAddresses();
   const { data: defaultAddressData } = useDefaultAddress();
   const { data: paymentMethodsData } = usePaymentMethods();
   const { data: defaultPaymentData } = useDefaultPaymentMethod();
-  const createOrderMutation = useCreateOrder();
 
-  // Get restaurant data for delivery fee
-  const restaurantId = items.length > 0 ? items[0].restaurantId : "";
-  const { data: restaurantData } = useRestaurant(restaurantId);
-  const restaurant = restaurantData?.data.restaurant;
+  const createOrderMutation = useCreateOrder();
 
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<PaymentMethod | null>(null);
   const [customerNotes, setCustomerNotes] = useState("");
+  const [itemsExpanded, setItemsExpanded] = useState(false);
 
-  const addressSheetRef = useRef<BottomSheet>(null);
-  const paymentSheetRef = useRef<BottomSheet>(null);
-
-  // Bottom sheet snap points
-  const addressSnapPoints = useMemo(() => ["70%"], []);
-  const paymentSnapPoints = useMemo(() => ["50%"], []);
+  // Sheet modals
+  const [addressModalVisible, setAddressModalVisible] = useState(false);
+  const [paymentModalVisible, setPaymentModalVisible] = useState(false);
 
   const addresses = addressesData?.data.addresses || [];
   const paymentMethods = paymentMethodsData?.data.paymentMethods || [];
 
-  // Set defaults when data loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (defaultAddressData?.data.address && !selectedAddress) {
       setSelectedAddress(defaultAddressData.data.address);
+    } else if (addresses.length > 0 && !selectedAddress) {
+      setSelectedAddress(addresses[0]);
     }
-  }, [defaultAddressData, selectedAddress]);
+  }, [defaultAddressData, addresses, selectedAddress]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (defaultPaymentData?.data.paymentMethod && !selectedPaymentMethod) {
       setSelectedPaymentMethod(defaultPaymentData.data.paymentMethod);
+    } else if (paymentMethods.length > 0 && !selectedPaymentMethod) {
+      setSelectedPaymentMethod(paymentMethods[0]);
     }
-  }, [defaultPaymentData, selectedPaymentMethod]);
+  }, [defaultPaymentData, paymentMethods, selectedPaymentMethod]);
 
-  // Calculate totals
-  const restaurantName = items.length > 0 ? items[0].restaurantName : "";
   const subtotal = getTotalPrice;
-  const deliveryFee = restaurant?.deliveryFee || 0;
+  const deliveryFee = restaurant?.deliveryFee ?? 0;
   const total = subtotal + deliveryFee;
+
+  const placeOrderPressed = useSharedValue(0);
+  const placeOrderStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: interpolate(placeOrderPressed.get(), [0, 1], [1, 0.97]) },
+    ],
+    opacity: interpolate(placeOrderPressed.get(), [0, 1], [1, 0.9]),
+  }));
 
   const handlePlaceOrder = () => {
     if (!selectedAddress) {
-      Alert.alert("Address Required", "Please select a delivery address");
+      Alert.alert(
+        "Address Required",
+        "Please select or add a delivery address to continue.",
+        [
+          {
+            text: "Add Address",
+            onPress: () => router.push("/profile/add-address" as any),
+          },
+          { text: "Cancel", style: "cancel" },
+        ],
+      );
       return;
     }
 
     if (!selectedPaymentMethod) {
-      Alert.alert("Payment Required", "Please select a payment method");
+      Alert.alert(
+        "Payment Required",
+        "Please select a payment method to continue.",
+      );
       return;
     }
 
     if (items.length === 0) {
-      Alert.alert("Empty Cart", "Your cart is empty");
+      Alert.alert("Empty Cart", "Your cart is empty.");
+      router.back();
       return;
     }
 
-    if (!restaurantId) {
-      Alert.alert("Error", "Restaurant information is missing");
-      return;
-    }
-
-    // Build order data - only include customerNotes if not empty
-    const orderData: any = {
-      restaurantId,
-      items: items.map((item) => ({
-        foodItemId: item.foodItem._id,
-        quantity: item.quantity,
-      })),
-      addressId: selectedAddress._id,
-      paymentMethodId: selectedPaymentMethod._id,
-    };
-
-    // Only add customerNotes if it has content
-    if (customerNotes && customerNotes.trim()) {
-      orderData.customerNotes = customerNotes.trim();
-    }
-
-    createOrderMutation.mutate(orderData, {
-      onSuccess: (response) => {
-        console.log("Order success response:", response);
-        clearCart();
-        router.replace({
-          pathname: "/(app)/order-confirmation",
-          params: { orderId: response.data.order._id },
-        });
+    createOrderMutation.mutate(
+      {
+        restaurantId,
+        items: items.map((item) => ({
+          foodItemId: item.foodItem._id,
+          quantity: item.quantity,
+        })),
+        addressId: selectedAddress._id,
+        paymentMethodId: selectedPaymentMethod._id,
+        customerNotes: customerNotes.trim() || undefined,
       },
-      onError: (error: any) => {
-        console.error("Full error object:", error);
-        console.error("Error response:", error.response);
-        const message =
-          error.response?.data?.message ||
-          error.message ||
-          "Failed to place order. Please try again.";
-        Alert.alert("Order Failed", message);
+      {
+        onSuccess: (response) => {
+          clearCart();
+          router.replace({
+            pathname: "/(app)/order-confirmation",
+            params: { orderId: response.data.order._id },
+          });
+        },
+        onError: (error: any) => {
+          const message =
+            error.response?.data?.message ||
+            error.message ||
+            "Failed to place order. Please try again.";
+          Alert.alert("Order Failed", message);
+        },
       },
+    );
+  };
+
+  const placeOrderTap = Gesture.Tap()
+    .runOnJS(true)
+    .enabled(!createOrderMutation.isPending && items.length > 0)
+    .onBegin(() => {
+      placeOrderPressed.set(1);
+    })
+    .onFinalize(() => {
+      placeOrderPressed.set(0);
+    })
+    .onEnd((_event, success) => {
+      if (success) {
+        handlePlaceOrder();
+      }
     });
-  };
-
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-        opacity={0.5}
-      />
-    ),
-    [],
-  );
-
-  const getLabelIcon = (label: string) => {
-    const l = label.toLowerCase();
-    if (l === "home") return Home;
-    if (l === "work") return Briefcase;
-    return MapPin;
-  };
-
-  const getLabelColor = (label: string) => {
-    const l = label.toLowerCase();
-    if (l === "home") return { color: "#2D8EFF", bg: "#EBF4FF" };
-    if (l === "work") return { color: "#FF7622", bg: "#FFF5EE" };
-    return { color: "#7E8CA0", bg: "#F0F5FA" };
-  };
-
-  const AddressItem = ({ address }: { address: Address }) => {
-    const isSelected = selectedAddress?._id === address._id;
-    const Icon = getLabelIcon(address.label);
-    const { color, bg } = getLabelColor(address.label);
-
-    return (
-      <Pressable
-        onPress={() => {
-          setSelectedAddress(address);
-          addressSheetRef.current?.close();
-        }}
-        className={`p-4 rounded-2xl mb-3 flex-row items-center ${
-          isSelected ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
-        }`}
-        style={{
-          borderWidth: isSelected ? 1.5 : 1,
-          borderColor: isSelected ? "#FF7622" : "#F0F0F0",
-        }}
-        activeOpacity={0.7}
-      >
-        <View
-          className="w-10 h-10 rounded-xl items-center justify-center mr-3"
-          style={{ backgroundColor: bg }}
-        >
-          <Icon color={color} size={18} />
-        </View>
-        <View className="flex-1">
-          <View className="flex-row items-center mb-0.5">
-            <Text className="font-sen-bold text-secondary text-sm uppercase mr-2">
-              {address.label}
-            </Text>
-            {address.isDefault && (
-              <View className="bg-[#F0F5FA] px-2 py-0.5 rounded-md">
-                <Text className="text-text-gray text-[9px] font-sen-bold">
-                  DEFAULT
-                </Text>
-              </View>
-            )}
-          </View>
-          <Text className="font-sen text-text-gray text-xs leading-4">
-            {address.street}, {address.city}, {address.state}
-          </Text>
-        </View>
-        {isSelected && (
-          <View className="w-7 h-7 bg-primary rounded-lg items-center justify-center ml-2">
-            <Check color="white" size={14} />
-          </View>
-        )}
-      </Pressable>
-    );
-  };
-
-  const PaymentItem = ({ method }: { method: PaymentMethod }) => {
-    const isCash = method.type === "cash";
-    const isSelected = selectedPaymentMethod?._id === method._id;
-
-    return (
-      <Pressable
-        onPress={() => {
-          setSelectedPaymentMethod(method);
-          paymentSheetRef.current?.close();
-        }}
-        className={`p-4 rounded-2xl mb-3 flex-row items-center ${
-          isSelected ? "bg-[#FFF5EE]" : "bg-[#F6F8FA]"
-        }`}
-        style={{
-          borderWidth: isSelected ? 1.5 : 1,
-          borderColor: isSelected ? "#FF7622" : "#F0F0F0",
-        }}
-        activeOpacity={0.7}
-      >
-        <View
-          className="w-10 h-10 rounded-xl items-center justify-center mr-3"
-          style={{
-            backgroundColor: isCash ? "#EBF4FF" : "#FFF5EE",
-          }}
-        >
-          {isCash ? (
-            <Banknote color="#2D8EFF" size={18} />
-          ) : (
-            <CreditCard color="#FF7622" size={18} />
-          )}
-        </View>
-        <View className="flex-1">
-          <View className="flex-row items-center mb-0.5">
-            <Text className="font-sen-bold text-secondary text-sm mr-2">
-              {isCash
-                ? "Cash on Delivery"
-                : `${method.cardBrand} •••• ${method.cardLast4}`}
-            </Text>
-            {method.isDefault && (
-              <View className="bg-[#F0F5FA] px-2 py-0.5 rounded-md">
-                <Text className="text-text-gray text-[9px] font-sen-bold">
-                  DEFAULT
-                </Text>
-              </View>
-            )}
-          </View>
-          {!isCash && (
-            <Text className="font-sen text-text-gray text-xs">
-              {method.bank} • Expires {method.cardExpMonth}/{method.cardExpYear}
-            </Text>
-          )}
-        </View>
-        {isSelected && (
-          <View className="w-7 h-7 bg-primary rounded-lg items-center justify-center ml-2">
-            <Check color="white" size={14} />
-          </View>
-        )}
-      </Pressable>
-    );
-  };
-
-  // Show loading if restaurant data not loaded yet
-  if (!restaurant && restaurantId) {
-    return (
-      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FF7622" />
-          <Text className="text-text-gray font-sen mt-4">
-            Loading restaurant details...
-          </Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView className="flex-1 bg-white" edges={["top"]}>
-        <CheckoutHeader onBack={() => router.back()} />
+    <View className="flex-1 bg-white">
+      {/* Header */}
+      <View
+        className="px-5 pt-3 pb-3 border-b border-gray-100 flex-row items-center justify-between"
+        style={{ paddingTop: insets.top + 4 }}
+      >
+        <IconButton
+          icon={ArrowLeft01Icon}
+          accessibilityLabel="Go back"
+          onPress={() => router.back()}
+        />
+        <Text className="text-[17px] font-sen-bold text-secondary">
+          Checkout
+        </Text>
+        <View className="w-11" />
+      </View>
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
-        >
-          <OrderSummary
-            restaurantName={restaurantName}
-            items={items}
-            subtotal={subtotal}
-            deliveryFee={deliveryFee}
-            total={total}
-          />
-
-          <DeliveryAddressSection
-            selectedAddress={selectedAddress}
-            hasAddresses={addresses.length > 0}
-            onSelectPress={() => addressSheetRef.current?.snapToIndex(0)}
-            onAddPress={() => router.push("/profile/add-address" as any)}
-          />
-
-          <PaymentMethodSection
-            selectedPaymentMethod={selectedPaymentMethod}
-            paymentMethodsCount={paymentMethods.length}
-            onSelectPress={() => paymentSheetRef.current?.snapToIndex(0)}
-            onAddCardPress={() => router.push("/profile/add-card" as any)}
-          />
-
-          {/* Customer Notes */}
-          <View className="mb-6">
-            <View className="flex-row items-center mb-2">
-              <View className="w-7 h-7 bg-[#F0F5FA] rounded-lg items-center justify-center mr-2">
-                <MessageSquare color="#A0A5BA" size={14} />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingTop: 16,
+          paddingBottom: insets.bottom + 100,
+        }}
+      >
+        {/* 1. Delivery Address Card */}
+        <View className="mb-4">
+          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            Delivery Address
+          </Text>
+          <Pressable
+            onPress={() => {
+              if (addresses.length === 0) {
+                router.push("/profile/add-address" as any);
+              } else {
+                setAddressModalVisible(true);
+              }
+            }}
+            className="p-4 bg-surface-muted rounded-[20px] flex-row items-center justify-between"
+            style={{ borderCurve: "continuous" }}
+          >
+            <View className="flex-row items-center flex-1 mr-3">
+              <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+                <HugeiconsIcon icon={Location01Icon} size={20} color={ACCENT} />
               </View>
-              <Label className="text-[#32343E] font-sen-bold text-[13px] uppercase tracking-wide">
-                DELIVERY INSTRUCTIONS
-              </Label>
-              <Text className="text-text-gray font-sen text-[11px] ml-1.5">
-                Optional
+              <View className="flex-1">
+                <Text className="text-[15px] font-sen-bold text-secondary">
+                  {selectedAddress
+                    ? selectedAddress.label || "Delivery Location"
+                    : "No Address Saved"}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  className="text-xs font-sen text-text-gray mt-0.5"
+                >
+                  {selectedAddress
+                    ? `${selectedAddress.street}, ${selectedAddress.city}`
+                    : "Tap to add a new delivery address"}
+                </Text>
+              </View>
+            </View>
+            <Text className="text-xs font-sen-bold text-primary">
+              {selectedAddress ? "Change" : "Add"}
+            </Text>
+          </Pressable>
+        </View>
+
+        {/* 2. Delivery Time Estimate */}
+        <View className="mb-4">
+          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            Delivery Time
+          </Text>
+          <View
+            className="p-4 bg-surface-muted rounded-[20px] flex-row items-center"
+            style={{ borderCurve: "continuous" }}
+          >
+            <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+              <HugeiconsIcon icon={Clock01Icon} size={20} color="#262B33" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-[15px] font-sen-bold text-secondary">
+                Standard Delivery
+              </Text>
+              <Text className="text-xs font-sen text-text-gray mt-0.5">
+                Estimated 25–35 mins
               </Text>
             </View>
-            <Input
-              placeholder="e.g., Ring the doorbell, Leave at door"
-              placeholderTextColor="#B4B9CA"
+          </View>
+        </View>
+
+        {/* 3. Payment Method Card */}
+        <View className="mb-4">
+          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            Payment Method
+          </Text>
+          <Pressable
+            onPress={() => setPaymentModalVisible(true)}
+            className="p-4 bg-surface-muted rounded-[20px] flex-row items-center justify-between"
+            style={{ borderCurve: "continuous" }}
+          >
+            <View className="flex-row items-center flex-1 mr-3">
+              <View className="w-10 h-10 rounded-full bg-white items-center justify-center mr-3">
+                <HugeiconsIcon
+                  icon={
+                    selectedPaymentMethod?.type === "card"
+                      ? CreditCardIcon
+                      : Money01Icon
+                  }
+                  size={20}
+                  color={ACCENT}
+                />
+              </View>
+              <View className="flex-1">
+                <View className="flex-row items-center gap-2">
+                  <Text className="text-[15px] font-sen-bold text-secondary">
+                    {selectedPaymentMethod?.type === "card"
+                      ? `Card •••• ${selectedPaymentMethod.cardLast4 || "4242"}`
+                      : "Cash on Delivery"}
+                  </Text>
+                  <View className="bg-white px-2 py-0.5 rounded-md">
+                    <Text className="text-[10px] font-sen-bold text-text-gray">
+                      Demo
+                    </Text>
+                  </View>
+                </View>
+                <Text className="text-xs font-sen text-text-gray mt-0.5">
+                  {selectedPaymentMethod?.type === "card"
+                    ? "Pay with saved demo card"
+                    : "Pay with cash upon delivery"}
+                </Text>
+              </View>
+            </View>
+            <Text className="text-xs font-sen-bold text-primary">Change</Text>
+          </Pressable>
+        </View>
+
+        {/* 4. Customer Notes Input */}
+        <View className="mb-4">
+          <Text className="text-[11px] font-sen-bold uppercase tracking-wider text-text-gray mb-2">
+            Rider Notes (Optional)
+          </Text>
+          <View
+            className="p-3.5 bg-surface-muted rounded-[20px] flex-row items-center"
+            style={{ borderCurve: "continuous" }}
+          >
+            <HugeiconsIcon icon={Note01Icon} size={18} color="#646982" />
+            <TextInput
+              placeholder="e.g. Ring doorbell, gate code #1234"
+              placeholderTextColor="#A0A5BA"
               value={customerNotes}
               onChangeText={setCustomerNotes}
-              multiline
-              numberOfLines={3}
-              className="h-24 !bg-[#F0F5FA] text-text-gray-dark border-0 rounded-2xl"
-              style={{ textAlignVertical: "top", paddingTop: 12 }}
-              maxLength={500}
+              className="flex-1 ml-2.5 font-sen text-[13px] text-secondary"
             />
-            <Text className="text-xs text-text-gray font-sen mt-1.5 text-right">
-              {customerNotes.length}/500
-            </Text>
           </View>
-        </ScrollView>
+        </View>
 
-        <PlaceOrderButton
-          onPress={handlePlaceOrder}
-          disabled={
-            !selectedAddress ||
-            !selectedPaymentMethod ||
-            createOrderMutation.isPending
-          }
-          isPending={createOrderMutation.isPending}
-          total={total}
-        />
-
-        {/* Address Selection Bottom Sheet */}
-        <BottomSheet
-          ref={addressSheetRef}
-          index={-1}
-          snapPoints={addressSnapPoints}
-          enablePanDownToClose={true}
-          backdropComponent={renderBackdrop}
-          handleIndicatorStyle={{ backgroundColor: "#D1D5DB", width: 40 }}
+        {/* 5. Order Summary Card */}
+        <View
+          className="p-5 bg-surface-muted rounded-[20px] mb-6"
+          style={{ borderCurve: "continuous" }}
         >
-          <BottomSheetView
-            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}
+          {/* Collapsible item preview */}
+          <Pressable
+            onPress={() => setItemsExpanded(!itemsExpanded)}
+            className="flex-row items-center justify-between pb-3 border-b border-gray-200"
           >
-            <View className="flex-row justify-between items-center mb-4">
-              <View className="flex-row items-center">
-                <Text className="text-lg font-sen-bold text-secondary">
-                  Select Address
-                </Text>
-                {addresses.length > 0 && (
-                  <View className="bg-[#F0F5FA] px-2.5 py-1 rounded-lg ml-2">
-                    <Text className="text-text-gray font-sen-bold text-xs">
-                      {addresses.length}
-                    </Text>
-                  </View>
-                )}
-              </View>
+            <View className="flex-row items-center gap-2">
+              <HugeiconsIcon icon={ShoppingBag01Icon} size={16} color="#262B33" />
+              <Text className="text-[14px] font-sen-bold text-secondary">
+                {items.length} {items.length === 1 ? "Item" : "Items"} from{" "}
+                {restaurant?.name || "Restaurant"}
+              </Text>
+            </View>
+            <HugeiconsIcon
+              icon={itemsExpanded ? ArrowUp01Icon : ArrowDown01Icon}
+              size={16}
+              color="#646982"
+            />
+          </Pressable>
+
+          {itemsExpanded && (
+            <View className="py-3 border-b border-gray-200 gap-2">
+              {items.map((item) => (
+                <View
+                  key={item.foodItem._id}
+                  className="flex-row justify-between items-center"
+                >
+                  <Text
+                    numberOfLines={1}
+                    className="text-xs font-sen text-secondary flex-1 mr-2"
+                  >
+                    {item.quantity}x {item.foodItem.name}
+                  </Text>
+                  <Text className="text-xs font-sen-bold text-secondary">
+                    ₦{(item.foodItem.price * item.quantity).toLocaleString()}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Breakdown */}
+          <View className="pt-3 gap-2">
+            <View className="flex-row justify-between items-center">
+              <Text className="text-xs font-sen text-text-gray">Subtotal</Text>
+              <Text className="text-xs font-sen-bold text-secondary">
+                ₦{subtotal.toLocaleString()}
+              </Text>
+            </View>
+            <View className="flex-row justify-between items-center">
+              <Text className="text-xs font-sen text-text-gray">
+                Delivery Fee
+              </Text>
+              <Text className="text-xs font-sen-bold text-secondary">
+                {deliveryFee === 0 ? "Free" : `₦${deliveryFee.toLocaleString()}`}
+              </Text>
+            </View>
+            <View className="h-[1px] bg-gray-200 my-1" />
+            <View className="flex-row justify-between items-center">
+              <Text className="text-base font-sen-bold text-secondary">
+                Total
+              </Text>
+              <Text className="text-xl font-sen-extra-bold text-secondary">
+                ₦{total.toLocaleString()}
+              </Text>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Sticky "Place Order" Button */}
+      <View
+        className="absolute bottom-0 left-0 right-0 bg-white px-5 pt-3 border-t border-gray-100"
+        style={{
+          paddingBottom: insets.bottom + 12,
+          boxShadow: "0px -4px 16px rgba(0,0,0,0.06)",
+        }}
+      >
+        <GestureDetector gesture={placeOrderTap}>
+          <Animated.View
+            accessibilityRole="button"
+            accessibilityLabel="Place Order"
+            className="h-14 w-full flex-row items-center justify-center bg-secondary rounded-full"
+            style={placeOrderStyle}
+          >
+            {createOrderMutation.isPending ? (
+              <ActivityIndicator size="small" color="#FFFFFF" />
+            ) : (
+              <ButtonText className="font-sen-bold text-base">
+                Place Order • ₦{total.toLocaleString()}
+              </ButtonText>
+            )}
+          </Animated.View>
+        </GestureDetector>
+      </View>
+
+      {/* Address Switcher Modal */}
+      <Modal
+        visible={addressModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAddressModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <Pressable
+            className="flex-1"
+            onPress={() => setAddressModalVisible(false)}
+          />
+          <View
+            className="bg-white rounded-t-[28px] p-6 max-h-[70%]"
+            style={{ paddingBottom: insets.bottom + 16 }}
+          >
+            <View className="flex-row items-center justify-between mb-4">
+              <Text className="text-lg font-sen-bold text-secondary">
+                Select Delivery Address
+              </Text>
               <Pressable
                 onPress={() => {
-                  addressSheetRef.current?.close();
+                  setAddressModalVisible(false);
                   router.push("/profile/add-address" as any);
                 }}
-                className="flex-row items-center bg-[#FFF5EE] px-3 py-2 rounded-xl"
-                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
               >
-                <Plus color="#FF7622" size={14} />
-                <Text className="text-primary font-sen-bold text-xs ml-1">
-                  ADD NEW
+                <Text className="text-xs font-sen-bold text-primary">
+                  + Add New
                 </Text>
               </Pressable>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {addresses.map((address) => (
-                <AddressItem key={address._id} address={address} />
-              ))}
-            </ScrollView>
-          </BottomSheetView>
-        </BottomSheet>
-
-        {/* Payment Method Selection Bottom Sheet */}
-        <BottomSheet
-          ref={paymentSheetRef}
-          index={-1}
-          snapPoints={paymentSnapPoints}
-          enablePanDownToClose={true}
-          backdropComponent={renderBackdrop}
-          handleIndicatorStyle={{ backgroundColor: "#D1D5DB", width: 40 }}
-        >
-          <BottomSheetView
-            style={{ flex: 1, paddingHorizontal: 24, paddingVertical: 8 }}
-          >
-            <View className="flex-row justify-between items-center mb-4">
-              <View className="flex-row items-center">
-                <Text className="text-lg font-sen-bold text-secondary">
-                  Select Payment
-                </Text>
-                {paymentMethods.length > 0 && (
-                  <View className="bg-[#F0F5FA] px-2.5 py-1 rounded-lg ml-2">
-                    <Text className="text-text-gray font-sen-bold text-xs">
-                      {paymentMethods.length}
+            <ScrollView className="max-h-[300px]">
+              {addresses.map((addr) => {
+                const isSelected = selectedAddress?._id === addr._id;
+                return (
+                  <Pressable
+                    key={addr._id}
+                    onPress={() => {
+                      setSelectedAddress(addr);
+                      setAddressModalVisible(false);
+                    }}
+                    className={`p-4 rounded-2xl mb-2.5 border ${
+                      isSelected
+                        ? "bg-[#FFF5F3] border-primary"
+                        : "bg-surface-muted border-transparent"
+                    }`}
+                  >
+                    <Text className="text-sm font-sen-bold text-secondary">
+                      {addr.label}
                     </Text>
-                  </View>
-                )}
-              </View>
-              <Pressable
-                onPress={() => {
-                  paymentSheetRef.current?.close();
-                  router.push("/profile/add-card" as any);
-                }}
-                className="flex-row items-center bg-[#FFF5EE] px-3 py-2 rounded-xl"
-                style={{ borderWidth: 1, borderColor: "#FFE5D3" }}
-              >
-                <Plus color="#FF7622" size={14} />
-                <Text className="text-primary font-sen-bold text-xs ml-1">
-                  ADD CARD
-                </Text>
-              </Pressable>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {paymentMethods.map((method) => (
-                <PaymentItem key={method._id} method={method} />
-              ))}
+                    <Text className="text-xs font-sen text-text-gray mt-0.5">
+                      {addr.street}, {addr.city}
+                    </Text>
+                  </Pressable>
+                );
+              })}
             </ScrollView>
-          </BottomSheetView>
-        </BottomSheet>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Payment Method Switcher Modal */}
+      <Modal
+        visible={paymentModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setPaymentModalVisible(false)}
+      >
+        <View className="flex-1 bg-black/50 justify-end">
+          <Pressable
+            className="flex-1"
+            onPress={() => setPaymentModalVisible(false)}
+          />
+          <View
+            className="bg-white rounded-t-[28px] p-6 max-h-[60%]"
+            style={{ paddingBottom: insets.bottom + 16 }}
+          >
+            <Text className="text-lg font-sen-bold text-secondary mb-4">
+              Select Payment Method
+            </Text>
+
+            <ScrollView className="max-h-[250px]">
+              {paymentMethods.map((pm) => {
+                const isSelected = selectedPaymentMethod?._id === pm._id;
+                return (
+                  <Pressable
+                    key={pm._id}
+                    onPress={() => {
+                      setSelectedPaymentMethod(pm);
+                      setPaymentModalVisible(false);
+                    }}
+                    className={`p-4 rounded-2xl mb-2.5 border flex-row items-center justify-between ${
+                      isSelected
+                        ? "bg-[#FFF5F3] border-primary"
+                        : "bg-surface-muted border-transparent"
+                    }`}
+                  >
+                    <View className="flex-row items-center gap-3">
+                      <HugeiconsIcon
+                        icon={pm.type === "card" ? CreditCardIcon : Money01Icon}
+                        size={20}
+                        color={ACCENT}
+                      />
+                      <View>
+                        <Text className="text-sm font-sen-bold text-secondary">
+                          {pm.type === "card"
+                            ? `Card (•••• ${pm.cardLast4 || "4242"})`
+                            : "Cash on Delivery"}
+                        </Text>
+                        <Text className="text-[11px] font-sen text-text-gray">
+                          Demo test mode
+                        </Text>
+                      </View>
+                    </View>
+                    {isSelected && (
+                      <View className="w-5 h-5 rounded-full bg-primary items-center justify-center">
+                        <Text className="text-white text-[10px]">✓</Text>
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 }
