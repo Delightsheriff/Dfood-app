@@ -157,6 +157,43 @@ Baseline: there are pre-existing type errors in `checkout.tsx`,
 `components/ui/toast-config.tsx`. Don't fix them as drive-bys, but don't add
 to them either — compare counts before and after.
 
+### Known dev-server crash — not your code
+
+Metro will sometimes die with:
+
+```
+TypeError: Cannot read properties of undefined (reading 'addedFiles')
+    at DependencyGraph._onHasteChange (metro/src/node-haste/DependencyGraph.js:99)
+    at Object.onChange (react-native-css-interop/dist/metro/index.js)
+    at ChildProcess (nativewind/dist/metro/tailwind/v3/index.js)
+```
+
+This is an upstream version incompatibility, not something you introduced.
+Metro 0.84.4 (which ships with SDK 57) expects `_onHasteChange({ changes })`
+and reads `changes.addedFiles`; `react-native-css-interop` still emits the
+older `{ eventsQueue: [...] }` shape, so `changes` is `undefined`.
+
+**Upgrading NativeWind does not fix it** — `nativewind@4.2.6` (latest) pins
+`react-native-css-interop@0.2.6`, and 0.2.6 still emits the old shape. (v5 is
+in preview and drops the dependency entirely, but don't move a project
+mid-flight onto a preview.)
+
+It fires when NativeWind's Tailwind child process recompiles CSS, so it's
+intermittent rather than every save. Two consequences:
+
+- If Metro exits with this, just restart it. Don't go hunting in your diff.
+- More insidious: when the watcher is wedged, **file changes stop reaching the
+  app** and you see stale code — which reads exactly like "my edit didn't
+  work." If a change you're confident about isn't showing up, restart Metro
+  before you start rewriting it. Verify what Metro is actually serving with
+  `curl "http://localhost:8081/<path>.bundle?platform=ios&dev=true" | grep …`
+  rather than trusting the running app.
+
+Also: don't open `http://localhost:8081` in a browser. That triggers a **web**
+bundle, and `react-native-web` can't handle `codegenNativeComponent` from the
+native-only libraries here — it throws repeatedly and can take Metro down.
+Run the dev server without a browser tab attached.
+
 ## 8. Commits
 
 - No `Co-Authored-By` trailer, ever.
