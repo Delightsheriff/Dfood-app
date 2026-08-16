@@ -6,38 +6,40 @@ A high-performance on-demand food delivery mobile application built with **React
 
 ## 📱 Screenshots
 
-<table>
-  <tr>
-    <td align="center" width="25%">
-      <img src="screenshots/home.png" alt="Home Feed" width="220" style="border-radius: 12px;"/>
-      <br/>
-      <strong>Home Feed</strong>
-      <br/>
-      <sub>Interactive promos & discovery rails</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="screenshots/restaurant-details.png" alt="Restaurant Details" width="220" style="border-radius: 12px;"/>
-      <br/>
-      <strong>Restaurant Details</strong>
-      <br/>
-      <sub>Hero image & 2-column menu</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="screenshots/food-details.png" alt="Food Item Details" width="220" style="border-radius: 12px;"/>
-      <br/>
-      <strong>Food Item Details</strong>
-      <br/>
-      <sub>Metrics grid & sticky glass CTA</sub>
-    </td>
-    <td align="center" width="25%">
-      <img src="screenshots/categories.png" alt="Explore Cuisines" width="220" style="border-radius: 12px;"/>
-      <br/>
-      <strong>Explore Cuisines</strong>
-      <br/>
-      <sub>2-column grid with gradient scrim</sub>
-    </td>
-  </tr>
-</table>
+<div align="center">
+  <table>
+    <tr>
+      <td align="center" width="25%">
+        <img src="./screenshots/home.png" alt="Home Feed" width="220" />
+        <br/>
+        <strong>Home Feed</strong>
+        <br/>
+        <sub>Interactive promos & rails</sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="./screenshots/restaurant-details.png" alt="Restaurant Details" width="220" />
+        <br/>
+        <strong>Restaurant Details</strong>
+        <br/>
+        <sub>Hero image & 2-col menu</sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="./screenshots/food-details.png" alt="Food Item Details" width="220" />
+        <br/>
+        <strong>Food Item Details</strong>
+        <br/>
+        <sub>Metrics & sticky glass CTA</sub>
+      </td>
+      <td align="center" width="25%">
+        <img src="./screenshots/categories.png" alt="Explore Cuisines" width="220" />
+        <br/>
+        <strong>Explore Cuisines</strong>
+        <br/>
+        <sub>2-col grid with scrim</sub>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ---
 
