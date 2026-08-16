@@ -1,276 +1,271 @@
-# DFood - Food Delivery App
+# Dfood — On-Demand Food Delivery & Discovery
 
-A full-featured food delivery mobile application built with React Native, Expo, and TypeScript. DFood provides a seamless experience for ordering food from local restaurants, with secure Paystack payments, real-time push notifications, address management, and an intuitive user interface.
+A high-performance on-demand food delivery mobile application built with **React Native**, **Expo SDK 57**, **React 19**, **TypeScript**, and **NativeWind (Tailwind CSS)**. Dfood delivers a seamless ordering and discovery experience featuring a custom **Progressive Blur** glass design system, smooth 60fps virtualization with **Shopify FlashList**, interactive location mapping, Paystack payment integration, and local-first offline state with optional **Firebase Cloud Sync**.
 
-## Screenshots
+---
+
+## 📱 Screenshots
 
 <table>
   <tr>
-    <td align="center"><img src="screenshots/home.jpg" alt="Home" width="220"/><br/><strong>Home</strong></td>
-    <td align="center"><img src="screenshots/restaurant-details.jpg" alt="Restaurant Details" width="220"/><br/><strong>Restaurant Details</strong></td>
-    <td align="center"><img src="screenshots/cart.jpg" alt="Cart" width="220"/><br/><strong>Cart</strong></td>
-    <td align="center"><img src="screenshots/checkout.jpg" alt="Checkout" width="220"/><br/><strong>Checkout</strong></td>
+    <td align="center" width="25%">
+      <img src="screenshots/home.png" alt="Home Feed" width="220" style="border-radius: 12px;"/>
+      <br/>
+      <strong>Home Feed</strong>
+      <br/>
+      <sub>Interactive promos & discovery rails</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="screenshots/restaurant-details.png" alt="Restaurant Details" width="220" style="border-radius: 12px;"/>
+      <br/>
+      <strong>Restaurant Details</strong>
+      <br/>
+      <sub>Hero image & 2-column menu</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="screenshots/food-details.png" alt="Food Item Details" width="220" style="border-radius: 12px;"/>
+      <br/>
+      <strong>Food Item Details</strong>
+      <br/>
+      <sub>Metrics grid & sticky glass CTA</sub>
+    </td>
+    <td align="center" width="25%">
+      <img src="screenshots/categories.png" alt="Explore Cuisines" width="220" style="border-radius: 12px;"/>
+      <br/>
+      <strong>Explore Cuisines</strong>
+      <br/>
+      <sub>2-column grid with gradient scrim</sub>
+    </td>
   </tr>
 </table>
 
-## Design
+---
 
-The UI is based on a community Figma design:
-[View Figma Design](https://www.figma.com/design/H0HAOQyTT8cwNWAesP1qj5/Food-Delivery-App--Community-?node-id=223-3474&p=f&t=kocdsyHaTNUQPE3q-0)
+## ✨ Key Features
 
-## Features
+### 🍽️ Food & Restaurant Discovery
+- **Dynamic Home Feed**: Time-aware personalized greetings, interactive promotional banner carousel with pagination, category quick-switch rail, and "Fastest Near You" restaurant feed.
+- **2-Column Cuisines Grid**: Rich visual categories with count badges, gradient scrims, and instant category-filtered navigation.
+- **Detailed Restaurant Profiles**: Full-bleed hero headers with pinned glass navigation, delivery vs. pickup mode toggling, real-time open/closed status indicators, and categorized menu grids.
+- **Rich Food Item Details**: Multi-metric stat grid (Ratings, Reviews count, Calorie estimates), recipe preparation details, horizontal ingredient rails with high-resolution imagery, and quantity steppers.
+- **Fast Search & Smart Filters**: Instant debounced searching across dishes and restaurants, search history tags, fast toggle pills (*Open now*, *Free delivery*, *Top rated*), and a bottom filter sheet for deep sorting.
 
-### Authentication and User Management
+### 🛒 Shopping Cart & Single-Screen Checkout
+- **Persistent Cart**: Zustand store backed by AsyncStorage with single-restaurant cart protection and multi-item management.
+- **Promo Vouchers**: Real-time discount code calculation and validation.
+- **Streamlined Checkout**: Single-screen checkout with address picker, delivery notes, and dynamic order summary calculations (Subtotal, Delivery fee, Taxes, Discounts).
+- **Payment Processing**: Seamless Paystack card payment flow with demo fallbacks and Cash on Delivery support.
 
-- JWT-based authentication with secure token persistence via Expo SecureStore
-- User registration with email and password
-- OTP-based password recovery flow
-- Profile management (name, phone number, profile picture)
-- Session persistence across app restarts
+### 📦 Live Order Management & Tracking
+- **Order Tracking**: Multi-step live visual progress tracker (*Order Placed* → *Preparing* → *On the Way* → *Delivered*).
+- **Order History**: Past orders review with status badges and instant re-order shortcuts.
+- **Order Cancellation**: One-tap order cancellation for pending orders.
 
-### Food Discovery
+### 📍 Addresses & Interactive Maps
+- **Pinpoint Address Selection**: Interactive MapView with coordinate picking and live GPS location detection via `expo-location`.
+- **Automatic Reverse Geocoding**: Converts map coordinates into formatted street, city, and state names.
+- **Address Management**: Save multiple custom addresses (*Home*, *Work*, *Other*) with default selection flags.
 
-- Dynamic home feed with personalized restaurant recommendations
-- Real-time search across restaurants and food items
-- Category-based browsing
-- Detailed restaurant profiles with menus and ratings
-- Comprehensive food item details with image carousels
+### 👤 Profile, Preferences & Cloud Sync
+- **Local-First Architecture**: 100% functional offline or in Guest Mode.
+- **Non-Blocking Auth Sheet**: Beautiful bottom sheet with Apple & Google sign-in options.
+- **Firebase Cloud Sync**: Optional bi-directional Firestore cloud sync mirroring profiles, favorites, addresses, and orders across devices.
+- **Native System Controls**: Native `@expo/ui` switch controls for notification and deal alert preferences.
 
-### Shopping and Cart
+---
 
-- Persistent cart using Zustand with AsyncStorage
-- Favorites system for saved dishes
-- Single-restaurant cart enforcement with switching alerts
-- Quantity management with increment/decrement controls
+## 🎨 Design System & Visual Architecture
 
-### Delivery and Addresses
+Dfood follows a calm, photography-driven design system inspired by **DoorDash** and **Instacart**, paired with high-polish glassmorphic touches.
 
-- Interactive map integration for address selection
-- Save multiple addresses (home, work, custom)
-- GPS-based auto-location detection
-- Full CRUD operations for saved addresses
-- Default address selection
+### 🔤 Typography System
+A semantic two-family pairing combining **Bricolage Grotesque** (display/titles) with **Geist** (UI, body, and numerics):
 
-### Payment Processing
+| Semantic Role | Font Family & Weight | Class Name | Usage |
+| :--- | :--- | :--- | :--- |
+| **Display** | Bricolage Grotesque ExtraBold (800) | `font-display` | Screen hero titles, restaurant/dish titles |
+| **Title** | Bricolage Grotesque Bold (700) | `font-title` | Section headings, card titles, modal headers |
+| **Body** | Geist Regular (400) | `font-body` | Paragraphs, descriptions, form inputs |
+| **Label** | Geist Medium (500) | `font-label` | Button labels, filter chips, metadata subtitles |
+| **Caption** | Geist Medium (500) | `font-caption` | All-caps tags (`SPECIAL OFFER`, `DELIVERY TO`, `OPEN NOW`) |
+| **Numeric** | Geist SemiBold (600) | `font-numeric` | Prices (`₦...`), ratings (`★ 4.8`), delivery times |
 
-- Cash on delivery and card payment support
-- Paystack integration for secure card processing
-- Saved payment methods
-- Payment history tracking
+### 🎨 Color Palette & Design Tokens
+Defined in `tailwind.config.js` and consumed via NativeWind classes:
 
-### Order Management
+- **Primary Accent (`#E0533A`)**: Deep coral-red used for rating stars, active favorites, and selected states.
+- **Secondary Ink (`#262B33`)**: Deep neutral ink used for typography headings and primary CTA buttons.
+- **Surface Muted (`#F2F4F7`)**: Neutral cool-warm gray used for card surfaces, quantity steppers, and pill backgrounds.
+- **Text Gray (`#646982`)**: Secondary neutral for metadata, subtitles, and supporting labels.
 
-- Single-screen checkout flow
-- Order confirmation with tracking number
-- Order history with real-time status tracking
-- Order cancellation support
-- Custom delivery instructions
+### 🪟 Progressive Blur & Glassmorphism
+- **Multi-Stop Progressive Blur**: Built with `expo-blur` and `@react-native-masked-view/masked-view` to create non-linear alpha masks that smoothly dissolve scrollable content under headers and footers.
+- **Pinned Detail Headers**: Pinned glass navigation (`ScreenHeader variant="detail"`) linked to Reanimated scroll drivers (`useProgressiveBlurScroll`).
+- **Progressive Blur Footers**: Pinned bottom action bars with blur gradients (`ProgressiveBlurFooter`) over sticky checkouts and add-to-cart buttons.
 
-### Push Notifications
+### ⚡ 60fps Performance Rules
+1. **List Virtualization**: 100% `@shopify/flash-list` across all feeds, grids, and horizontal rails.
+2. **Optimized Imagery**: Hardware-accelerated `expo-image` with automatic memory caching and priority decoding.
+3. **GPU-Only Transitions**: Reanimated worklets strictly operating on `transform` and `opacity` properties.
+4. **React Compiler Compatibility**: Reanimated shared values accessed via `.get()` / `.set()` semantics.
 
-- Expo Push Notifications with FCM (Android) and APNs (iOS)
-- Firebase integration via `google-services.json` and `GoogleService-Info.plist`
-- Device token registration on login and unregistration on logout
-- Automatic token rotation handling
-- Tap-to-navigate: notification taps deep-link directly to the relevant order details screen
+---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
-### Core Framework
+### Core Framework & UI
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **React Native** | 0.86.2 | Mobile runtime |
+| **Expo SDK** | 57.0.11 | Application platform |
+| **React** | 19.2.3 | Component model & React Compiler |
+| **Expo Router** | ~57.0.11 | File-based typed routing |
+| **NativeWind** | ^4.2.1 | Tailwind CSS engine for React Native |
+| **TypeScript** | ~6.0.3 | Full static type safety |
+| **@expo/ui** | ~57.0.10 | Native platform controls (SwiftUI & Jetpack Compose) |
+| **Shopify FlashList** | 2.0.2 | High-performance list virtualization |
+| **Hugeicons** | ^1.0.15 | Consistent stroke-rounded icon system |
 
-| Technology       | Version | Purpose                       |
-| ---------------- | ------- | ----------------------------- |
-| React Native     | 0.81.5  | Mobile framework              |
-| Expo             | SDK 54  | Development platform          |
-| TypeScript       | ~5.9    | Type safety                   |
-| Expo Router      | ~6.0    | File-based routing            |
-| NativeWind       | ^4.2    | Tailwind CSS for React Native |
-| React Compiler   | enabled | Automatic memoization         |
-| New Architecture | enabled | Fabric renderer               |
+### State Management & Networking
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **Zustand** | ^5.0.11 | Local client state (Cart, Favorites, Addresses, Search) |
+| **TanStack React Query** | ^5.90.20 | Asynchronous server caching & mutation lifecycle |
+| **AsyncStorage** | 2.2.0 | Offline persistence storage |
+| **Firebase** | ^12.17.1 | Optional Firestore cloud sync & authentication |
+| **Axios** | ^1.13.5 | REST API client |
 
-### State Management
+### Hardware & Device APIs
+| Package | Version | Purpose |
+| :--- | :--- | :--- |
+| **Expo Blur** | ^57.0.2 | Real-time native glassmorphism |
+| **React Native Maps** | 1.27.2 | Interactive native maps |
+| **Expo Location** | ~57.0.8 | Device GPS & reverse geocoding |
+| **Expo Haptics** | ~57.0.1 | Tactile haptic feedback on gestures |
+| **Expo Image** | ~57.0.2 | High-performance cached imagery |
 
-| Technology        | Purpose                        |
-| ----------------- | ------------------------------ |
-| TanStack Query v5 | Server state and data fetching |
-| Zustand           | Client state (cart)            |
-| AsyncStorage      | Local data persistence         |
-| Expo SecureStore  | Secure auth token storage      |
+---
 
-### Key Libraries
-
-| Library                          | Purpose                          |
-| -------------------------------- | -------------------------------- |
-| expo-notifications               | Push notifications (FCM / APNs)  |
-| expo-location                    | GPS and location services        |
-| react-native-maps                | Map integration                  |
-| react-native-paystack-webview    | Paystack payment processing      |
-| @gorhom/bottom-sheet             | Bottom sheet modals              |
-| expo-image                       | Optimized image loading          |
-| expo-image-picker                | Profile picture uploads          |
-| react-native-reanimated          | Animations                       |
-| react-native-reanimated-carousel | Image/content carousels          |
-| react-hook-form + zod            | Form handling and validation     |
-| axios                            | HTTP client with token injection |
-| lucide-react-native              | Icon set                         |
-| react-native-toast-message       | In-app toast notifications       |
-| expo-haptics                     | Haptic feedback                  |
-
-## Project Structure
+## 📂 Project Structure
 
 ```
-food-app/
-├── app/                          # Expo Router screens
-│   ├── (app)/                    # Protected app screens
-│   │   ├── _layout.tsx           # App group layout
-│   │   ├── index.tsx             # Home screen
-│   │   ├── cart.tsx              # Shopping cart
-│   │   ├── checkout.tsx          # Checkout flow
-│   │   ├── search.tsx            # Search
-│   │   ├── order-confirmation.tsx
-│   │   ├── categories/           # Category screens
-│   │   ├── food/                 # Food item screens
-│   │   ├── restaurants/          # Restaurant screens
-│   │   └── profile/              # User profile screens
-│   ├── (auth)/                   # Authentication screens
-│   │   ├── _layout.tsx           # Auth group layout
-│   │   ├── signin.tsx
-│   │   ├── signup.tsx
-│   │   ├── forgot-password.tsx
-│   │   ├── reset-password.tsx
-│   │   └── verification.tsx
-│   ├── onboarding.tsx            # First-time user flow
-│   └── _layout.tsx               # Root layout with auth guard
-├── components/                   # Reusable UI components
-├── contexts/                     # React contexts (Auth)
-├── hooks/                        # Custom hooks
-├── lib/                          # Core utilities (api-client, etc.)
-├── providers/                    # App-level providers
-├── services/                     # API service layer
-│   ├── auth.service.ts
-│   ├── notificationService.ts
-│   └── ...
-├── store/                        # Zustand stores (cart)
-├── types/                        # TypeScript type definitions
-└── constants/                    # App constants
+Dfood-app/
+├── app/                        # Expo Router file-based routes
+│   ├── _layout.tsx             # Root layout with providers & font loading
+│   ├── (app)/                  # Authenticated / main application stack
+│   │   ├── (tabs)/             # Bottom tab navigator
+│   │   │   ├── _layout.tsx     # Custom glass tab bar
+│   │   │   ├── index.tsx       # Home feed & discovery
+│   │   │   ├── search.tsx      # Search & filter screen
+│   │   │   ├── orders.tsx      # Orders list & live status
+│   │   │   └── profile.tsx     # User profile & preferences
+│   │   ├── categories/         # Categories index & category detail
+│   │   ├── restaurants/        # Restaurant list & restaurant detail
+│   │   ├── food/[id].tsx       # Food item detail modal screen
+│   │   ├── cart.tsx            # Cart screen
+│   │   ├── checkout.tsx        # Single-screen checkout
+│   │   ├── order-confirmation.tsx # Order success screen
+│   │   └── profile/            # Profile sub-screens (Addresses, Cards, Info)
+├── components/                 # Reusable UI component library
+│   ├── auth/                   # Non-blocking Apple/Google auth sheets
+│   ├── home/                   # Home promo carousel, category rails
+│   ├── ui/                     # Atoms (Buttons, ScreenHeader, ProgressiveBlur, etc.)
+│   └── RestaurantCard.tsx      # Multi-variant restaurant cards
+├── hooks/                      # Custom React Query & mutation hooks
+├── lib/                        # API clients, adapters, and Firebase configuration
+├── store/                      # Zustand state stores (Cart, Profile, Search, etc.)
+├── types/                      # TypeScript domain models and API contracts
+├── docs/                       # Design system documentation & redesign prompt logs
+├── screenshots/                # Application preview screenshots
+└── scripts/                    # Native build automation scripts
 ```
 
-## Getting Started
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
+- **Node.js**: v20.x or higher
+- **npm** or **yarn**
+- **iOS Simulator** (macOS + Xcode) or **Android Emulator** (Android Studio)
+- **Expo Go** app on physical device (optional)
 
-- Node.js v18 or higher
-- npm or yarn
-- Expo CLI (`npm install -g expo-cli`)
-- iOS Simulator (macOS only) or Android Emulator
-- Backend API running — [Dfood API](https://github.com/Delightsheriff/Dfood-api)
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/Delightsheriff/Dfood-app.git
-   cd Dfood-app
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Create a `.env` file in the root directory:
-
-   ```env
-   EXPO_PUBLIC_API_URL=http://localhost:3000/api
-   EXPO_PUBLIC_PAYSTACK_KEY=pk_test_your_paystack_public_key
-   ```
-
-   > For Android Emulator, use `http://10.0.2.2:3000/api` as the API URL.
-
-4. Configure Firebase (for push notifications):
-   - Place `google-services.json` in the project root (Android)
-   - Place `GoogleService-Info.plist` in the project root (iOS)
-   - These files are obtained from the [Firebase Console](https://console.firebase.google.com)
-
-5. Start the development server:
-
-   ```bash
-   npx expo start
-   ```
-
-6. Run on a device or emulator:
-   - Press `i` for iOS Simulator
-   - Press `a` for Android Emulator
-   - Scan the QR code with Expo Go for a physical device
-
-   > Push notifications require a physical device and a real Expo/EAS project ID. They will not work in simulators.
-
-## Configuration
-
-### API
-
-The app uses Axios with automatic token injection. The API base URL is configured via the `EXPO_PUBLIC_API_URL` environment variable.
-
-### Paystack
-
-Set `EXPO_PUBLIC_PAYSTACK_KEY` in your `.env` file. Use `pk_test_...` for development and `pk_live_...` for production.
-
-### Maps
-
-The app uses `expo-location` and `react-native-maps`. No additional API key is required for basic functionality.
-
-### Push Notifications
-
-The app uses the Expo Notifications SDK with Firebase Cloud Messaging (Android) and APNs (iOS). Ensure your EAS `projectId` in `app.json` is correct and that Firebase config files are in place.
-
-## Environment Variables
-
-| Variable                   | Description          | Example                     |
-| -------------------------- | -------------------- | --------------------------- |
-| `EXPO_PUBLIC_API_URL`      | Backend API base URL | `http://localhost:3000/api` |
-| `EXPO_PUBLIC_PAYSTACK_KEY` | Paystack public key  | `pk_test_...`               |
-
-## Building for Production
-
+### 1. Installation
+Clone the repository and install dependencies:
 ```bash
-# iOS
-eas build --platform ios
-
-# Android
-eas build --platform android
+git clone https://github.com/Delightsheriff/Dfood-app.git
+cd Dfood-app
+npm install
 ```
 
-Configure production environment variables in `eas.json`.
+### 2. Configure Environment Variables
+Create a `.env` file in the root directory (refer to `.env.example`):
+```env
+# API Base URL
+EXPO_PUBLIC_API_URL=https://food-api-7h3o.onrender.com/api
 
-## Troubleshooting
+# Paystack Public Key
+EXPO_PUBLIC_PAYSTACK_KEY=pk_test_your_paystack_key_here
 
-| Issue                          | Solution                                                          |
-| ------------------------------ | ----------------------------------------------------------------- |
-| Push notifications not working | Physical device required; check Firebase config files and EAS ID  |
-| Bottom sheets not opening      | Ensure `GestureHandlerRootView` wraps the root layout             |
-| Maps not rendering             | Check location permissions and `app.json` plugin configuration    |
-| API timeout errors             | Verify backend is running and `EXPO_PUBLIC_API_URL` is correct    |
-| Images not loading             | Add `usesCleartextTraffic: true` in `app.json` for HTTP endpoints |
-| Paystack errors                | Verify public key and test with Paystack test cards               |
-| Token not unregistering        | Verify backend `/device-tokens/unregister` endpoint is reachable  |
+# (Optional) Firebase Cloud Sync
+EXPO_PUBLIC_FIREBASE_API_KEY=
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+EXPO_PUBLIC_FIREBASE_APP_ID=
+```
 
-## Related Repositories
+> **Note**: The app is built **local-first**. If Firebase keys are omitted, the app runs offline and persists all data locally to AsyncStorage without errors.
 
-- **Backend API**: [Dfood-api](https://github.com/Delightsheriff/Dfood-api)
-- **Admin Dashboard**: [Dfood-admin](https://github.com/Delightsheriff/Dfood-admin)
+### 3. Run the Development Server
+Start the Expo development server:
+```bash
+npm start
+```
+- Press `i` to open in the **iOS Simulator**.
+- Press `a` to open in the **Android Emulator**.
+- Scan the QR code with **Expo Go** to test on a physical device.
 
-## Contributing
+### 4. Native Simulator Builds (Clean Prebuild)
+To build and run the native project with all linked native modules:
 
-Contributions are welcome. To contribute:
+**For iOS:**
+```bash
+./scripts/build-ios.sh
+# Or directly:
+npx expo run:ios
+```
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
+**For Android:**
+```bash
+npx expo run:android
+```
 
-## License
+---
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+## 🧪 Quality & Code Standards
+
+Run TypeScript type-checking and ESLint:
+```bash
+# Type check
+npx tsc --noEmit
+
+# Lint check
+npm run lint
+```
+
+---
+
+## 📜 Attributions & Data Sources
+
+- **OpenStreetMap**: Restaurant coordinates and mapping data © [OpenStreetMap](https://www.openstreetmap.org/) contributors (ODbL).
+- **TheMealDB**: Free recipe database and dish imagery from [TheMealDB](https://www.themealdb.com/).
+- **Figma Community**: UI layout inspiration from the [Community Food Delivery Design](https://www.figma.com/design/H0HAOQyTT8cwNWAesP1qj5/Food-Delivery-App--Community-).
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+

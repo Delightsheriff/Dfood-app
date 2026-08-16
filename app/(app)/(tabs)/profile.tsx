@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/progressive-blur";
 import { useAuthStore } from "@/store/authStore";
 import { useProfileStore } from "@/store/profileStore";
-import { Switch } from "@expo/ui";
+import { Host, Switch } from "@expo/ui";
 import {
   ArrowRight01Icon,
   CloudSavingDone01Icon,
@@ -109,11 +109,18 @@ export default function Profile() {
         {
           icon: Notification02Icon,
           label: "Order & Deal Alerts",
+          // @expo/ui's Universal components render nothing (and throw at
+          // runtime, not at bundle time) unless wrapped in a Host — the
+          // bundle looks clean and the crash only appears when this row
+          // actually mounts. matchContents keeps the wrapper sized to the
+          // switch instead of stretching to fill the row.
           rightElement: (
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-            />
+            <Host matchContents>
+              <Switch
+                value={notificationsEnabled}
+                onValueChange={setNotificationsEnabled}
+              />
+            </Host>
           ),
           onPress: () => setNotificationsEnabled((prev) => !prev),
         },
